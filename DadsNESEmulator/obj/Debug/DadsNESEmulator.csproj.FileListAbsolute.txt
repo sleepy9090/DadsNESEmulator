@@ -1,0 +1,9 @@
+C:\workspace_sandbox\MOS6502CPUEmulator\MOS6502CPUEmulator\bin\Debug\MOS6502CPUEmulator.exe.config
+C:\workspace_sandbox\MOS6502CPUEmulator\MOS6502CPUEmulator\bin\Debug\MOS6502CPUEmulator.exe
+C:\workspace_sandbox\MOS6502CPUEmulator\MOS6502CPUEmulator\bin\Debug\MOS6502CPUEmulator.pdb
+C:\workspace_sandbox\MOS6502CPUEmulator\MOS6502CPUEmulator\obj\Debug\DadsNESEmulator.csprojAssemblyReference.cache
+C:\workspace_sandbox\MOS6502CPUEmulator\MOS6502CPUEmulator\obj\Debug\MOS6502CPUEmulator.Properties.Resources.resources
+C:\workspace_sandbox\MOS6502CPUEmulator\MOS6502CPUEmulator\obj\Debug\DadsNESEmulator.csproj.GenerateResource.cache
+C:\workspace_sandbox\MOS6502CPUEmulator\MOS6502CPUEmulator\obj\Debug\DadsNESEmulator.csproj.CoreCompileInputs.cache
+C:\workspace_sandbox\MOS6502CPUEmulator\MOS6502CPUEmulator\obj\Debug\MOS6502CPUEmulator.exe
+C:\workspace_sandbox\MOS6502CPUEmulator\MOS6502CPUEmulator\obj\Debug\MOS6502CPUEmulator.pdb
