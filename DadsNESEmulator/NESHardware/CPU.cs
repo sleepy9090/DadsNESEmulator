@@ -15,30 +15,41 @@ namespace DadsNESEmulator.NESHardware
     /** @brief  Class that defines the NMOS6502 CPU. */
     public class CPU
     {
+        /** - https://wiki.nesdev.com/w/index.php/CPU_interrupts */
+
+        /** - @brief NMI vector address */
+        public const ushort _NMI_VECTOR_ADDRESS = 0xFFFA;
+
+        /** - @brief Reset vector address */
+        public const ushort _RESET_VECTOR_ADDRESS = 0xFFFC;
+
+        /** - @brief IRQ and BRK vector address */
+        public const ushort IRQ_BRK_VECTOR_ADDRESS = 0xFFFE;
+
         /** - https://wiki.nesdev.com/w/index.php/CPU_registers */
 
-        /** - @brief Accumulator - A is byte-wide and along with the arithmetic logic unit (ALU), supports using the status register for carrying, overflow detection, and so on. */
+        /** - @brief Accumulator register - A is byte-wide and along with the arithmetic logic unit (ALU), supports using the status register for carrying, overflow detection, and so on. */
         private byte A;
 
-        /** - @brief X is byte-wide and used for several addressing modes. It can be used as a loop counter easily, using INC/DEC and branch instructions. Not being the accumulator,
+        /** - @brief X index register is byte-wide and used for several addressing modes. It can be used as a loop counter easily, using INC/DEC and branch instructions. Not being the accumulator,
          * it has limited addressing modes when loading and saving.
          */
         private byte X;
 
-        /** - @brief Y is byte-wide and used for several addressing modes. It can be used as a loop counter easily, using INC/DEC and branch instructions. Not being the accumulator,
+        /** - @brief Y index register is byte-wide and used for several addressing modes. It can be used as a loop counter easily, using INC/DEC and branch instructions. Not being the accumulator,
          * it has limited addressing modes when loading and saving.
          */
         private byte Y;
 
-        /** - @brief Program Counter - The 2-byte program counter PC supports 65536 direct (unbanked) memory locations, however not all values are sent to the cartridge. It can be
+        /** - @brief Program Counter register - The 2-byte program counter PC supports 65536 direct (unbanked) memory locations, however not all values are sent to the cartridge. It can be
          *    accessed either by allowing CPU's internal fetch logic increment the address bus, an interrupt (NMI, Reset, IRQ/BRQ), and using the RTS/JMP/JSR/Branch instructions.
          */
         private ushort PC;
 
-        /** - @brief Stack Pointer - SP is byte-wide and can be accessed using interrupts, pulls, pushes, and transfers. */
+        /** - @brief Stack Pointer register - SP is byte-wide and can be accessed using interrupts, pulls, pushes, and transfers. */
         private byte SP;
 
-        /** - @brief SR - P has 6 bits used by the ALU but is byte-wide. PHP, PLP, arithmetic, testing, and branch instructions can access this register. */
+        /** - @brief Status Register - P has 6 bits used by the ALU but is byte-wide. PHP, PLP, arithmetic, testing, and branch instructions can access this register. */
         private byte SR;
 
         public void Run()

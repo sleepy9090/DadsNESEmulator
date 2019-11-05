@@ -14,6 +14,78 @@ namespace DadsNESEmulator.NESHardware
 {
     public class APU
     {
-        
+        /** - https://wiki.nesdev.com/w/index.php/APU */
+
+        /** - https://wiki.nesdev.com/w/index.php/APU_registers */
+
+        /** - https://wiki.nesdev.com/w/index.php/2A03 */
+
+        /** - @brief Duty and volume for square wave 1 */
+        public const ushort _SQ1_VOL = 0x4000;
+
+        /** - @brief Sweep control register for square wave 1 */
+        public const ushort _SQ1_SWEEP = 0x4001;
+
+        /** - @brief Low byte of period for square wave 1 */
+        public const ushort _SQ1_LO = 0x4002;
+
+        /** - @brief High byte of period and length counter value for square wave 1 */
+        public const ushort _SQ1_HI = 0x4003;
+
+        /** - @brief Duty and volume for square wave 2 */
+        public const ushort _SQ2_VOL = 0x4004;
+
+        /** - @brief Sweep control register for square wave 2 */
+        public const ushort _SQ2_SWEEP = 0x4005;
+
+        /** - @brief Low byte of period for square wave 2 */
+        public const ushort _SQ2_LO = 0x4006;
+
+        /** - @brief High byte of period and length counter value for square wave 2 */
+        public const ushort _SQ2_HI = 0x4007;
+
+        /** - @brief Triangle wave linear counter */
+        public const ushort _TRI_LINEAR = 0x4008;
+
+        /** - @brief Unused, but is eventually accessed in memory-clearing loops */
+        public const ushort _UNUSED_1 = 0x4009;
+
+        /** - @brief Low byte of period for triangle wave */
+        public const ushort _TRI_LO = 0x400A;
+
+        /** - @brief High byte of period and length counter value for triangle wave */
+        public const ushort _TRI_HI = 0x400B;
+
+        /** - @brief Volume for noise generator */
+        public const ushort _NOISE_VOL = 0x400C;
+
+        /** - @brief Unused, but is eventually accessed in memory-clearing loops */
+        public const ushort _UNUSED_2 = 0x400D;
+
+        /** - @brief Period and waveform shape for noise generator */
+        public const ushort _NOISE_LO = 0x400E;
+
+        /** - @brief Length counter value for noise generator */
+        public const ushort _NOISE_HI = 0x400F;
+
+        /** - @brief Play mode and frequency for DMC samples */
+        public const ushort _DMC_FREQ = 0x4010;
+
+        /** - @brief 7-bit DAC */
+        public const ushort _DMC_RAW = 0x4011;
+
+        /** - @brief Start of DMC waveform is at address $C000 + $40*$xx */
+        public const ushort _DMC_START = 0x4012;
+
+        /** - @brief Length of DMC waveform is $10*$xx + 1 bytes (128*$xx + 8 samples) */
+        public const ushort _DMC_LEN = 0x4013;
+
+        /** - @brief Writing $xx copies 256 bytes by reading from $xx00-$xxFF and writing to OAMDATA ($2004) */
+        public const ushort _OAMDMA = 0x4014;
+
+        /** - @brief Sound channels enable and status */
+        public const ushort _SND_CHN = 0x4015;
     }
 }
+ 
+ 
