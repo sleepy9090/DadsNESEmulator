@@ -10,6 +10,9 @@
  *  @note           N/A
  *
  */
+
+using System.Text;
+
 namespace DadsNESEmulator.NESHardware
 {
     /** @brief  Class that defines the NMOS6502 CPU. */
@@ -52,12 +55,17 @@ namespace DadsNESEmulator.NESHardware
         /** - @brief Status Register - P has 6 bits used by the ALU but is byte-wide. PHP, PLP, arithmetic, testing, and branch instructions can access this register. */
         private byte SR;
 
-        public void Run()
+        public CPU()
         {
-            RAM ram = new RAM(0x8000);
+
         }
 
-        public void PowerUP()
+        public void Run()
+        {
+            
+        }
+
+        public void Power()
         {
             /** - https://wiki.nesdev.com/w/index.php/CPU_power_up_state */
 
@@ -81,6 +89,8 @@ namespace DadsNESEmulator.NESHardware
             SR = 0x34;
             SP = 0xFD;
             PC = 0;
+
+            RAM ram = new RAM(0x8000);
         }
 
         public void Reset()
@@ -99,7 +109,22 @@ namespace DadsNESEmulator.NESHardware
              */
         }
 
+        public override string ToString()
+        {
+            StringBuilder stringBuilder = new StringBuilder();
 
+            stringBuilder.AppendLine("CPU Information:");
+            stringBuilder.AppendLine("");
+            stringBuilder.AppendLine("Registers:");
+            stringBuilder.AppendLine("A: " + A);
+            stringBuilder.AppendLine("X: " + X);
+            stringBuilder.AppendLine("Y: " + Y);
+            stringBuilder.AppendLine("SR: " + SR);
+            stringBuilder.AppendLine("SP: " + SP);
+            stringBuilder.AppendLine("PC: " + PC);
+
+            return stringBuilder.ToString();
+        }
     }
 }
  
