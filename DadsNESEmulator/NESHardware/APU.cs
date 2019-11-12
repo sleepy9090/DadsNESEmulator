@@ -85,7 +85,18 @@ namespace DadsNESEmulator.NESHardware
 
         /** - @brief Sound channels enable and status */
         public const ushort _SND_CHN = 0x4015;
+
+        /** - @brief Joystick 1 data (R) and joystick strobe (W) */
+        public const ushort _JOY1 = 0x4016;
+
+        /** - @brief Joystick 2 data (R) and frame counter control (W) */
+        public const ushort _JOY2 = 0x4017;
+
+        /** - $4018-$401F	APU and I/O functionality that is normally disabled. See CPU Test Mode. */
+        /** - https://wiki.nesdev.com/w/index.php/CPU_Test_Mode */
     }
 }
+
+
  
  

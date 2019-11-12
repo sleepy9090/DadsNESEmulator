@@ -32,37 +32,56 @@ namespace DadsNESEmulator.NESHardware
         /** - https://wiki.nesdev.com/w/index.php/CPU_registers */
 
         /** - @brief Accumulator register - A is byte-wide and along with the arithmetic logic unit (ALU), supports using the status register for carrying, overflow detection, and so on. */
-        private byte A;
+        public byte A
+        {
+            get;
+            protected set;
+        }
 
         /** - @brief X index register is byte-wide and used for several addressing modes. It can be used as a loop counter easily, using INC/DEC and branch instructions. Not being the accumulator,
          * it has limited addressing modes when loading and saving.
          */
-        private byte X;
+        public byte X
+        {
+            get;
+            protected set;
+        }
 
         /** - @brief Y index register is byte-wide and used for several addressing modes. It can be used as a loop counter easily, using INC/DEC and branch instructions. Not being the accumulator,
          * it has limited addressing modes when loading and saving.
          */
-        private byte Y;
+        public byte Y
+        {
+            get;
+            protected set;
+        }
 
         /** - @brief Program Counter register - The 2-byte program counter PC supports 65536 direct (unbanked) memory locations, however not all values are sent to the cartridge. It can be
          *    accessed either by allowing CPU's internal fetch logic increment the address bus, an interrupt (NMI, Reset, IRQ/BRQ), and using the RTS/JMP/JSR/Branch instructions.
          */
-        private ushort PC;
+        public ushort PC
+        {
+            get;
+            protected set;
+        }
 
-        /** - @brief Stack Pointer register - SP is byte-wide and can be accessed using interrupts, pulls, pushes, and transfers. */
-        private byte SP;
+        /** - @brief Stack Pointer register - S is byte-wide and can be accessed using interrupts, pulls, pushes, and transfers. */
+        public byte S
+        {
+            get;
+            protected set;
+        }
 
         /** - @brief Status Register - P has 6 bits used by the ALU but is byte-wide. PHP, PLP, arithmetic, testing, and branch instructions can access this register. */
-        private byte SR;
+        public byte P
+        {
+            get;
+            protected set;
+        }
 
         public CPU()
         {
 
-        }
-
-        public void Run()
-        {
-            
         }
 
         public void Power()
@@ -86,8 +105,8 @@ namespace DadsNESEmulator.NESHardware
             A = 0x00;
             X = 0x00;
             Y = 0x00;
-            SR = 0x34;
-            SP = 0xFD;
+            P = 0x34;
+            S = 0xFD;
             PC = 0;
 
             RAM ram = new RAM(0x8000);
@@ -109,19 +128,30 @@ namespace DadsNESEmulator.NESHardware
              */
         }
 
+        public void Run()
+        {
+
+        }
+
+        public void Step()
+        {
+
+        }
+
         public override string ToString()
         {
             StringBuilder stringBuilder = new StringBuilder();
 
             stringBuilder.AppendLine("CPU Information:");
-            stringBuilder.AppendLine("");
+            stringBuilder.AppendLine("----------------");
             stringBuilder.AppendLine("Registers:");
-            stringBuilder.AppendLine("A: " + A);
-            stringBuilder.AppendLine("X: " + X);
-            stringBuilder.AppendLine("Y: " + Y);
-            stringBuilder.AppendLine("SR: " + SR);
-            stringBuilder.AppendLine("SP: " + SP);
-            stringBuilder.AppendLine("PC: " + PC);
+            stringBuilder.AppendLine("Accumulator (A): " + A);
+            stringBuilder.AppendLine("X-Index (X): " + X);
+            stringBuilder.AppendLine("Y-Index (Y): " + Y);
+            stringBuilder.AppendLine("Status Register (P): " + P);
+            stringBuilder.AppendLine("Stack Pointer (S): " + S);
+            stringBuilder.AppendLine("Program Counter (PC): " + PC);
+            stringBuilder.AppendLine("");
 
             return stringBuilder.ToString();
         }
