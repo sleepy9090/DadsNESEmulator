@@ -57,7 +57,7 @@
     <Compile Include="NESHardware\PPU.cs" />
     <Compile Include="NESHardware\ProcessorFlags.cs" />
     <Compile Include="NESHardware\Opcodes.cs" />
-    <Compile Include="NESHardware\RAM.cs" />
+    <Compile Include="NESHardware\Memory.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">

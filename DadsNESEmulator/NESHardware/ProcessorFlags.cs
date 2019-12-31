@@ -30,7 +30,7 @@ namespace DadsNESEmulator.NESHardware
      * |+-------- Overflow
      * +--------- Negative
      */
-    public enum ProcessorFlags
+    public enum ProcessorFlags : byte
     {
         N = 0x80, /**< 128 - Negative flag */
         V = 0x40, /**< 64 - Overflow flag */

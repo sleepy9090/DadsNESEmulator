@@ -129,14 +129,14 @@ namespace DadsNESEmulator.NESHardware
         /** - EOR (bitwise Exclusive OR) */
         /** - Affects Flags: N Z */
         /** - + add 1 cycle if page boundary crossed */
-        public const byte _EOR_IMMEDIATE = 0x29; // 2, 2
-        public const byte _EOR_ZERO_PAGE = 0x25; // 2, 3
-        public const byte _EOR_ZERO_PAGE_X = 0x35; // 2, 4
-        public const byte _EOR_ABSOLUTE = 0x2D; // 3, 4
-        public const byte _EOR_ABSOULTE_X = 0x3D; // 3, 4+
-        public const byte _EOR_ABSOLUTE_Y = 0x39; // 3, 4+
-        public const byte _EOR_INDIRECT_X = 0x21; // 2, 6
-        public const byte _EOR_INDIRECT_Y = 0x31; // 2, 5+
+        public const byte _EOR_IMMEDIATE = 0x49; // 2, 2
+        public const byte _EOR_ZERO_PAGE = 0x45; // 2, 3
+        public const byte _EOR_ZERO_PAGE_X = 0x55; // 2, 4
+        public const byte _EOR_ABSOLUTE = 0x4D; // 3, 4
+        public const byte _EOR_ABSOULTE_X = 0x5D; // 3, 4+
+        public const byte _EOR_ABSOLUTE_Y = 0x59; // 3, 4+
+        public const byte _EOR_INDIRECT_X = 0x41; // 2, 6
+        public const byte _EOR_INDIRECT_Y = 0x51; // 2, 5+
 
         /** - Flag (Processor Status) Instructions */
         /** - Affects Flags: as noted */
@@ -298,7 +298,7 @@ namespace DadsNESEmulator.NESHardware
          */
         public const byte _TXS = 0x9A; // 1, 2, (Transfer X to Stack ptr)
         public const byte _TSX = 0xBA; // 1, 2, (Transfer Stack ptr to X)
-        public const byte _PHA = 0x4A; // 1, 3, (PusH Accumulator) 
+        public const byte _PHA = 0x48; // 1, 3, (PusH Accumulator) 
         public const byte _PLA = 0x68; // 1, 4, (PuLl Accumulator)
         public const byte _PHP = 0x08; // 1, 3, (PusH Processor status)
         public const byte _PLP = 0x28; // 1, 4, (PuLl Processor status)
