@@ -10,6 +10,8 @@
  *  @note           N/A
  *
  */
+
+using System.Collections;
 using System.Text;
 
 namespace DadsNESEmulator.NESHardware
@@ -22,11 +24,14 @@ namespace DadsNESEmulator.NESHardware
         /** - @brief NMI vector address */
         public const ushort _NMI_VECTOR_ADDRESS = 0xFFFA;
 
-        /** - @brief Reset vector address */
+        /** - @brief Reset vector address (program counter start address here) */
         public const ushort _RESET_VECTOR_ADDRESS = 0xFFFC;
 
         /** - @brief IRQ and BRK vector address */
         public const ushort IRQ_BRK_VECTOR_ADDRESS = 0xFFFE;
+
+        /** - @brief Address of bottom of the stack */
+        public const ushort STACK_ADDRESS = 0x0100;
 
         #region Properties
 
@@ -74,13 +79,49 @@ namespace DadsNESEmulator.NESHardware
         }
 
         /** - @brief Status Register (Processor flag) - P has 6 bits used by the ALU but is byte-wide. PHP, PLP, arithmetic, testing, and branch instructions can access this register. */
-        public byte P
+        //public byte P
+        //{
+        //    get;
+        //    protected set;
+        //}
+
+        /** - @brief Status Register (Processor flag) - P has 6 bits used by the ALU but is byte-wide. PHP, PLP, arithmetic, testing, and branch instructions can access this register. */
+        public BitArray P
         {
             get;
             protected set;
         }
 
         public Memory Mem
+        {
+            get;
+            protected set;
+        }
+
+        public byte CPUCycles
+        {
+            get;
+            protected set;
+        }
+
+        public uint ClockCount
+        {
+            get;
+            protected set;
+        }
+
+        public byte Opcode
+        {
+            get;
+            protected set;
+        }
+
+        public ushort AbsoluteAddress
+        {
+            get;
+            protected set;
+        }
+        public ushort RelativeAddress
         {
             get;
             protected set;
@@ -100,14 +141,14 @@ namespace DadsNESEmulator.NESHardware
             /** - https://wiki.nesdev.com/w/index.php/CPU_power_up_state */
 
             /**
-             * P = $34[1] (IRQ disabled)
+             * P = $34 (IRQ disabled)
              * A, X, Y = 0
              * S = $FD
              * $4017 = $00 (frame irq enabled)
              * $4015 = $00 (all channels disabled)
              * $4000-$400F = $00
              * $4010-$4013 = $00
-             * All 15 bits of noise channel LFSR = $0000[5]. The first time the LFSR is clocked from the all-0s state, it will shift in a 1.
+             * All 15 bits of noise channel LFSR = $0000. The first time the LFSR is clocked from the all-0s state, it will shift in a 1.
              * 2A03G: APU Frame Counter reset. (but 2A03letterless: APU frame counter powers up at a value equivalent to 15)
              * Internal memory ($0000-$07FF) has unreliable startup state. Some machines may have consistent RAM contents at power-on, but others do not.
              * Emulators often implement a consistent RAM startup state (e.g. all $00 or $FF, or a particular pattern), and flash carts like the PowerPak may
@@ -116,11 +157,29 @@ namespace DadsNESEmulator.NESHardware
             A = 0x00;
             X = 0x00;
             Y = 0x00;
-            P = 0x34;
+            //P = 0x34;
+            P = new BitArray(new byte[] {0x34});
             S = 0xFD;
-            PC = 0;
+            
+            Mem = new Memory(0xFFFF);
 
-            Mem = new Memory(0x8000);
+            /* Set PC from 16-bit address 0xFFFC-0xFFFD */
+            //PC = Mem.ReadShort(0xFFFC); //_RESET_VECTOR_ADDRESS
+            ushort lo = Mem.ReadByte(_RESET_VECTOR_ADDRESS);
+            ushort hi = Mem.ReadByte((ushort)(_RESET_VECTOR_ADDRESS + 1));
+            PC = (ushort)((hi << 8) | lo);
+            //Log.Info($"Cartridge starts at {pc:X4}");
+
+            /* - Nes Test - automated mode (for testing with no video/audio implemented)*/
+            PC = Mem.ReadByte(0xC000);
+
+            /* - Nes Test - non-automated mode */
+            //PC = Mem.ReadByte(0xC004);
+
+            CPUCycles = 0;
+            ClockCount = 0;
+            AbsoluteAddress = 0x0000;
+            RelativeAddress = 0x0000;
         }
 
         public void Reset()
@@ -128,7 +187,7 @@ namespace DadsNESEmulator.NESHardware
 
             /**
              * A, X, Y were not affected
-             * S was decremented by 3 (but nothing was written to the stack)[3]
+             * S was decremented by 3 (but nothing was written to the stack)
              * The I (IRQ disable) flag was set to true (status ORed with $04)
              * The internal memory was unchanged
              * APU mode in $4017 was unchanged
@@ -137,16 +196,32 @@ namespace DadsNESEmulator.NESHardware
              * APU DPCM output ANDed with 1 (upper 6 bits cleared)
              * 2A03G: APU Frame Counter reset. (but 2A03letterless: APU frame counter retains old value)
              */
+
+            /* Set PC from 16-bit address 0xFFFC-0xFFFD */
+            //PC = Mem.ReadShort(0xFFFC);
+
+            /* - Nes Test - automated mode (for testing with no video/audio implemented)*/
+            PC = Mem.ReadByte(0xC000);
+
+            /* - Nes Test - non-automated mode */
+            //PC = Mem.ReadByte(0xC004);
+
+            CPUCycles = 0;
+            ClockCount = 0;
+            AbsoluteAddress = 0x0000;
+            RelativeAddress = 0x0000;
         }
 
         public void Step()
         {
-            ushort address = 0x0000;
-            byte opCode = Mem.Read(address);
+            /** Set global for debugging or other uses for now. */
+            Opcode = ReadNextByte();
 
-            switch (opCode)
+            switch (Opcode)
             {
                 case Opcodes._ADC_IMMEDIATE:
+                    Immediate();
+                    ADC();
                     break;
                 case Opcodes._ADC_ZERO_PAGE:
                     break;
@@ -665,6 +740,14 @@ namespace DadsNESEmulator.NESHardware
             }
         }
 
+        private byte ReadNextByte()
+        {
+            byte opCode = Mem.ReadByte(PC);
+            PC++;
+
+            return opCode;
+        }
+
         #endregion
 
         #region Class Methods (Instructions)
@@ -1061,109 +1144,201 @@ namespace DadsNESEmulator.NESHardware
 
         #region Class Methods (Addressing modes)
 
-        private void Immediate()
-        {
+        /** - Useful info: https://github.com/CodeSourcerer/Emulator/blob/master/NESEmulator/CS6502.cs */
 
+        /**
+         * name            abbr    len time formula for N  example
+         * implied         impl    1   2    ---            tay
+         * immediate       imm     2   2    arg            ora #$f0
+         * zero page       dp      2   3    *arg           cmp $56
+         * zero page,x     d,x     2   4    *(arg+x & $ff) adc $56,x
+         * zero page,y     d,y     2   4    *(arg+y & $ff) ldx $56,y
+         * absolute        abs     3   4    *arg           eor $3456
+         * absolute,x      a,x     3   4i   *(arg+x)       and $3456,x
+         * absolute,y      a,y     3   4i   *(arg+y)       sbc $3456,y
+         * indirect,x      (d,x)   2   6    **(arg+x)      lda ($34,x)
+         * indirect,y      (d),y   2   5i   *(*arg+y)      sta ($34),y
+         * relative        rel     2   2tc  *(PC+arg)      beq loop
+         */
+        private void ZeroPage()
+        {
+            ushort absoluteAddress = ReadNextByte();
+            absoluteAddress &= 0x00FF;
+            AbsoluteAddress = absoluteAddress;
         }
 
-        private void ZeropageRead()
+        private void ZeroPageXIndex()
         {
-
+            ushort absoluteAddress = (ushort)(ReadNextByte() + X);
+            absoluteAddress &= 0x00FF;
+            AbsoluteAddress = absoluteAddress;
         }
 
-        private void ZeropageWrite()
+        private void ZeroPageYIndex()
         {
-
+            ushort absoluteAddress = (ushort)(ReadNextByte() + Y);
+            absoluteAddress &= 0x00FF;
+            AbsoluteAddress = absoluteAddress;
         }
 
-        private void ZeropageXIndexRead()
+        private void Absolute()
         {
+            ushort low = ReadNextByte();
+            ushort high = ReadNextByte();
 
+            ushort absoluteAddress = (ushort)((high << 8) | low);
+            AbsoluteAddress = absoluteAddress;
         }
 
-        private void ZeropageXIndexWrite()
+        private void AbsoluteXIndex()
         {
+            ushort low = ReadNextByte();
+            ushort high = ReadNextByte();
 
+            ushort absoluteAddress = (ushort)((high << 8) | low);
+            absoluteAddress += X;
+
+            if ((absoluteAddress & 0xFF00) != (high << 8))
+            {
+                // page changed, add additional clock cycle
+            }
+
+            AbsoluteAddress = absoluteAddress;
         }
 
-        private void ZeropageYIndexRead()
+        private void AbsoluteYIndex()
         {
+            ushort low = ReadNextByte();
+            ushort high = ReadNextByte();
 
+            ushort absoluteAddress = (ushort)((high << 8) | low);
+            absoluteAddress += Y;
+
+            if ((absoluteAddress & 0xFF00) != (high << 8))
+            {
+                // page changed, add additional clock cycle
+            }
+
+            AbsoluteAddress = absoluteAddress;
         }
 
-        private void ZeropageYIndexWrite()
+        private void Indirect()
         {
+            ushort pointerLow = ReadNextByte();
+            ushort pointerHigh = ReadNextByte();
+            ushort absoluteAddress;
 
+            ushort pointer = (ushort)((pointerHigh << 8) | pointerLow);
+
+            ushort lowByte = Mem.ReadByte(pointer);
+
+            /** - Simulate page boundary hardware bug. */
+            if (pointerLow == 0x00FF)
+            {
+                absoluteAddress = (ushort)((Mem.ReadByte((ushort)(pointer & 0xFF00)) << 8) | lowByte);
+            }
+            else
+            {
+                /** - Normal behavior */
+                absoluteAddress = (ushort)((Mem.ReadByte((ushort)(pointer + 1)) << 8) | lowByte);
+            }
+
+            AbsoluteAddress = absoluteAddress;
         }
 
-        private void IndirectXIndexRead()
+        private void Implied()
         {
+            /*
+             * Many instructions do not require access to operands stored in memory.
+             * Examples of implied instructions are CLD (Clear Decimal Mode) and NOP (No Operation).
+             */
 
-        }
-
-        private void IndirectXIndexWrite()
-        {
-
-        }
-
-        private void IndirectYIndexRead()
-        {
-
-        }
-
-        private void IndirectYIndexWrite()
-        {
-
-        }
-
-        private void AbsoluteRead()
-        {
-
-        }
-
-        private void AbsoluteWrite()
-        {
-
-        }
-
-        private void AbsoluteXIndexRead()
-        {
-
-        }
-        private void AbsoluteXIndexWrite()
-        {
-
-        }
-
-        private void AbsoluteYIndexRead()
-        {
-
-        }
-
-        private void AbsoluteYIndexWrite()
-        {
+            // Store Accumulator in a temp var???
+            // ushort tempAccumulatorValue = A;
 
         }
 
         private void Accumulator()
         {
+            /*
+             * Some instructions operate directly on the contents of the accumulator. The only instructions to
+             * use this addressing  mode  are  the  shift  instructions,  ASL (Arithmetic  Shift  Left),
+             * LSR (Logical Shift Right), ROL (Rotate Left) and ROR (Rotate Right). 
+             */
 
+            // Store value in Accumulator???
+            // A = ???
         }
 
-        private void Implicit()
+        private void Immediate()
         {
-
+            ushort absoluteAddress = ReadNextByte();
+            AbsoluteAddress = absoluteAddress;
         }
+
         private void Relative()
         {
+            ushort relativeAddress = ReadNextByte();
+            if ((relativeAddress & 0x80) != 0)
+            {
+                relativeAddress |= 0xFF00;
+            }
 
+            RelativeAddress = relativeAddress;
         }
 
-        private void SetStatusFlags(byte value)
+        private void IndirectXIndex()
         {
-            //byte negativeFlag = value & ((byte)ProcessorFlags.N);
-            //byte overflowFlag = 
-            // etc etc
+            ushort nextByte = ReadNextByte();
+
+            ushort low = Mem.ReadByte((ushort)((ushort)(nextByte + X) & 0x00FF));
+            ushort high = Mem.ReadByte((ushort)((ushort)(nextByte + X + 1) & 0x00FF));
+
+            ushort absoluteAddress = (ushort)((high << 8) | low);
+            AbsoluteAddress = absoluteAddress;
+        }
+
+        private void IndirectYIndex()
+        {
+            ushort nextByte = ReadNextByte();
+
+            ushort low = Mem.ReadByte((ushort)(nextByte & 0x00FF));
+            ushort high = Mem.ReadByte((ushort)((ushort)(nextByte + 1) & 0x00FF));
+
+            ushort absoluteAddress = (ushort)((high << 8) | low);
+            absoluteAddress += Y;
+
+            if ((absoluteAddress & 0xFF00) != (high << 8))
+            {
+                // page changed, add additional clock cycle
+            }
+
+            AbsoluteAddress = absoluteAddress;
+        }
+
+        private void SetStatusRegisterProcessorFlags(byte value)
+        {
+            /** - @brief Status Register bits. */
+            P = new BitArray(8);
+            P[7] = (value & (byte)ProcessorFlags.N) != 0;
+            P[6] = (value & (byte)ProcessorFlags.V) != 0;
+            P[5] = (value & (byte)ProcessorFlags.R) != 0;
+            P[4] = (value & (byte)ProcessorFlags.B) != 0;
+            P[3] = (value & (byte)ProcessorFlags.D) != 0;
+            P[2] = (value & (byte)ProcessorFlags.I) != 0;
+            P[1] = (value & (byte)ProcessorFlags.Z) != 0;
+            P[0] = (value & (byte)ProcessorFlags.C) != 0;
+        }
+
+        private byte ConvertToByte(BitArray bits)
+        {
+            if (bits.Count != 8)
+            {
+                /* Should not happen. */
+            }
+            byte[] bytes = new byte[1];
+            bits.CopyTo(bytes, 0);
+            return bytes[0];
         }
 
         #endregion
@@ -1178,7 +1353,15 @@ namespace DadsNESEmulator.NESHardware
             stringBuilder.AppendLine("Accumulator (A): " + A);
             stringBuilder.AppendLine("X-Index (X): " + X);
             stringBuilder.AppendLine("Y-Index (Y): " + Y);
-            stringBuilder.AppendLine("Status Register (P): " + P);
+            stringBuilder.AppendLine("Status Register (Processor Flags) (P): " + ConvertToByte(P));
+            stringBuilder.AppendLine(" - Negative Flag: " + P[7]);
+            stringBuilder.AppendLine(" - Overflow Flag: " + P[6]);
+            stringBuilder.AppendLine(" - Reserved/Ignored (Interrupted) Flag: " + P[5]);
+            stringBuilder.AppendLine(" - No CPU effect (B) Flag: " + P[4]);
+            stringBuilder.AppendLine(" - Decimal Flag: " + P[3]);
+            stringBuilder.AppendLine(" - Interrupt Disable Flag: " + P[2]);
+            stringBuilder.AppendLine(" - Zero Flag: " + P[1]);
+            stringBuilder.AppendLine(" - Carry Flag: " + P[0]);
             stringBuilder.AppendLine("Stack Pointer (S): " + S);
             stringBuilder.AppendLine("Program Counter (PC): " + PC);
             //stringBuilder.AppendLine("Opcode: " + opCode);

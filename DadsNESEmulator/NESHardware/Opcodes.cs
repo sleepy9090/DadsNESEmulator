@@ -44,7 +44,7 @@ namespace DadsNESEmulator.NESHardware
 
         /** - ADC (ADd with Carry) */
         /** - Affects Flags: N V Z C */
-        /** - + add 1 cycle if page boundary crossed */
+        /** - + add 1 cycle if page boundary crossed */ // size, cycles
         public const byte _ADC_IMMEDIATE = 0x69; // 2, 2
         public const byte _ADC_ZERO_PAGE = 0x65; // 2, 3
         public const byte _ADC_ZERO_PAGE_X = 0x75; // 2, 4
