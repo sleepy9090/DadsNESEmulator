@@ -72,7 +72,7 @@ namespace DadsNESEmulator.NESHardware
         public const byte _ASL_ZERO_PAGE = 0x06; // 2, 5
         public const byte _ASL_ZERO_PAGE_X = 0x16; // 2, 6
         public const byte _ASL_ABSOLUTE = 0x0E; // 3, 6
-        public const byte _ASL_ABSOULTE_X = 0x1E; // 3, 7
+        public const byte _ASL_ABSOLUTE_X = 0x1E; // 3, 7
 
         /** - BIT (test BITs) */
         /** - Affects Flags: N V Z */
@@ -93,7 +93,7 @@ namespace DadsNESEmulator.NESHardware
 
         /** - BRK (BReaK) */
         /** - Affects Flags: B */
-        public const byte _BRK = 0x00;
+        public const byte _BRK = 0x00; // 2, 7
 
         /** - CMP (CoMPare accumulator) */
         /** - Affects Flags: N Z C */
@@ -187,7 +187,7 @@ namespace DadsNESEmulator.NESHardware
         public const byte _LDA_ZERO_PAGE = 0xA5; // 2, 3
         public const byte _LDA_ZERO_PAGE_X = 0xB5; // 2, 4
         public const byte _LDA_ABSOLUTE = 0xAD; // 3, 4
-        public const byte _LDA_ABSOULTE_X = 0xBD; // 3, 4+
+        public const byte _LDA_ABSOLUTE_X = 0xBD; // 3, 4+
         public const byte _LDA_ABSOLUTE_Y = 0xB9; // 3, 4+
         public const byte _LDA_INDIRECT_X = 0xA1; // 2, 6
         public const byte _LDA_INDIRECT_Y = 0xB1; // 2, 5+
@@ -208,7 +208,7 @@ namespace DadsNESEmulator.NESHardware
         public const byte _LDY_ZERO_PAGE = 0xA4; // 2, 3
         public const byte _LDY_ZERO_PAGE_X = 0xB4; // 2, 4
         public const byte _LDY_ABSOLUTE = 0xAC; // 3, 4
-        public const byte _LDY_ABSOULTE_X = 0xBC; // 3, 4+
+        public const byte _LDY_ABSOLUTE_X = 0xBC; // 3, 4+
 
         /** - LSR (Logical Shift Right) */
         /** - Affects Flags: N Z C */
@@ -216,7 +216,7 @@ namespace DadsNESEmulator.NESHardware
         public const byte _LSR_ZERO_PAGE = 0x46; // 2, 5
         public const byte _LSR_ZERO_PAGE_X = 0x56; // 2, 6
         public const byte _LSR_ABSOLUTE = 0x4E; // 3, 6
-        public const byte _LSR_ABSOULTE_X = 0x5E; // 3, 7
+        public const byte _LSR_ABSOLUTE_X = 0x5E; // 3, 7
 
         /** - NOP (No OPeration) */
         /** - Affects Flags: none */
@@ -251,7 +251,7 @@ namespace DadsNESEmulator.NESHardware
         public const byte _ROL_ZERO_PAGE = 0x26; // 2, 5
         public const byte _ROL_ZERO_PAGE_X = 0x36; // 2, 6
         public const byte _ROL_ABSOLUTE = 0x2E; // 3, 6
-        public const byte _ROL_ABSOULTE_X = 0x3E; // 3, 7
+        public const byte _ROL_ABSOLUTE_X = 0x3E; // 3, 7
 
         /** - ROR (ROtate Right) */
         /** - Affects Flags: N Z C */
@@ -259,7 +259,7 @@ namespace DadsNESEmulator.NESHardware
         public const byte _ROR_ZERO_PAGE = 0x66; // 2, 5
         public const byte _ROR_ZERO_PAGE_X = 0x76; // 2, 6
         public const byte _ROR_ABSOLUTE = 0x6E; // 3, 6
-        public const byte _ROR_ABSOULTE_X = 0x7E; // 3, 7
+        public const byte _ROR_ABSOLUTE_X = 0x7E; // 3, 7
 
         /** - RTI (ReTurn from Interrupt) */
         /** - Affects Flags: all */
@@ -276,7 +276,7 @@ namespace DadsNESEmulator.NESHardware
         public const byte _SBC_ZERO_PAGE = 0xE5; // 2, 3
         public const byte _SBC_ZERO_PAGE_X = 0xF5; // 2, 4
         public const byte _SBC_ABSOLUTE = 0xED; // 3, 4
-        public const byte _SBC_ABSOULTE_X = 0xFD; // 3, 4+
+        public const byte _SBC_ABSOLUTE_X = 0xFD; // 3, 4+
         public const byte _SBC_ABSOLUTE_Y = 0xF9; // 3, 4+
         public const byte _SBC_INDIRECT_X = 0xE1; // 2, 6
         public const byte _SBC_INDIRECT_Y = 0xF1; // 2, 5+
@@ -286,7 +286,7 @@ namespace DadsNESEmulator.NESHardware
         public const byte _STA_ZERO_PAGE = 0x85; // 2, 3
         public const byte _STA_ZERO_PAGE_X = 0x95; // 2, 4
         public const byte _STA_ABSOLUTE = 0x8D; // 3, 4
-        public const byte _STA_ABSOULTE_X = 0x9D; // 3, 5
+        public const byte _STA_ABSOLUTE_X = 0x9D; // 3, 5
         public const byte _STA_ABSOLUTE_Y = 0x99; // 3, 5
         public const byte _STA_INDIRECT_X = 0x81; // 2, 6
         public const byte _STA_INDIRECT_Y = 0x91; // 2, 6
