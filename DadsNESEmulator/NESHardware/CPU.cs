@@ -1778,17 +1778,72 @@ namespace DadsNESEmulator.NESHardware
 
         private void LDA()
         {
+            byte operand = Mem.ReadByte((ushort)(PC + 1));
 
+            /** - Clears the Negative Flag if the Operand is $#00-7F, otherwise sets it. */
+            if (operand > 0x7F)
+            {
+                P[7] = true;
+            }
+            else
+            {
+                P[7] = false;
+            }
+
+            /** - Sets the Zero Flag if the Operand is $#00, otherwise clears it. */
+            if (operand == 0x00)
+            {
+                P[1] = true;
+            }
+            else
+            {
+                P[1] = false;
+            }
+
+            /** - Stores the Operand in the Accumulator Register. */
+            A = operand;
         }
 
         private void LDX()
         {
+            byte operand = Mem.ReadByte((ushort)(PC + 1));
 
+            /** - Sets the Negative Flag equal to the 7th bit. */
+            P[7] = P[6];
+
+            /** - Sets the Zero Flag if the Operand is $#00, otherwise clears it. */
+            if (operand == 0x00)
+            {
+                P[1] = true;
+            }
+            else
+            {
+                P[1] = false;
+            }
+
+            /** - Stores the Operand in the X Index Register. */
+            X = operand;
         }
 
         private void LDY()
         {
+            byte operand = Mem.ReadByte((ushort)(PC + 1));
 
+            /** - Sets the Negative Flag equal to the 7th bit. */
+            P[7] = P[6];
+
+            /** - Sets the Zero Flag if the Operand is $#00, otherwise clears it. */
+            if (operand == 0x00)
+            {
+                P[1] = true;
+            }
+            else
+            {
+                P[1] = false;
+            }
+
+            /** - Stores the Operand in the X Index Register. */
+            Y = operand;
         }
 
         private void LSR()
@@ -2031,21 +2086,21 @@ namespace DadsNESEmulator.NESHardware
 
         /** - Useful info: https://github.com/CodeSourcerer/Emulator/blob/master/NESEmulator/CS6502.cs */
 
-        /**
-         * name            abbr    len time formula for N  example
-         * implied         impl    1   2    ---            tay
-         * immediate       imm     2   2    arg            ora #$f0
-         * zero page       dp      2   3    *arg           cmp $56
-         * zero page,x     d,x     2   4    *(arg+x & $ff) adc $56,x
-         * zero page,y     d,y     2   4    *(arg+y & $ff) ldx $56,y
-         * absolute        abs     3   4    *arg           eor $3456
-         * absolute,x      a,x     3   4i   *(arg+x)       and $3456,x
-         * absolute,y      a,y     3   4i   *(arg+y)       sbc $3456,y
-         * indirect,x      (d,x)   2   6    **(arg+x)      lda ($34,x)
-         * indirect,y      (d),y   2   5i   *(*arg+y)      sta ($34),y
-         * relative        rel     2   2tc  *(PC+arg)      beq loop
-         */
-        private void ZeroPage()
+            /**
+             * name            abbr    len time formula for N  example
+             * implied         impl    1   2    ---            tay
+             * immediate       imm     2   2    arg            ora #$f0
+             * zero page       dp      2   3    *arg           cmp $56
+             * zero page,x     d,x     2   4    *(arg+x & $ff) adc $56,x
+             * zero page,y     d,y     2   4    *(arg+y & $ff) ldx $56,y
+             * absolute        abs     3   4    *arg           eor $3456
+             * absolute,x      a,x     3   4i   *(arg+x)       and $3456,x
+             * absolute,y      a,y     3   4i   *(arg+y)       sbc $3456,y
+             * indirect,x      (d,x)   2   6    **(arg+x)      lda ($34,x)
+             * indirect,y      (d),y   2   5i   *(*arg+y)      sta ($34),y
+             * relative        rel     2   2tc  *(PC+arg)      beq loop
+             */
+            private void ZeroPage()
         {
             ushort absoluteAddress = ReadNextByte();
             absoluteAddress &= 0x00FF;
