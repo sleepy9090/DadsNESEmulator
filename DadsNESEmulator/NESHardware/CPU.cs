@@ -11,6 +11,7 @@
  *
  */
 
+using System;
 using System.Collections;
 using System.Text;
 
@@ -136,7 +137,7 @@ namespace DadsNESEmulator.NESHardware
 
         }
 
-        public void Power()
+        public void Power(Memory mem)
         {
             /** - https://wiki.nesdev.com/w/index.php/CPU_power_up_state */
 
@@ -160,8 +161,9 @@ namespace DadsNESEmulator.NESHardware
             //P = 0x34;
             P = new BitArray(new byte[] {0x34});
             S = 0xFD;
-            
-            Mem = new Memory(0xFFFF);
+
+            //Mem = new Memory(0xFFFF);
+            Mem = mem;
 
             /* Set PC from 16-bit address 0xFFFC-0xFFFD */
             //PC = Mem.ReadShort(0xFFFC); //_RESET_VECTOR_ADDRESS
@@ -1642,9 +1644,27 @@ namespace DadsNESEmulator.NESHardware
             
         }
 
+        /**
+         * @brief   AND (And Memory With Accumulator) performs a logical AND on the operand and the accumulator and stores the result in the accumulator. 
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void AND()
         {
+            byte operand = Mem.ReadByte((ushort)(PC + 1));
 
+            /** - AND values from the operand and the accumulator together */
+            operand &= A;
+
+            SetZNStatusRegisterProcessorFlags(operand);
+
+            /** - Store the Operand in the Accumulator Register. */
+            A = operand;
         }
 
         private void ASL()
@@ -1699,7 +1719,14 @@ namespace DadsNESEmulator.NESHardware
 
         private void BRK()
         {
+            // @todo: finish this method
+            // pushes the Program Counter Register and processor status register to the stack,
+            // sets the Interrupt Flag to temporarily prevent other IRQs from being executed
+            P[2] = true;
 
+            // reload the Program Counter from the vector at $FFFE-$FFFF
+            //PC = (ushort)(Mem.ReadByte(0xFFFE) | (Mem.ReadByte(0xFFFF) << 8));
+            PC = Mem.ReadShort(IRQ_BRK_VECTOR_ADDRESS);
         }
 
         private void CMP()
@@ -1724,45 +1751,67 @@ namespace DadsNESEmulator.NESHardware
 
         private void EOR()
         {
+            byte operand = Mem.ReadByte((ushort)(PC + 1));
 
+            /** - XOR values from the operand and the accumulator together */
+            operand ^= A;
+
+            SetZNStatusRegisterProcessorFlags(operand);
+
+            /** - Store the Operand in the Accumulator Register. */
+            A = operand;
         }
 
         private void CLC()
         {
-
+            // CLC (Clear Carry Flag) clears the Carry Flag in the Processor Status Register by setting the 0th bit 0
+            P[0] = false;
         }
         private void SEC()
         {
-
+            // SEC (Set Carry Flag) sets the Carry Flag in the Processor Status Register by setting the 0th bit 1.
+            P[0] = true;
         }
 
         private void CLI()
         {
-
+            // CLI (Clear Interrupt Disable Flag) clears the Interrupt Flag in the Processor Status Register by setting the 2nd bit 0.
+            P[2] = false;
         }
 
         private void SEI()
         {
-
+            // SEI (Set Interrupt Disable Flag) sets the Interrupt Flag in the Processor Status Register by setting the 2nd bit 1.
+            P[2] = true;
         }
 
         private void CLV()
         {
-
+            // CLV (Clear Overflow Flag) clears the Overflow Flag in the Processor Status Register by setting the 6th bit 0.
+            P[6] = false;
         }
 
         private void CLD()
         {
-
+            // CLD (Clear Decimal Flag) clears the Decimal Flag in the Processor Status Register by setting the 3rd bit 0.
+            P[3] = false;
         }
 
         private void SED()
         {
-
+            // SED (Set Decimal Flag) set the Decimal Flag in the Processor Status Register by setting the 3rd bit 1
+            P[3] = true;
         }
 
         private void INC()
         {
+            // @todo: this method id probably incorrect
+            ushort value = Mem.ReadShort((ushort)(PC + 1));
+            byte operand = Mem.ReadByte(value);
+            operand++;
+            Mem.WriteByte(value, operand);
+
+            SetZNStatusRegisterProcessorFlags(operand);
 
         }
 
@@ -1779,26 +1828,8 @@ namespace DadsNESEmulator.NESHardware
         private void LDA()
         {
             byte operand = Mem.ReadByte((ushort)(PC + 1));
-
-            /** - Clears the Negative Flag if the Operand is $#00-7F, otherwise sets it. */
-            if (operand > 0x7F)
-            {
-                P[7] = true;
-            }
-            else
-            {
-                P[7] = false;
-            }
-
-            /** - Sets the Zero Flag if the Operand is $#00, otherwise clears it. */
-            if (operand == 0x00)
-            {
-                P[1] = true;
-            }
-            else
-            {
-                P[1] = false;
-            }
+            
+            SetZNStatusRegisterProcessorFlags(operand);
 
             /** - Stores the Operand in the Accumulator Register. */
             A = operand;
@@ -1808,18 +1839,7 @@ namespace DadsNESEmulator.NESHardware
         {
             byte operand = Mem.ReadByte((ushort)(PC + 1));
 
-            /** - Sets the Negative Flag equal to the 7th bit. */
-            P[7] = P[6];
-
-            /** - Sets the Zero Flag if the Operand is $#00, otherwise clears it. */
-            if (operand == 0x00)
-            {
-                P[1] = true;
-            }
-            else
-            {
-                P[1] = false;
-            }
+            SetZNStatusRegisterProcessorFlags(operand);
 
             /** - Stores the Operand in the X Index Register. */
             X = operand;
@@ -1829,20 +1849,9 @@ namespace DadsNESEmulator.NESHardware
         {
             byte operand = Mem.ReadByte((ushort)(PC + 1));
 
-            /** - Sets the Negative Flag equal to the 7th bit. */
-            P[7] = P[6];
+            SetZNStatusRegisterProcessorFlags(operand);
 
-            /** - Sets the Zero Flag if the Operand is $#00, otherwise clears it. */
-            if (operand == 0x00)
-            {
-                P[1] = true;
-            }
-            else
-            {
-                P[1] = false;
-            }
-
-            /** - Stores the Operand in the X Index Register. */
+            /** - Stores the Operand in the Y Index Register. */
             Y = operand;
         }
 
@@ -1853,22 +1862,36 @@ namespace DadsNESEmulator.NESHardware
 
         private void NOP()
         {
-
+            /** - No OPeration */
         }
 
         private void ORA()
         {
+            byte operand = Mem.ReadByte((ushort)(PC + 1));
 
+            /** - OR values from the operand and the accumulator together */
+            operand |= A;
+
+            SetZNStatusRegisterProcessorFlags(operand);
+
+            /** - Store the Operand in the Accumulator Register. */
+            A = operand;
         }
 
         private void TAX()
         {
+            SetZNStatusRegisterProcessorFlags(A);
 
+            /** - Transfer accumulator to index X. */
+            X = A;
         }
 
         private void TXA()
         {
+            SetZNStatusRegisterProcessorFlags(X);
 
+            /** - Transfer index X to accumulator. */
+            A = X;
         }
 
         private void DEX()
@@ -1878,17 +1901,23 @@ namespace DadsNESEmulator.NESHardware
 
         private void INX()
         {
-
+            
         }
 
         private void TAY()
         {
+            SetZNStatusRegisterProcessorFlags(A);
 
+            /** - Transfer accumulator to index Y. */
+            Y = A;
         }
 
         private void TYA()
         {
+            SetZNStatusRegisterProcessorFlags(Y);
 
+            /** - Transfer index Y to accumulator. */
+            A = Y;
         }
 
         private void DEY()
@@ -1928,17 +1957,24 @@ namespace DadsNESEmulator.NESHardware
 
         private void STA()
         {
-
+            /** - Stores the Accumulator Register into the memory address specified in the operand. */
+            Mem.WriteByte(PC, A);
         }
 
         private void TXS()
         {
+            SetZNStatusRegisterProcessorFlags(X);
 
+            /** - Transfer index X to Stack Pointer. */
+            S = X;
         }
 
         private void TSX()
         {
+            SetZNStatusRegisterProcessorFlags(S);
 
+            /** - Transfer Stack Pointer to index X. */
+            X = S;
         }
 
         private void PHA()
@@ -1963,12 +1999,14 @@ namespace DadsNESEmulator.NESHardware
 
         private void STX()
         {
-
+            /** - Stores the X Index Register into the memory address specified in the operand. */
+            Mem.WriteByte(PC, X);
         }
 
         private void STY()
         {
-
+            /** - Stores the Y Index Register into the memory address specified in the operand. */
+            Mem.WriteByte(PC, Y);
         }
 
         private void AAC()
@@ -2273,6 +2311,57 @@ namespace DadsNESEmulator.NESHardware
             P[0] = (value & (byte)ProcessorFlags.C) != 0;
         }
 
+        private void SetStatusRegisterProcessorFlag(ProcessorFlags processorFlag, byte value)
+        {
+            switch (processorFlag)
+            {
+                case ProcessorFlags.N:
+                    P[7] = (value & (byte)ProcessorFlags.N) != 0;
+                    break;
+                case ProcessorFlags.V:
+                    P[6] = (value & (byte)ProcessorFlags.V) != 0;
+                    break;
+                case ProcessorFlags.R:
+                    P[5] = (value & (byte)ProcessorFlags.R) != 0;
+                    break;
+                case ProcessorFlags.B:
+                    P[4] = (value & (byte)ProcessorFlags.B) != 0;
+                    break;
+                case ProcessorFlags.D:
+                    P[3] = (value & (byte)ProcessorFlags.D) != 0;
+                    break;
+                case ProcessorFlags.I:
+                    P[2] = (value & (byte)ProcessorFlags.I) != 0;
+                    break;
+                case ProcessorFlags.Z:
+                    P[1] = (value & (byte)ProcessorFlags.Z) != 0;
+                    break;
+                case ProcessorFlags.C:
+                    P[0] = (value & (byte)ProcessorFlags.C) != 0;
+                    break;
+            }
+        }
+
+        /**
+         * @brief   This method sets the Negative and Zero status register processor flags.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
+        private void SetZNStatusRegisterProcessorFlags(byte value)
+        {
+            /** - Sets the Negative Flag equal to the 7th bit. */
+            SetStatusRegisterProcessorFlag(ProcessorFlags.N, value);
+
+            /** - Sets the Zero Flag if the Operand is $#00, otherwise clears it. */
+            P[1] = (value & 0xFF) == 0;
+            
+        }
+
         private byte ConvertToByte(BitArray bits)
         {
             if (bits.Count != 8)
@@ -2286,33 +2375,68 @@ namespace DadsNESEmulator.NESHardware
 
         #endregion
 
-        public override string ToString()
+        //public override string ToString()
+        //{
+        //    StringBuilder stringBuilder = new StringBuilder();
+
+        //    stringBuilder.AppendLine("CPU Information:");
+        //    stringBuilder.AppendLine("----------------");
+        //    stringBuilder.AppendLine("Registers:");
+        //    stringBuilder.AppendLine("Accumulator (A): " + A);
+        //    stringBuilder.AppendLine("X-Index (X): " + X);
+        //    stringBuilder.AppendLine("Y-Index (Y): " + Y);
+        //    stringBuilder.AppendLine("Status Register (Processor Flags) (P): " + ConvertToByte(P));
+        //    stringBuilder.AppendLine(" - Negative Flag: " + P[7]);
+        //    stringBuilder.AppendLine(" - Overflow Flag: " + P[6]);
+        //    stringBuilder.AppendLine(" - Reserved/Ignored (Interrupted) Flag: " + P[5]);
+        //    stringBuilder.AppendLine(" - No CPU effect (B) Flag: " + P[4]);
+        //    stringBuilder.AppendLine(" - Decimal Flag: " + P[3]);
+        //    stringBuilder.AppendLine(" - Interrupt Disable Flag: " + P[2]);
+        //    stringBuilder.AppendLine(" - Zero Flag: " + P[1]);
+        //    stringBuilder.AppendLine(" - Carry Flag: " + P[0]);
+        //    stringBuilder.AppendLine("Stack Pointer (S): " + S);
+        //    stringBuilder.AppendLine("Program Counter (PC): " + PC);
+        //    //stringBuilder.AppendLine("Opcode: " + opCode);
+        //    stringBuilder.AppendLine("");
+
+        //    return stringBuilder.ToString();
+        //}
+
+        public string DumpData()
         {
+            /** - Match the test ROM log format. */
+            /*
+            C000  4C F5 C5  A:00 X:00 Y:00 P:24 SP:FD CYC:  0
+            C5F5  A2 00     A:00 X:00 Y:00 P:24 SP:FD CYC:  9
+            C5F7  86 00     A:00 X:00 Y:00 P:26 SP:FD CYC: 15
+            C5F9  86 10     A:00 X:00 Y:00 P:26 SP:FD CYC: 24
+
+
+            C000  4C F5 C5  JMP $C5F5                       A:00 X:00 Y:00 P:24 SP:FD PPU:  0,  0 CYC:7
+            C5F5  A2 00     LDX #$00                        A:00 X:00 Y:00 P:24 SP:FD PPU:  9,  0 CYC:10
+            C5F7  86 00     STX $00 = 00                    A:00 X:00 Y:00 P:26 SP:FD PPU: 15,  0 CYC:12
+            */
+
             StringBuilder stringBuilder = new StringBuilder();
 
-            stringBuilder.AppendLine("CPU Information:");
-            stringBuilder.AppendLine("----------------");
-            stringBuilder.AppendLine("Registers:");
-            stringBuilder.AppendLine("Accumulator (A): " + A);
-            stringBuilder.AppendLine("X-Index (X): " + X);
-            stringBuilder.AppendLine("Y-Index (Y): " + Y);
-            stringBuilder.AppendLine("Status Register (Processor Flags) (P): " + ConvertToByte(P));
-            stringBuilder.AppendLine(" - Negative Flag: " + P[7]);
-            stringBuilder.AppendLine(" - Overflow Flag: " + P[6]);
-            stringBuilder.AppendLine(" - Reserved/Ignored (Interrupted) Flag: " + P[5]);
-            stringBuilder.AppendLine(" - No CPU effect (B) Flag: " + P[4]);
-            stringBuilder.AppendLine(" - Decimal Flag: " + P[3]);
-            stringBuilder.AppendLine(" - Interrupt Disable Flag: " + P[2]);
-            stringBuilder.AppendLine(" - Zero Flag: " + P[1]);
-            stringBuilder.AppendLine(" - Carry Flag: " + P[0]);
-            stringBuilder.AppendLine("Stack Pointer (S): " + S);
-            stringBuilder.AppendLine("Program Counter (PC): " + PC);
-            //stringBuilder.AppendLine("Opcode: " + opCode);
-            stringBuilder.AppendLine("");
+            stringBuilder.AppendLine(AbsoluteAddress.ToString("X4") + "  "
+                                     + Mem.ReadByte(PC).ToString("X2") + " "
+                                     + Mem.ReadByte((ushort) (PC + 1)).ToString("X2") + " "
+                                     + Mem.ReadByte((ushort) (PC + 2)).ToString("X2") + " "
+                                     + "A: " + A.ToString("X2") + " "
+                                     + "X: " + X.ToString("X2") + " "
+                                     + "Y: " + Y.ToString("X2") + " "
+                                     + "P: " + ConvertToByte(P).ToString("X2") + " "
+                                     + "SP: " + S.ToString("X2") + " "
+                                     + "CYC:" + CPUCycles
+
+            );
+
+            Console.WriteLine(stringBuilder.ToString());
 
             return stringBuilder.ToString();
         }
     }
 }
- 
+
  
