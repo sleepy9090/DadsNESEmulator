@@ -2402,7 +2402,7 @@ namespace DadsNESEmulator.NESHardware
         //    return stringBuilder.ToString();
         //}
 
-        public string DumpData()
+        public string GetCurrentCPUState()
         {
             /** - Match the test ROM log format. */
             /*

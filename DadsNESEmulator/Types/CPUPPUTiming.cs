@@ -20,7 +20,7 @@ namespace DadsNESEmulator.Types
      * 2      ("multiple-region") is used either if a game was released with identical ROM content in both NTSC and PAL countries, such as Nintendo's early games, or if the game detects the console's timing and adjusts itself. 
      * 3      UMC 6527P  Eastern Europe, Russia, Mainland China, India, Africa
      */
-    public enum CPUPPUTiming
+    public enum CPUPPUTiming : byte
     {
         RP2C02 = 0x0,
         RP2C07 = 0x1,

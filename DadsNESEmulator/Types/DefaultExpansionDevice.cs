@@ -13,7 +13,7 @@
 namespace DadsNESEmulator.Types
 {
     /** - https://wiki.nesdev.com/w/index.php/NES_2.0 */
-    public enum DefaultExpansionDevice
+    public enum DefaultExpansionDevice : byte
     {
         Unspecified = 0x00,
         StandardNESFamicomControllers = 0x01,

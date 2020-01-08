@@ -12,6 +12,8 @@
  */
 using System.Collections;
 using System.IO;
+using System.Text;
+using DadsNESEmulator.Types;
 
 namespace DadsNESEmulator.NESHardware
 {
@@ -54,6 +56,18 @@ namespace DadsNESEmulator.NESHardware
             protected set;
         }
 
+        public byte PRGROMSize
+        {
+            get;
+            protected set;
+        }
+
+        public byte CHRROMSize
+        {
+            get;
+            protected set;
+        }
+
         public bool hasVerticalMirroring
         {
             get;
@@ -84,13 +98,13 @@ namespace DadsNESEmulator.NESHardware
             protected set;
         }
 
-        public bool isVSUnisystem
+        public bool isVsUnisystem
         {
             get;
             protected set;
         }
 
-        public bool isPlayChoice10
+        public bool isPlaychoice10
         {
             get;
             protected set;
@@ -174,19 +188,25 @@ namespace DadsNESEmulator.NESHardware
             protected set;
         }
 
-        public byte CPUPPUTimingMode
+        public CPUPPUTiming CPUPPUTimingMode
         {
             get;
             protected set;
         }
 
-        public byte VSPPUType
+        public VsSystemPPUType VsPPUType
         {
             get;
             protected set;
         }
 
-        public byte VSHardwareType
+        public VsSystemHardwareType VsHardwareType
+        {
+            get;
+            protected set;
+        }
+
+        public ExtendedConsoleType ExtendedConsType
         {
             get;
             protected set;
@@ -198,7 +218,7 @@ namespace DadsNESEmulator.NESHardware
             protected set;
         }
 
-        public byte DefaultExpansionDevice
+        public DefaultExpansionDevice DefaultExpansionDevice
         {
             get;
             protected set;
@@ -347,11 +367,11 @@ namespace DadsNESEmulator.NESHardware
                 }
                 else if (flags7[0] && !flags7[1])
                 {
-                    isPlayChoice10 = true;
+                    isPlaychoice10 = true;
                 }
                 else if (!flags7[0] && flags7[1])
                 {
-                    isVSUnisystem = true;
+                    isVsUnisystem = true;
                 }
                 else
                 {
@@ -360,8 +380,8 @@ namespace DadsNESEmulator.NESHardware
             }
             else
             {
-                isVSUnisystem = flags7[0];
-                isPlayChoice10 = flags7[1];
+                isVsUnisystem = flags7[0];
+                isPlaychoice10 = flags7[1];
             }
 
             Flag7MapperNibble = (byte)((flags & 0xF0) >> 4);
@@ -372,7 +392,7 @@ namespace DadsNESEmulator.NESHardware
              * byte nibble2 = (byte)((x & 0xF0) >> 4); <-- A (first 4 bits)
              */
 
-            string mapperHexString = Flag6MapperNibble.ToString() + Flag7MapperNibble.ToString();
+            string mapperHexString = Flag7MapperNibble.ToString() + Flag6MapperNibble.ToString();
             int mapperInt = int.Parse(mapperHexString, System.Globalization.NumberStyles.HexNumber);
             MapperByte = (byte)mapperInt;
         }
@@ -419,6 +439,15 @@ namespace DadsNESEmulator.NESHardware
                  */
                 PRGROMSizeMSB = (byte)(flags & 0x0F);
                 CHRROMSizeMSB = (byte)((flags & 0xF0) >> 4);
+
+                /** - @todo: Fix this */
+                string prgHexString = PRGROMSizeMSB.ToString() + PRGROMSizeLSB.ToString();
+                int prgRomSize = int.Parse(prgHexString, System.Globalization.NumberStyles.HexNumber);
+                PRGROMSize = (byte)prgRomSize;
+
+                string chrHexString = CHRROMSizeMSB.ToString() + CHRROMSizeLSB.ToString();
+                int chrRomSize = int.Parse(chrHexString, System.Globalization.NumberStyles.HexNumber);
+                CHRROMSize = (byte)chrRomSize;
             }
             else
             {
@@ -430,11 +459,11 @@ namespace DadsNESEmulator.NESHardware
                  */
                 if (flags9[0])
                 {
-                    CPUPPUTimingMode = 1;
+                    CPUPPUTimingMode = (CPUPPUTiming)1;
                 }
                 else
                 {
-                    CPUPPUTimingMode = 0;
+                    CPUPPUTimingMode = (CPUPPUTiming)0;
                 }
             }
         }
@@ -545,24 +574,25 @@ namespace DadsNESEmulator.NESHardware
              */
             if (flags12[0] && flags12[1])
             {
-                CPUPPUTimingMode = 3;
+                CPUPPUTimingMode = (CPUPPUTiming)3;
             }
             else if (flags12[0] && !flags12[1])
             {
-                CPUPPUTimingMode = 1;
+                CPUPPUTimingMode = (CPUPPUTiming)1;
             }
             else if (!flags12[0] && flags12[1])
             {
-                CPUPPUTimingMode = 2;
+                CPUPPUTimingMode = (CPUPPUTiming)2;
             }
             else
             {
-                CPUPPUTimingMode = 0;
+                CPUPPUTimingMode = (CPUPPUTiming)0;
             }
         }
 
         private void ParseFlags13(byte flags)
         {
+            
             BitArray flags13 = new BitArray(new byte[] { flags });
 
             /*
@@ -572,8 +602,24 @@ namespace DadsNESEmulator.NESHardware
              * |||| ++++- Vs. PPU Type
              * ++++------ Vs. Hardware Type
              */
-            VSPPUType = (byte)(flags & 0x0F);
-            VSHardwareType = (byte)((flags & 0xF0) >> 4);
+
+            if (isVsUnisystem)
+            {
+                /** - When the console type in Header byte 7 D0..D1 is 1 (Vs. System), the lower nibble of Header byte 13 specifies the
+                 * Vs. PPU type, and the upper nibble the non-PPU-based protection type and whether the ROM is for the Vs. Unisystem or
+                 * the Vs. Dual System.
+                 */
+                VsPPUType = (VsSystemPPUType) (flags & 0x0F);
+                VsHardwareType = (VsSystemHardwareType) ((flags & 0xF0) >> 4);
+            }
+
+            if (isExtendedConsoleType)
+            {
+                /** - When the console type in Header byte 7 D0..D1 is 3 (Extended), the lower nibble of Header byte 13 specifies the
+                 * type of console on which the ROM image is supposed to be run.
+                 */
+                ExtendedConsType = (ExtendedConsoleType) (flags & 0x0F);
+            }
         }
 
         private void ParseFlags14(byte flags)
@@ -621,7 +667,58 @@ namespace DadsNESEmulator.NESHardware
             byte[] bytes = new byte[1];
             flags15.CopyTo(bytes, 0);
 
-            DefaultExpansionDevice = bytes[0];
+            DefaultExpansionDevice = (DefaultExpansionDevice)bytes[0];
+        }
+
+        public string GetCartridgeInfo()
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+
+            stringBuilder.AppendLine("Cartridge Info for ROM: " + Path);
+            stringBuilder.AppendLine("  Identification: " + Identification);
+            stringBuilder.AppendLine("  PRG ROM size LSB: 0x" + PRGROMSizeLSB.ToString("X"));
+            stringBuilder.AppendLine("  CHR ROM size LSB: 0x" + CHRROMSizeLSB.ToString("X"));
+            stringBuilder.AppendLine("  PRG ROM size MSB: 0x" + PRGROMSizeMSB.ToString("X"));
+            stringBuilder.AppendLine("  CHR ROM size MSB: 0x" + CHRROMSizeMSB.ToString("X"));
+            stringBuilder.AppendLine("  PRG ROM size: 0x" + PRGROMSize.ToString("X"));
+            stringBuilder.AppendLine("  CHR ROM size: 0x" + CHRROMSize.ToString("X"));
+            
+            stringBuilder.AppendLine("  Has Vertical Mirroring: " + hasVerticalMirroring);
+            stringBuilder.AppendLine("  Has Horizontal Mirroring: " + hasHorizontalMirroring);
+            stringBuilder.AppendLine("  Has Battery Backed PRG RAM: " + hasBatteryBackedPRGRAM);
+            stringBuilder.AppendLine("  Has Trainer: " + hasTrainer);
+            stringBuilder.AppendLine("  Has Four Screen VRAM: " + has4ScreenVRAM);
+            stringBuilder.AppendLine("  Is Vs. Unisystem: " + isVsUnisystem);
+            if (isVsUnisystem)
+            {
+                stringBuilder.AppendLine("    Vs. Unisystem PPU type: " + VsPPUType);
+                stringBuilder.AppendLine("    Vs. Unisystem hardware type: " + VsHardwareType);
+            }
+            
+            stringBuilder.AppendLine("  Is PlayChoice 10: " + isPlaychoice10);
+            stringBuilder.AppendLine("  Is Nintendo Entertainment System/Family Computer: " + isNESFamilyComputer);
+            stringBuilder.AppendLine("  Is Extended Console Type: " + isExtendedConsoleType);
+            if (isExtendedConsoleType)
+            {
+                stringBuilder.AppendLine("    Extended Console Type: " + ExtendedConsType);
+            }
+
+            stringBuilder.AppendLine("  Is iNES format: " + isiNESFormat);
+            stringBuilder.AppendLine("  Is NES 2.0 format: " + isNES20Format);
+            stringBuilder.AppendLine("  Flag 6 Mapper nibble: 0x" + Flag6MapperNibble.ToString("X"));
+            stringBuilder.AppendLine("  Flag 7 Mapper nibble: 0x" + Flag7MapperNibble.ToString("X"));
+            stringBuilder.AppendLine("  Flag 8 Mapper nibble: 0x" + Flag8MapperNibble.ToString("X"));
+            stringBuilder.AppendLine("  Mapper byte: 0x" + MapperByte.ToString("X"));
+            stringBuilder.AppendLine("  Sub-mapper byte: 0x" + SubMapperByte.ToString("X"));
+            stringBuilder.AppendLine("  PRG RAM size: 0x" + PRGRAMSize.ToString("X"));
+            stringBuilder.AppendLine("  PRG NVRAM size: 0x" + PRGNVRAMSize.ToString("X"));
+            stringBuilder.AppendLine("  CHR RAM size: 0x" + CHRRAMSize.ToString("X"));
+            stringBuilder.AppendLine("  CHR NVRAM size: 0x" + CHRNVRAMSize.ToString("X"));
+            stringBuilder.AppendLine("  CPU PPU timing mode: " + CPUPPUTimingMode);
+            stringBuilder.AppendLine("  Number of miscellaneous ROMs: " + NumberOfMiscellaneousROMs);
+            stringBuilder.AppendLine("  Default Expansion Device: " + DefaultExpansionDevice);
+
+            return stringBuilder.ToString();
         }
     }
 }

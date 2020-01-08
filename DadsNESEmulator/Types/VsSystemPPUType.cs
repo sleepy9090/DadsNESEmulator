@@ -30,7 +30,7 @@ namespace DadsNESEmulator.Types
      * $C: RC2C05-05 ($2002 AND $1F =unknown)
      * $D-F: reserved
      */
-    public enum VsSystemPPUType
+    public enum VsSystemPPUType : byte
     {
         RP2C03B = 0x0,
         RP2C03G = 0x1,

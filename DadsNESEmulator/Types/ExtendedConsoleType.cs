@@ -13,7 +13,7 @@
 namespace DadsNESEmulator.Types
 {
     /** - https://wiki.nesdev.com/w/index.php/NES_2.0 */
-    public enum ExtendedConsoleType
+    public enum ExtendedConsoleType : byte
     {
         RegularNESFamicomDendy = 0x0,                         /**< [Regular NES/Famicom/Dendy] */
         NintendoVsSystem = 0x1,                               /**< [Nintendo Vs. System] */

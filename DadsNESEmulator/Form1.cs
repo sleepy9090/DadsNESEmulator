@@ -23,7 +23,7 @@ namespace DadsNESEmulator
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Title = @"Open file...";
-            openFileDialog.Filter = @"nds files (*.nds)|*.nds|All files (*.*)|*.*";
+            openFileDialog.Filter = @"nds files (*.nes)|*.nes|All files (*.*)|*.*";
             openFileDialog.Multiselect = false;
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
@@ -38,6 +38,7 @@ namespace DadsNESEmulator
         {
             /** - Parse out ROM header */
             Cartridge cartridge = new Cartridge(path);
+            Console.WriteLine(cartridge.GetCartridgeInfo());
 
             byte[] nesProgramBytes = File.ReadAllBytes(path);
 

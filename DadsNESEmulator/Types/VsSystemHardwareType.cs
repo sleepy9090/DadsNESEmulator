@@ -15,7 +15,7 @@ namespace DadsNESEmulator.Types
     /** - https://wiki.nesdev.com/w/index.php/NES_2.0
      *    Vs. Hardware type (Header byte 13 D4..D7):
      */
-    public enum VsSystemHardwareType
+    public enum VsSystemHardwareType : byte
     {
         VsUnisystemNormal = 0x0,                       /**< Vs. Unisystem (normal) */
         VsUnisystemRBIBaseballProtection = 0x1,        /**< Vs. Unisystem (RBI Baseball protection) */
