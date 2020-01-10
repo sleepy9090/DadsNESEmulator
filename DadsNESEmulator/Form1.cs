@@ -42,16 +42,25 @@ namespace DadsNESEmulator
 
             byte[] nesProgramBytes = File.ReadAllBytes(path);
 
-            /** - @todo: Check for ROM header. */
+            /** - @todo: Check for ROM header? Use ArraySegment instead of byte array? */
             //ArraySegment<byte> nesProgram = new ArraySegment<byte>(nesProgramBytes, 0x0010, nesProgramBytes.Length - 0x0010);
-            ArraySegment<byte> nesProgram = new ArraySegment<byte>(nesProgramBytes, 0x00, nesProgramBytes.Length);
+            //ArraySegment<byte> nesProgram = new ArraySegment<byte>(nesProgramBytes, 0x00, nesProgramBytes.Length);
             
             
             Memory memory = new Memory(0xFFFF);
-            memory.LoadROM(nesProgram);
+            memory.LoadROM(nesProgramBytes);
             
             CPU cpu = new CPU();
             cpu.Power(memory);
+
+            // try some steps see what happens
+            int i = 0;
+            while (i < 10)
+            {
+                cpu.Step();
+                Console.WriteLine(cpu.GetCurrentCPUState());
+                i++;
+            }
         }
     }
 }

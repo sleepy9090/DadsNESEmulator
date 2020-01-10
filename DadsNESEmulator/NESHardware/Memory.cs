@@ -105,79 +105,103 @@ namespace DadsNESEmulator.NESHardware
 
         public Memory(int size)
         {
-            _memory = new byte[size];
+            /** - Easier to manage mem max as 0xFFFF + 1 since array starts at 0 */
+            _memory = new byte[size + 1];
         }
 
-        public void LoadROM(ArraySegment<byte> nesProgram)
+        public void LoadROM(byte[] nesProgram)
         {
             /** - @todo: Load the ROM into memory. */
+            if (nesProgram.Length < 0xC000)
+            {
+                ushort upperBank = 0xC000;
+                for (int i = 0; i < nesProgram.Length; i++)
+                {
+                    
+                    _memory[i] = nesProgram[i];
+                    if (i == 0x8000)
+                    {
+                        Console.WriteLine("mirroring: 0x" + nesProgram[i].ToString("X"));
+                        // mirror lower bank
+                        _memory[upperBank] = nesProgram[i];
+                        upperBank++;
+                    }
+                }
+            }
+            else
+            {
+                _memory = nesProgram;
+            }
+            Console.WriteLine("Memory size: 0x" + _memory.Length.ToString("X"));
         }
 
         public byte ReadByte(ushort address)
         {
-            
+            byte returnByte = _memory[address];
+
             if (address < 0x2000)
             {
                 /** - Internal 2K Work (System) RAM (mirrored to 800h-1FFFh) */
                 if (address < 0x0100)
                 {
                     /** - Zero page */
-
+                    Console.WriteLine("ReadByte (Zero page): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else if(address < 0x0200)
                 {
                     /** - Stack memory */
+                    Console.WriteLine("ReadByte (Stack memory): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
 
                 }
                 else if (address < 0x0800)
                 {
                     /** - RAM */
-
+                    Console.WriteLine("ReadByte (RAM): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else if (address < 0x0900)
                 {
                     /** - Zero page - Mirror of $0000-$00FF */
-
+                    Console.WriteLine("ReadByte (Zero page - Mirror of $0000-$00FF): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else if (address < 0x0A00)
                 {
                     /** - Stack memory - Mirror of $0100-$01FF */
-
+                    Console.WriteLine("ReadByte (Stack memory - Mirror of $0100-$01FF): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else if (address < 0x1000)
                 {
                     /** - RAM - Mirror of $0200-$07FF */
-
+                    Console.WriteLine("ReadByte (RAM - Mirror of $0200-$07FF): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else if (address < 0x1100)
                 {
                     /** - Zero page - Mirror of $0000-$00FF */
-
+                    Console.WriteLine("ReadByte (Zero page - Mirror of $0000-$00FF): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else if (address < 0x1200)
                 {
                     /** - Stack memory - Mirror of $0100-$01FF */
-
+                    Console.WriteLine("ReadByte (Stack memory - Mirror of $0100-$01FF): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else if (address < 0x1800)
                 {
                     /** - RAM - Mirror of $0200-$07FF */
-
+                    Console.WriteLine("ReadByte (RAM - Mirror of $0200-$07FF): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else if (address < 0x1900)
                 {
                     /** - Zero page - Mirror of $0000-$00FF */
-
+                    Console.WriteLine("ReadByte (Zero page - Mirror of $0000-$00FF): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else if (address < 0x1A00)
                 {
                     /** - Stack memory - Mirror of $0100-$01FF */
-
+                    Console.WriteLine("ReadByte (Stack memory - Mirror of $0100-$01FF): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else if (address < 0x2000)
                 {
                     /** - RAM - Mirror of $0200-$07FF */
-
+                    Console.WriteLine("ReadByte (RAM - Mirror of $0200-$07FF): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
             }
             else if (address < 0x4000)
@@ -186,29 +210,34 @@ namespace DadsNESEmulator.NESHardware
                 if (address < 0x2008)
                 {
                     /** - Input / Output registers */
+                    Console.WriteLine("ReadByte (Internal PPU Registers (mirrored to 2008h-3FFFh)): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else
                 {
                     /** - Mirror of $2000 -$2007(multiple times) */
+                    Console.WriteLine("ReadByte (Mirror of $2000 -$2007(multiple times)): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
             }
             else if (address < 0x4018)
             {
                 /** - 2A03 registers (Internal APU Registers) */
-
+                Console.WriteLine("ReadByte (2A03 registers (Internal APU Registers)): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
 
             }
             else if (address < 0x6000)
             {
                 /** -   4018h-5FFFh   Cartridge Expansion Area almost 8K */
+                Console.WriteLine("ReadByte (Cartridge Expansion Area almost 8K): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
             }
             else if (address < 0x8000)
             {
                 /** - SRAM */
+                Console.WriteLine("ReadByte (SRAM): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
             }
             else if (address < 0xC000)
             {
                 /** - PRG-ROM lower bank */
+                Console.WriteLine("ReadByte (PRG-ROM lower bank): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
             }
             else // >= 0xFFFF
             {
@@ -216,90 +245,95 @@ namespace DadsNESEmulator.NESHardware
 
                 if (address < 0xFFFA)
                 {
-
+                    Console.WriteLine("ReadByte (PRG-ROM upper bank): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else if (address < 0xFFFC)
                 {
                     /** - Address of Non Maskable Interrupt (NMI) handler routine */
+                    Console.WriteLine("ReadByte (Address of Non Maskable Interrupt (NMI) handler routine): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else if (address < 0xFFFE)
                 {
                     /** - Address of Power on reset handler routine */
+                    Console.WriteLine("ReadByte (Address of Power on reset handler routine): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else
                 {
-                    /** - Address of Brea k(BRK instruction) handler routine */
+                    /** - Address of Break (BRK instruction) handler routine */
+                    Console.WriteLine("ReadByte (Address of Break (BRK instruction) handler routine): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
             }
 
 
-            return 0x00;
+            return returnByte;
         }
 
         public void WriteByte(ushort address, byte value)
         {
+            _memory[address] = value;
+
             if (address < 0x2000)
             {
                 /** - System RAM */
                 if (address < 0x0100)
                 {
                     /** - Zero page */
-
+                    Console.WriteLine("WriteByte (Zero page): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else if (address < 0x0200)
                 {
                     /** - Stack memory */
-
+                    Console.WriteLine("WriteByte (Stack memory): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else if (address < 0x0800)
                 {
                     /** - RAM */
-
+                    Console.WriteLine("WriteByte (RAM): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else if (address < 0x0900)
                 {
                     /** - Zero page - Mirror of $0000-$00FF */
-
+                    Console.WriteLine("WriteByte (Zero page - Mirror of $0000-$00FF): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else if (address < 0x0A00)
                 {
                     /** - Stack memory - Mirror of $0100-$01FF */
-
+                    Console.WriteLine("WriteByte (Stack memory - Mirror of $0100-$01FF): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else if (address < 0x1000)
                 {
                     /** - RAM - Mirror of $0200-$07FF */
-
+                    Console.WriteLine("WriteByte (RAM - Mirror of $0200-$07FF): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else if (address < 0x1100)
                 {
                     /** - Zero page - Mirror of $0000-$00FF */
-
+                    Console.WriteLine("WriteByte (Zero page - Mirror of $0000-$00FF): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else if (address < 0x1200)
                 {
                     /** - Stack memory - Mirror of $0100-$01FF */
-
+                    Console.WriteLine("WriteByte (Stack memory - Mirror of $0100-$01FF): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else if (address < 0x1800)
                 {
                     /** - RAM - Mirror of $0200-$07FF */
-
+                    Console.WriteLine("WriteByte (RAM - Mirror of $0200-$07FF): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else if (address < 0x1900)
                 {
                     /** - Zero page - Mirror of $0000-$00FF */
-
+                    Console.WriteLine("WriteByte (Zero page - Mirror of $0000-$00FF): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else if (address < 0x1A00)
                 {
                     /** - Stack memory - Mirror of $0100-$01FF */
-
+                    Console.WriteLine("WriteByte (Stack memory - Mirror of $0100-$01FF): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else if (address < 0x2000)
                 {
                     /** - RAM - Mirror of $0200-$07FF */
-
+                    Console.WriteLine("WriteByte (RAM - Mirror of $0200-$07FF): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
             }
             else if (address < 0x4000)
@@ -308,29 +342,34 @@ namespace DadsNESEmulator.NESHardware
                 if (address < 0x2008)
                 {
                     /** - Input / Output registers */
+                    Console.WriteLine("WriteByte (PPU Registers, Input / Output registers): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else
                 {
                     /** - Mirror of $2000 -$2007(multiple times) */
+                    Console.WriteLine("WriteByte (PPU Registers, Mirror of $2000 -$2007(multiple times)): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
             }
             else if (address < 0x4020)
             {
                 /** - 2A03 registers */
-
+                Console.WriteLine("WriteByte (2A03 registers ): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
 
             }
             else if (address < 0x6000)
             {
                 /** - Expansion ROM */
+                Console.WriteLine("WriteByte (Expansion ROM): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
             }
             else if (address < 0x8000)
             {
                 /** - SRAM */
+                Console.WriteLine("WriteByte (SRAM): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
             }
             else if (address < 0xC000)
             {
                 /** - PRG-ROM lower bank */
+                Console.WriteLine("WriteByte (PRG-ROM lower bank): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
             }
             else // >= 0xFFFF
             {
@@ -338,19 +377,22 @@ namespace DadsNESEmulator.NESHardware
 
                 if (address < 0xFFFA)
                 {
-
+                    Console.WriteLine("WriteByte (PRG-ROM upper bank): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else if (address < 0xFFFC)
                 {
                     /** - Address of Non Maskable Interrupt (NMI) handler routine */
+                    Console.WriteLine("WriteByte (Address of Non Maskable Interrupt (NMI) handler routine): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else if (address < 0xFFFE)
                 {
                     /** - Address of Power on reset handler routine */
+                    Console.WriteLine("WriteByte (Address of Power on reset handler routine): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
                 else
                 {
                     /** - Address of Break (BRK instruction) handler routine */
+                    Console.WriteLine("WriteByte (Address of Break (BRK instruction) handler routine): address: " + address.ToString("X") + " _memory[address]: " + _memory[address].ToString("X"));
                 }
             }
         }

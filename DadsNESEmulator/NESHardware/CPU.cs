@@ -167,21 +167,22 @@ namespace DadsNESEmulator.NESHardware
 
             /* Set PC from 16-bit address 0xFFFC-0xFFFD */
             //PC = Mem.ReadShort(0xFFFC); //_RESET_VECTOR_ADDRESS
-            ushort lo = Mem.ReadByte(_RESET_VECTOR_ADDRESS);
-            ushort hi = Mem.ReadByte((ushort)(_RESET_VECTOR_ADDRESS + 1));
-            PC = (ushort)((hi << 8) | lo);
+            //ushort lo = Mem.ReadByte(_RESET_VECTOR_ADDRESS);
+            //ushort hi = Mem.ReadByte((ushort)(_RESET_VECTOR_ADDRESS + 1));
+            //PC = (ushort)((hi << 8) | lo);
             //Log.Info($"Cartridge starts at {pc:X4}");
-
+            //Console.WriteLine("PC at: 0xFFFC-0xFFFD: 0x" + PC.ToString("X"));
             /* - Nes Test - automated mode (for testing with no video/audio implemented)*/
             PC = Mem.ReadByte(0xC000);
-
+            Console.WriteLine("PC at: 0xC000: 0x" + PC.ToString("X"));
             /* - Nes Test - non-automated mode */
             //PC = Mem.ReadByte(0xC004);
-
+            //Console.WriteLine("PC at: 0xC004: 0x" + PC.ToString("X"));
             CPUCycles = 0;
             ClockCount = 0;
             AbsoluteAddress = 0x0000;
             RelativeAddress = 0x0000;
+
         }
 
         public void Reset()
@@ -360,46 +361,55 @@ namespace DadsNESEmulator.NESHardware
                     CPUCycles += 4;
                     break;
                 case Opcodes._BPL:
+                    Relative();
                     BPL();
                     PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._BMI:
+                    Relative();
                     BMI();
                     PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._BVC:
+                    Relative();
                     BVC();
                     PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._BVS:
+                    Relative();
                     BVS();
                     PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._BCC:
+                    Relative();
                     BCC();
                     PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._BCS:
+                    Relative();
                     BCS();
                     PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._BNE:
+                    Relative();
                     BNE();
                     PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._BEQ:
+                    Relative();
                     BEQ();
                     PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._BRK:
+                    Implied();
                     BRK();
                     PC += 2;
                     CPUCycles += 7;
@@ -1641,7 +1651,21 @@ namespace DadsNESEmulator.NESHardware
 
         private void ADC()
         {
+            byte value = Mem.ReadByte(AbsoluteAddress);
+
+            byte carryFlag = P[0] ? (byte)1 : (byte)0;
+
+            byte result = (byte)(A + value + carryFlag);
             
+            /** - Set the overflow flag */
+            P[6] = ((A ^ result) & (value ^ result) & 128) != 0;
+
+            A = (byte)(result & 0xFF);
+
+            /** - Set the carry flag */
+            P[0] = result > 255;
+
+            SetZNStatusRegisterProcessorFlags(A);
         }
 
         /**
@@ -1656,25 +1680,31 @@ namespace DadsNESEmulator.NESHardware
          */
         private void AND()
         {
-            byte operand = Mem.ReadByte((ushort)(PC + 1));
+            byte value = Mem.ReadByte(AbsoluteAddress);
 
             /** - AND values from the operand and the accumulator together */
-            operand &= A;
+            value &= A;
 
-            SetZNStatusRegisterProcessorFlags(operand);
+            SetZNStatusRegisterProcessorFlags(value);
 
             /** - Store the Operand in the Accumulator Register. */
-            A = operand;
+            A = value;
         }
 
         private void ASL()
         {
+            byte value = Mem.ReadByte(AbsoluteAddress);
 
+            P[0] = (value & 128) != 0;
+
+            value <<= 1;
+
+            SetZNStatusRegisterProcessorFlags(value);
         }
 
         private void BIT()
         {
-
+            byte value = Mem.ReadByte(AbsoluteAddress);
         }
 
         private void BPL()
@@ -1699,7 +1729,19 @@ namespace DadsNESEmulator.NESHardware
 
         private void BCC()
         {
+            if (P[0] == false)
+            {
+                CPUCycles++;
+                AbsoluteAddress = (ushort)(PC + RelativeAddress);
 
+                if ((AbsoluteAddress & 0xFF00) != (PC & 0xFF00))
+                {
+                    /** - Crossed page boundary, add additional clock cycle */
+                    CPUCycles++;
+                }
+
+                PC = AbsoluteAddress;
+            }
         }
 
         private void BCS()
@@ -1731,22 +1773,39 @@ namespace DadsNESEmulator.NESHardware
 
         private void CMP()
         {
-
+            byte value = Mem.ReadByte(AbsoluteAddress);
+            byte temp = (byte)(A - value);
+            P[0] = A >= value;
+            P[1] = A == value;
+            P[7] = temp > 0x7F;
         }
 
         private void CPX()
         {
-
+            byte value = Mem.ReadByte(AbsoluteAddress);
+            byte temp = (byte)(X - value);
+            P[0] = X >= value;
+            P[1] = X == value;
+            P[7] = temp > 0x7F;
         }
 
         private void CPY()
         {
-
+            byte value = Mem.ReadByte(AbsoluteAddress);
+            byte temp = (byte)(Y - value);
+            P[0] = Y >= value;
+            P[1] = Y == value;
+            P[7] = temp > 0x7F;
         }
 
         private void DEC()
         {
+            byte value = Mem.ReadByte((ushort)(AbsoluteAddress - 1));
 
+            /** - AbsoluteAddress is set in the ZeroPage, ZeroPageX, Absolute, AbsoluteX addressing. */
+            Mem.WriteByte(AbsoluteAddress, value);
+
+            SetZNStatusRegisterProcessorFlags(value);
         }
 
         private void EOR()
@@ -1805,14 +1864,12 @@ namespace DadsNESEmulator.NESHardware
 
         private void INC()
         {
-            // @todo: this method id probably incorrect
-            ushort value = Mem.ReadShort((ushort)(PC + 1));
-            byte operand = Mem.ReadByte(value);
-            operand++;
-            Mem.WriteByte(value, operand);
+            byte value = Mem.ReadByte((ushort)(AbsoluteAddress + 1));
 
-            SetZNStatusRegisterProcessorFlags(operand);
+            /** - AbsoluteAddress is set in the ZeroPage, ZeroPageX, Absolute, AbsoluteX addressing. */
+            Mem.WriteByte(AbsoluteAddress, value);
 
+            SetZNStatusRegisterProcessorFlags(value);
         }
 
         private void JMP()
@@ -1896,12 +1953,14 @@ namespace DadsNESEmulator.NESHardware
 
         private void DEX()
         {
-
+            X--;
+            SetZNStatusRegisterProcessorFlags(X);
         }
 
         private void INX()
         {
-            
+            X++;
+            SetZNStatusRegisterProcessorFlags(X);
         }
 
         private void TAY()
@@ -1922,32 +1981,35 @@ namespace DadsNESEmulator.NESHardware
 
         private void DEY()
         {
-
+            Y--;
+            SetZNStatusRegisterProcessorFlags(Y);
         }
 
         private void INY()
         {
-
+            Y++;
+            SetZNStatusRegisterProcessorFlags(Y);
         }
 
         private void ROL()
         {
-
+            //SetZNStatusRegisterProcessorFlags(operand);
         }
 
         private void ROR()
         {
-
+            //SetZNStatusRegisterProcessorFlags(operand);
         }
 
         private void RTI()
         {
-
+            P = new BitArray(new byte[] { PullProcessorStatus() });
+            PC = Pull16();
         }
 
         private void RTS()
         {
-
+            PC = (ushort)(Pull16() + 1);
         }
 
         private void SBC()
@@ -1955,9 +2017,19 @@ namespace DadsNESEmulator.NESHardware
 
         }
 
+        /**
+         * @brief   STA (STore Accumulator)
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void STA()
         {
-            /** - Stores the Accumulator Register into the memory address specified in the operand. */
+            /** - Stores the Accumulator Register into memory. */
             Mem.WriteByte(PC, A);
         }
 
@@ -1984,7 +2056,8 @@ namespace DadsNESEmulator.NESHardware
 
         private void PLA()
         {
-
+            A = Pull8();
+            SetZNStatusRegisterProcessorFlags(A);
         }
 
         private void PHP()
@@ -1994,18 +2067,18 @@ namespace DadsNESEmulator.NESHardware
 
         private void PLP()
         {
-
+            P = new BitArray(new byte[] { PullProcessorStatus() });
         }
 
         private void STX()
         {
-            /** - Stores the X Index Register into the memory address specified in the operand. */
+            /** - Stores the X Index Register into memory. */
             Mem.WriteByte(PC, X);
         }
 
         private void STY()
         {
-            /** - Stores the Y Index Register into the memory address specified in the operand. */
+            /** - Stores the Y Index Register into memory. */
             Mem.WriteByte(PC, Y);
         }
 
@@ -2178,7 +2251,7 @@ namespace DadsNESEmulator.NESHardware
 
             if ((absoluteAddress & 0xFF00) != (high << 8))
             {
-                /** - Page changed, add additional clock cycle */
+                /** - Crossed page boundary, add additional clock cycle */
                 CPUCycles++;
             }
 
@@ -2195,7 +2268,7 @@ namespace DadsNESEmulator.NESHardware
 
             if ((absoluteAddress & 0xFF00) != (high << 8))
             {
-                /** - Page changed, add additional clock cycle */
+                /** - Crossed page boundary, add additional clock cycle */
                 CPUCycles++;
             }
 
@@ -2290,7 +2363,7 @@ namespace DadsNESEmulator.NESHardware
 
             if ((absoluteAddress & 0xFF00) != (high << 8))
             {
-                /** - Page changed, add additional clock cycle */
+                /** - Crossed page boundary, add additional clock cycle */
                 CPUCycles++;
             }
 
@@ -2373,6 +2446,26 @@ namespace DadsNESEmulator.NESHardware
             return bytes[0];
         }
 
+        private byte Pull8()
+        {
+            S++;
+            byte value = Mem.ReadByte((ushort)(STACK_ADDRESS + S));
+            return value;
+        }
+
+        private ushort Pull16()
+        {
+            S += 2;
+            ushort value = Mem.ReadShort((ushort) (STACK_ADDRESS + (S - 1)));
+            return value;
+        }
+
+        private byte PullProcessorStatus()
+        {
+            /** - Ensure that break flag is not set. */
+            byte value = (byte)(Pull8() & ~(1 << 4));
+            return value;
+        }
         #endregion
 
         //public override string ToString()
@@ -2419,10 +2512,11 @@ namespace DadsNESEmulator.NESHardware
 
             StringBuilder stringBuilder = new StringBuilder();
 
-            stringBuilder.AppendLine(AbsoluteAddress.ToString("X4") + "  "
-                                     + Mem.ReadByte(PC).ToString("X2") + " "
-                                     + Mem.ReadByte((ushort) (PC + 1)).ToString("X2") + " "
-                                     + Mem.ReadByte((ushort) (PC + 2)).ToString("X2") + " "
+            stringBuilder.AppendLine("PC: " + PC.ToString("X4") + "  "//AbsoluteAddress.ToString("X4") + "  "
+                                     + "Mem.ReadByte(PC): " + Mem.ReadByte(PC).ToString("X2") + " "
+                                     + "Mem.ReadByte(PC + 1): " + Mem.ReadByte((ushort) (PC + 1)).ToString("X2") + " "
+                                     + "Mem.ReadByte(PC + 2): " + Mem.ReadByte((ushort) (PC + 2)).ToString("X2") + " "
+                                     + "Opcode: " + Opcode.ToString("X2") + " "
                                      + "A: " + A.ToString("X2") + " "
                                      + "X: " + X.ToString("X2") + " "
                                      + "Y: " + Y.ToString("X2") + " "
@@ -2431,8 +2525,6 @@ namespace DadsNESEmulator.NESHardware
                                      + "CYC:" + CPUCycles
 
             );
-
-            Console.WriteLine(stringBuilder.ToString());
 
             return stringBuilder.ToString();
         }
