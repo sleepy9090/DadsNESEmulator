@@ -1658,13 +1658,15 @@ namespace DadsNESEmulator.NESHardware
             byte result = (byte)(A + value + carryFlag);
             
             /** - Set the overflow flag */
-            P[6] = ((A ^ result) & (value ^ result) & 128) != 0;
+            P[6] = ((A ^ result) & (value ^ result) & 0x80) != 0;
 
+            /** - Set the Accumulator */
             A = (byte)(result & 0xFF);
 
             /** - Set the carry flag */
-            P[0] = result > 255;
+            P[0] = result > 0xFF;
 
+            /** - Set the zero and negative flags */
             SetZNStatusRegisterProcessorFlags(A);
         }
 
@@ -1695,9 +1697,9 @@ namespace DadsNESEmulator.NESHardware
         {
             byte value = Mem.ReadByte(AbsoluteAddress);
 
-            P[0] = (value & 128) != 0;
-
             value <<= 1;
+
+            P[0] = (value & 0x80) != 0;
 
             SetZNStatusRegisterProcessorFlags(value);
         }
@@ -1705,6 +1707,12 @@ namespace DadsNESEmulator.NESHardware
         private void BIT()
         {
             byte value = Mem.ReadByte(AbsoluteAddress);
+            byte temp = (byte)(A & value);
+
+            SetStatusRegisterProcessorFlag(ProcessorFlags.Z, temp);
+            SetStatusRegisterProcessorFlag(ProcessorFlags.N, value);
+            //P[6] = ((value & (1 << 6)) & (byte)ProcessorFlags.V) != 0;
+            SetStatusRegisterProcessorFlag(ProcessorFlags.V, (byte)(value & (1 << 6)));
         }
 
         private void BPL()
@@ -2416,7 +2424,9 @@ namespace DadsNESEmulator.NESHardware
         }
 
         /**
-         * @brief   This method sets the Negative and Zero status register processor flags.
+         * @brief   This method sets the Negative and Zero status register processor flags usign the passed in value.
+         *
+         * @param   value = The value to test to set the flags.
          *
          * @return  N/A
          *
@@ -2431,8 +2441,9 @@ namespace DadsNESEmulator.NESHardware
             SetStatusRegisterProcessorFlag(ProcessorFlags.N, value);
 
             /** - Sets the Zero Flag if the Operand is $#00, otherwise clears it. */
-            P[1] = (value & 0xFF) == 0;
-            
+            //P[1] = (value & 0xFF) == 0;
+            SetStatusRegisterProcessorFlag(ProcessorFlags.Z, value);
+
         }
 
         private byte ConvertToByte(BitArray bits)
