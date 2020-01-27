@@ -1649,70 +1649,124 @@ namespace DadsNESEmulator.NESHardware
 
         #region Class Methods (Instructions)
 
-        private void ADC()
-        {
-            byte value = Mem.ReadByte(AbsoluteAddress);
-
-            byte carryFlag = P[0] ? (byte)1 : (byte)0;
-
-            byte result = (byte)(A + value + carryFlag);
-            
-            /** - Set the overflow flag */
-            P[6] = ((A ^ result) & (value ^ result) & 0x80) != 0;
-
-            /** - Set the Accumulator */
-            A = (byte)(result & 0xFF);
-
-            /** - Set the carry flag */
-            P[0] = result > 0xFF;
-
-            /** - Set the zero and negative flags */
-            SetZNStatusRegisterProcessorFlags(A);
-        }
+        /** - References:
+         * http://www.obelisk.me.uk/6502/reference.html
+         * https://github.com/DanTup/DaNES/blob/master/DaNES.Emulation/Cpu.cs
+         *
+         */
 
         /**
-         * @brief   AND (And Memory With Accumulator) performs a logical AND on the operand and the accumulator and stores the result in the accumulator. 
+         * @brief   ADC - Add with Carry - This instruction adds the contents of a memory location to the accumulator together with the carry bit.
+         *                                 If overflow occurs the carry bit is set, this enables multiple byte addition to be performed.
          *
          * @return  N/A
          *
          * @author  Shawn M. Crawford
          *
-         * @note    N/A
+         * @note    Flags - A,Z,C,N = A+M+C
+         * 
+         */
+        private void ADC()
+        {
+            /** - Read the next byte. */
+            byte byteRead = Mem.ReadByte(AbsoluteAddress);
+
+            /** - If P[0](Carry) is true, carryflag = 1 else carryflag = 0 */
+            byte carryFlag = P[0] ? (byte)1 : (byte)0;
+
+            /** - Add the accumulator, byte read, and carryFlag */
+            byte result = (byte)(A + byteRead + carryFlag);
+
+            /** - Set the Accumulator (0xFF keeps the value in the last 8 bits, not needed because this is a byte, but kept for reference) */
+            A = (byte)(result & 0xFF);
+
+            /** - Set the zero and negative flags */
+            SetZNStatusRegisterProcessorFlags(A);
+
+            /** - Set the carry flag (true if greater than 255) */
+            P[0] = result > 0xFF;
+
+            /** - Set the overflow flag - Set if sign bit is incorrect.
+             * ((Accumulator XOR result) AND (value XOR result) AND (128)) != 0.
+             * If both inputs have the opposite sign to the result, it's an overflow.
+             * e.g. -128 & 128 & 128 = 0 is overflow
+             */
+            P[6] = ((A ^ result) & (byteRead ^ result) & 0x80) != 0;
+            
+        }
+
+        /**
+         * @brief   AND - Logical AND - A logical AND is performed, bit by bit, on the accumulator contents using the contents of a byte of memory.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Flags - A,Z,N = A&M
          * 
          */
         private void AND()
         {
+            /** - Read the next byte. */
             byte value = Mem.ReadByte(AbsoluteAddress);
 
-            /** - AND values from the operand and the accumulator together */
-            value &= A;
+            /** - AND values from the operand and the accumulator together, store the result in the Accumulator Register. */
+            A &= value;
 
-            SetZNStatusRegisterProcessorFlags(value);
+            /** - Set the zero and negative flags */
+            SetZNStatusRegisterProcessorFlags(A);
 
-            /** - Store the Operand in the Accumulator Register. */
-            A = value;
         }
 
+        /**
+         * @brief   ASL - Arithmetic Shift Left - This operation shifts all the bits of the accumulator or memory contents one bit left. Bit 0 is
+         *                                        set to 0 and bit 7 is placed in the carry flag. The effect of this operation is to multiply the
+         *                                        memory contents by 2 (ignoring 2's complement considerations), setting the carry if the result
+         *                                        will not fit in 8 bits.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Flags - A,Z,C,N = M*2 or M,Z,C,N = M*2
+         * 
+         */
         private void ASL()
         {
-            byte value = Mem.ReadByte(AbsoluteAddress);
+            /* @todo: Fix this method. */
 
-            value <<= 1;
+            /** - Read the next byte. */
+            byte byteRead = Mem.ReadByte(AbsoluteAddress);
 
-            P[0] = (value & 0x80) != 0;
+            byteRead <<= 1;
 
-            SetZNStatusRegisterProcessorFlags(value);
+            /** - Set the carry flag  */
+            P[0] = (byteRead & 0x80) != 0;
+
+            SetZNStatusRegisterProcessorFlags(byteRead);
         }
 
+        /**
+         * @brief   BIT - Bit Test - This instructions is used to test if one or more bits are set in a target memory location. The mask pattern in
+         *                           A is ANDed with the value in memory to set or clear the zero flag, but the result is not kept. Bits 7 and 6 of
+         *                           the value from memory are copied into the N and V flags.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Flags - A & M, N = M7, V = M6
+         * 
+         */
         private void BIT()
         {
+            /** - Read the next byte. */
             byte value = Mem.ReadByte(AbsoluteAddress);
             byte temp = (byte)(A & value);
 
             SetStatusRegisterProcessorFlag(ProcessorFlags.Z, temp);
             SetStatusRegisterProcessorFlag(ProcessorFlags.N, value);
-            //P[6] = ((value & (1 << 6)) & (byte)ProcessorFlags.V) != 0;
-            SetStatusRegisterProcessorFlag(ProcessorFlags.V, (byte)(value & (1 << 6)));
+            SetStatusRegisterProcessorFlag(ProcessorFlags.V, value);
         }
 
         private void BPL()
@@ -1781,6 +1835,7 @@ namespace DadsNESEmulator.NESHardware
 
         private void CMP()
         {
+            /** - Read the next byte. */
             byte value = Mem.ReadByte(AbsoluteAddress);
             byte temp = (byte)(A - value);
             P[0] = A >= value;
@@ -1790,6 +1845,7 @@ namespace DadsNESEmulator.NESHardware
 
         private void CPX()
         {
+            /** - Read the next byte. */
             byte value = Mem.ReadByte(AbsoluteAddress);
             byte temp = (byte)(X - value);
             P[0] = X >= value;
@@ -1799,6 +1855,7 @@ namespace DadsNESEmulator.NESHardware
 
         private void CPY()
         {
+            /** - Read the next byte. */
             byte value = Mem.ReadByte(AbsoluteAddress);
             byte temp = (byte)(Y - value);
             P[0] = Y >= value;
@@ -1808,6 +1865,7 @@ namespace DadsNESEmulator.NESHardware
 
         private void DEC()
         {
+            /** - Read the next byte. */
             byte value = Mem.ReadByte((ushort)(AbsoluteAddress - 1));
 
             /** - AbsoluteAddress is set in the ZeroPage, ZeroPageX, Absolute, AbsoluteX addressing. */
@@ -2205,21 +2263,21 @@ namespace DadsNESEmulator.NESHardware
 
         /** - Useful info: https://github.com/CodeSourcerer/Emulator/blob/master/NESEmulator/CS6502.cs */
 
-            /**
-             * name            abbr    len time formula for N  example
-             * implied         impl    1   2    ---            tay
-             * immediate       imm     2   2    arg            ora #$f0
-             * zero page       dp      2   3    *arg           cmp $56
-             * zero page,x     d,x     2   4    *(arg+x & $ff) adc $56,x
-             * zero page,y     d,y     2   4    *(arg+y & $ff) ldx $56,y
-             * absolute        abs     3   4    *arg           eor $3456
-             * absolute,x      a,x     3   4i   *(arg+x)       and $3456,x
-             * absolute,y      a,y     3   4i   *(arg+y)       sbc $3456,y
-             * indirect,x      (d,x)   2   6    **(arg+x)      lda ($34,x)
-             * indirect,y      (d),y   2   5i   *(*arg+y)      sta ($34),y
-             * relative        rel     2   2tc  *(PC+arg)      beq loop
-             */
-            private void ZeroPage()
+        /**
+         * name            abbr    len time formula for N  example
+         * implied         impl    1   2    ---            tay
+         * immediate       imm     2   2    arg            ora #$f0
+         * zero page       dp      2   3    *arg           cmp $56
+         * zero page,x     d,x     2   4    *(arg+x & $ff) adc $56,x
+         * zero page,y     d,y     2   4    *(arg+y & $ff) ldx $56,y
+         * absolute        abs     3   4    *arg           eor $3456
+         * absolute,x      a,x     3   4i   *(arg+x)       and $3456,x
+         * absolute,y      a,y     3   4i   *(arg+y)       sbc $3456,y
+         * indirect,x      (d,x)   2   6    **(arg+x)      lda ($34,x)
+         * indirect,y      (d),y   2   5i   *(*arg+y)      sta ($34),y
+         * relative        rel     2   2tc  *(PC+arg)      beq loop
+         */
+        private void ZeroPage()
         {
             ushort absoluteAddress = ReadNextByte();
             absoluteAddress &= 0x00FF;
@@ -2327,8 +2385,8 @@ namespace DadsNESEmulator.NESHardware
              * LSR (Logical Shift Right), ROL (Rotate Left) and ROR (Rotate Right). 
              */
 
-            // Store value in Accumulator???
-            // A = ???
+            /** - Used for ASL, LSR, ROL, and ROR. Logic handled in those methods, ignore here. */
+
         }
 
         private void Immediate()
