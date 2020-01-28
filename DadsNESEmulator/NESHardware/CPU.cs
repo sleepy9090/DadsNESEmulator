@@ -14,6 +14,7 @@
 using System;
 using System.Collections;
 using System.Text;
+using DadsNESEmulator.Types;
 
 namespace DadsNESEmulator.NESHardware
 {
@@ -128,6 +129,11 @@ namespace DadsNESEmulator.NESHardware
             protected set;
         }
 
+        public AddressModes CurrentAddressMode
+        {
+            get;
+            protected set;
+        }
         #endregion
 
         #region Class methods
@@ -1663,7 +1669,7 @@ namespace DadsNESEmulator.NESHardware
          *
          * @author  Shawn M. Crawford
          *
-         * @note    Flags - A,Z,C,N = A+M+C
+         * @note    A,Z,C,N = A+M+C
          * 
          */
         private void ADC()
@@ -1702,7 +1708,7 @@ namespace DadsNESEmulator.NESHardware
          *
          * @author  Shawn M. Crawford
          *
-         * @note    Flags - A,Z,N = A&M
+         * @note    A,Z,N = A&M
          * 
          */
         private void AND()
@@ -1728,21 +1734,39 @@ namespace DadsNESEmulator.NESHardware
          *
          * @author  Shawn M. Crawford
          *
-         * @note    Flags - A,Z,C,N = M*2 or M,Z,C,N = M*2
+         * @note    A,Z,C,N = M*2 or M,Z,C,N = M*2
          * 
          */
         private void ASL()
         {
-            /* @todo: Fix this method. */
+            /* Example
+             ASL (BEFORE): 10110011 Carry Flag: X
+             ASL         : Carry Flag: X<---10110011<---0
+             ASL (AFTER) : 01100110 Carry Flag: 1
+             */
 
-            /** - Read the next byte. */
-            byte byteRead = Mem.ReadByte(AbsoluteAddress);
+            /** - Read the next byte or use accumulator depending on address mode. */
+            byte byteRead = CurrentAddressMode == AddressModes.Accumulator ? A : Mem.ReadByte(AbsoluteAddress);
 
-            byteRead <<= 1;
-
-            /** - Set the carry flag  */
+            /** - Set the carry flag.  byte read & 10000000 != 0 */
             P[0] = (byteRead & 0x80) != 0;
 
+            /** - Shift left one bit. */
+            byteRead <<= 1;
+
+            /** - Write byte to memory or accumulator depending on address mode. */
+            if (CurrentAddressMode == AddressModes.Accumulator)
+            {
+                /** - Set accumulator to shifted byte. */
+                A = byteRead;
+            }
+            else
+            {
+                /** - Set memory to shifted byte. */
+                Mem.WriteByte(AbsoluteAddress, byteRead);
+            }
+
+            /** - Set the zero flag and negative flag. */
             SetZNStatusRegisterProcessorFlags(byteRead);
         }
 
@@ -1755,10 +1779,10 @@ namespace DadsNESEmulator.NESHardware
          *
          * @author  Shawn M. Crawford
          *
-         * @note    Flags - A & M, N = M7, V = M6
+         * @note    A & M, N = M7, V = M6
          * 
          */
-        private void BIT()
+            private void BIT()
         {
             /** - Read the next byte. */
             byte value = Mem.ReadByte(AbsoluteAddress);
@@ -1978,11 +2002,61 @@ namespace DadsNESEmulator.NESHardware
             Y = operand;
         }
 
+        /**
+         * @brief   LSR - Logical Shift Right - Each of the bits in A or M is shift one place to the right. The bit that was in bit 0 is shifted
+         *                                      into the carry flag. Bit 7 is set to zero.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    A,C,Z,N = A/2 or M,C,Z,N = M/2
+         * 
+         */
         private void LSR()
         {
+            /* Example
+             LSR (BEFORE): 10110011 Carry Flag: X
+             LSR         : 0--->10110011--->Carry Flag: X
+             LSR (AFTER) : 01011001 Carry Flag: 1
+             */
 
+            /** - Read the next byte or use accumulator depending on address mode. */
+            byte byteRead = CurrentAddressMode == AddressModes.Accumulator ? A : Mem.ReadByte(AbsoluteAddress);
+
+            /** - Set the carry flag.  byte read & 00000001 != 0 */
+            P[0] = (byteRead & 0x1) != 0;
+
+            /** - Shift right one bit. */
+            byteRead >>= 1;
+
+            /** - Write byte to memory or accumulator depending on address mode. */
+            if (CurrentAddressMode == AddressModes.Accumulator)
+            {
+                /** - Set accumulator to shifted byte. */
+                A = byteRead;
+            }
+            else
+            {
+                /** - Set memory to shifted byte. */
+                Mem.WriteByte(AbsoluteAddress, byteRead);
+            }
+
+            /** - Set the zero flag and negative flag. */
+            SetZNStatusRegisterProcessorFlags(byteRead);
         }
 
+        /**
+         * @brief   NOP - No Operation - The NOP instruction causes no changes to the processor other than the normal incrementing of the program
+         *                               counter to the next instruction.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void NOP()
         {
             /** - No OPeration */
@@ -2057,14 +2131,92 @@ namespace DadsNESEmulator.NESHardware
             SetZNStatusRegisterProcessorFlags(Y);
         }
 
+        /**
+         * @brief   ROL - Rotate Left - Move each of the bits in either A or M one place to the left. Bit 0 is filled with the current value
+         *                              of the carry flag whilst the old bit 7 becomes the new carry flag value.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void ROL()
         {
-            //SetZNStatusRegisterProcessorFlags(operand);
+            /* Example
+             ROL (BEFORE): 10110011 Carry Flag: X
+             ROL         : Carry Flag: X<---10110011<---Carry Flag: X
+             ROL (AFTER) : 0110011X Carry Flag: 1
+             */
+
+            /** - Read the next byte or use accumulator depending on address mode. */
+            byte byteRead = CurrentAddressMode == AddressModes.Accumulator ? A : Mem.ReadByte(AbsoluteAddress);
+
+            /** - Set the carry flag.  byte read & 10000000 != 0 */
+            P[0] = (byteRead & 0x80) != 0;
+            
+            /** - Left shift byte read 1 bit, OR with 10000000 00000000 depending on carry flag */
+            byte byteRotated = (byte)((byteRead >> 1) | (P[0] ? 0x1 : 0x0));
+
+            /** - Write byte to memory or accumulator depending on address mode. */
+            if (CurrentAddressMode == AddressModes.Accumulator)
+            {
+                /** - Set accumulator to rotated byte. */
+                A = byteRotated;
+            }
+            else
+            {
+                /** - Set memory to rotated byte. */
+                Mem.WriteByte(AbsoluteAddress, byteRotated);
+            }
+
+            /** - Set the zero flag and negative flag. */
+            SetZNStatusRegisterProcessorFlags(byteRotated);
         }
 
+        /**
+         * @brief   ROR - Rotate Right - Move each of the bits in either A or M one place to the right. Bit 7 is filled with the current value
+         *                               of the carry flag whilst the old bit 0 becomes the new carry flag value.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void ROR()
         {
-            //SetZNStatusRegisterProcessorFlags(operand);
+            /* Example
+             ROL (BEFORE): 10110011 Carry Flag: X
+             ROL         : Carry Flag: X--->10110011--->Carry Flag: X
+             ROL (AFTER) : X1011001 Carry Flag: 1
+             */
+
+            /** - Read the next byte or use accumulator depending on address mode. */
+            byte byteRead = CurrentAddressMode == AddressModes.Accumulator ? A : Mem.ReadByte(AbsoluteAddress);
+
+            /** - Set the carry flag.  byte read & 00000001 != 0 */
+            P[0] = (byteRead & 0x1) != 0;
+
+            /** - Right shift byte read 1 bit, OR with 10000000 00000000 depending on carry flag */
+            byte byteRotated = (byte)((byteRead >> 1) | (P[0] ? 0x80 : 0x0));
+
+            /** - Write byte to memory or accumulator depending on address mode. */
+            if (CurrentAddressMode == AddressModes.Accumulator)
+            {
+                /** - Set accumulator to rotated byte. */
+                A = byteRotated;
+            }
+            else
+            {
+                /** - Set memory to rotated byte. */
+                Mem.WriteByte(AbsoluteAddress, byteRotated);
+            }
+
+            /** - Set the zero flag and negative flag. */
+            SetZNStatusRegisterProcessorFlags(byteRotated);
         }
 
         private void RTI()
@@ -2260,25 +2412,48 @@ namespace DadsNESEmulator.NESHardware
         #endregion
 
         #region Class Methods (Addressing modes)
+        
 
-        /** - Useful info: https://github.com/CodeSourcerer/Emulator/blob/master/NESEmulator/CS6502.cs */
+        private void Accumulator()
+        {
+            CurrentAddressMode = AddressModes.Accumulator;
 
-        /**
-         * name            abbr    len time formula for N  example
-         * implied         impl    1   2    ---            tay
-         * immediate       imm     2   2    arg            ora #$f0
-         * zero page       dp      2   3    *arg           cmp $56
-         * zero page,x     d,x     2   4    *(arg+x & $ff) adc $56,x
-         * zero page,y     d,y     2   4    *(arg+y & $ff) ldx $56,y
-         * absolute        abs     3   4    *arg           eor $3456
-         * absolute,x      a,x     3   4i   *(arg+x)       and $3456,x
-         * absolute,y      a,y     3   4i   *(arg+y)       sbc $3456,y
-         * indirect,x      (d,x)   2   6    **(arg+x)      lda ($34,x)
-         * indirect,y      (d),y   2   5i   *(*arg+y)      sta ($34),y
-         * relative        rel     2   2tc  *(PC+arg)      beq loop
-         */
+            /*
+             * Some instructions operate directly on the contents of the accumulator. The only instructions to
+             * use this addressing  mode  are  the  shift  instructions,  ASL (Arithmetic  Shift  Left),
+             * LSR (Logical Shift Right), ROL (Rotate Left) and ROR (Rotate Right). 
+             */
+
+            /** - Used for ASL, LSR, ROL, and ROR. Logic handled in those methods, ignore here. */
+
+        }
+
+        private void Immediate()
+        {
+            CurrentAddressMode = AddressModes.Immediate;
+
+            ushort absoluteAddress = ReadNextByte();
+            AbsoluteAddress = absoluteAddress;
+        }
+
+        private void Implied()
+        {
+            CurrentAddressMode = AddressModes.Implied;
+
+            /*
+             * Many instructions do not require access to operands stored in memory.
+             * Examples of implied instructions are CLD (Clear Decimal Mode) and NOP (No Operation).
+             */
+
+            // Store Accumulator in a temp var???
+            // ushort tempAccumulatorValue = A;
+
+        }
+
         private void ZeroPage()
         {
+            CurrentAddressMode = AddressModes.ZeroPage;
+
             ushort absoluteAddress = ReadNextByte();
             absoluteAddress &= 0x00FF;
             AbsoluteAddress = absoluteAddress;
@@ -2286,6 +2461,8 @@ namespace DadsNESEmulator.NESHardware
 
         private void ZeroPageXIndex()
         {
+            CurrentAddressMode = AddressModes.ZeroPageX;
+
             ushort absoluteAddress = (ushort)(ReadNextByte() + X);
             absoluteAddress &= 0x00FF;
             AbsoluteAddress = absoluteAddress;
@@ -2293,6 +2470,8 @@ namespace DadsNESEmulator.NESHardware
 
         private void ZeroPageYIndex()
         {
+            CurrentAddressMode = AddressModes.ZeroPageY;
+
             ushort absoluteAddress = (ushort)(ReadNextByte() + Y);
             absoluteAddress &= 0x00FF;
             AbsoluteAddress = absoluteAddress;
@@ -2300,6 +2479,8 @@ namespace DadsNESEmulator.NESHardware
 
         private void Absolute()
         {
+            CurrentAddressMode = AddressModes.Absolute;
+
             ushort low = ReadNextByte();
             ushort high = ReadNextByte();
 
@@ -2309,6 +2490,8 @@ namespace DadsNESEmulator.NESHardware
 
         private void AbsoluteXIndex()
         {
+            CurrentAddressMode = AddressModes.AbsoluteX;
+
             ushort low = ReadNextByte();
             ushort high = ReadNextByte();
 
@@ -2326,6 +2509,8 @@ namespace DadsNESEmulator.NESHardware
 
         private void AbsoluteYIndex()
         {
+            CurrentAddressMode = AddressModes.AbsoluteY;
+
             ushort low = ReadNextByte();
             ushort high = ReadNextByte();
 
@@ -2343,6 +2528,8 @@ namespace DadsNESEmulator.NESHardware
 
         private void Indirect()
         {
+            CurrentAddressMode = AddressModes.Indirect;
+
             ushort pointerLow = ReadNextByte();
             ushort pointerHigh = ReadNextByte();
             ushort absoluteAddress;
@@ -2365,38 +2552,10 @@ namespace DadsNESEmulator.NESHardware
             AbsoluteAddress = absoluteAddress;
         }
 
-        private void Implied()
-        {
-            /*
-             * Many instructions do not require access to operands stored in memory.
-             * Examples of implied instructions are CLD (Clear Decimal Mode) and NOP (No Operation).
-             */
-
-            // Store Accumulator in a temp var???
-            // ushort tempAccumulatorValue = A;
-
-        }
-
-        private void Accumulator()
-        {
-            /*
-             * Some instructions operate directly on the contents of the accumulator. The only instructions to
-             * use this addressing  mode  are  the  shift  instructions,  ASL (Arithmetic  Shift  Left),
-             * LSR (Logical Shift Right), ROL (Rotate Left) and ROR (Rotate Right). 
-             */
-
-            /** - Used for ASL, LSR, ROL, and ROR. Logic handled in those methods, ignore here. */
-
-        }
-
-        private void Immediate()
-        {
-            ushort absoluteAddress = ReadNextByte();
-            AbsoluteAddress = absoluteAddress;
-        }
-
         private void Relative()
         {
+            CurrentAddressMode = AddressModes.Relative;
+
             ushort relativeAddress = ReadNextByte();
             if ((relativeAddress & 0x80) != 0)
             {
@@ -2408,6 +2567,8 @@ namespace DadsNESEmulator.NESHardware
 
         private void IndirectXIndex()
         {
+            CurrentAddressMode = AddressModes.IndirectX;
+
             ushort nextByte = ReadNextByte();
 
             ushort low = Mem.ReadByte((ushort)((ushort)(nextByte + X) & 0x00FF));
@@ -2419,6 +2580,8 @@ namespace DadsNESEmulator.NESHardware
 
         private void IndirectYIndex()
         {
+            CurrentAddressMode = AddressModes.IndirectY;
+
             ushort nextByte = ReadNextByte();
 
             ushort low = Mem.ReadByte((ushort)(nextByte & 0x00FF));
