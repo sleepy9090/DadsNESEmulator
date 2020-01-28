@@ -53,14 +53,17 @@ namespace DadsNESEmulator
             CPU cpu = new CPU();
             cpu.Power(memoryMap);
 
-            // try some steps see what happens
+            // Start stepping
             int i = 0;
-            while (i < 10)
+            //while (true)
+            while (i < 50)
             {
                 cpu.Step();
                 Console.WriteLine(cpu.GetCurrentCPUState());
                 i++;
             }
+
+            //Console.WriteLine(cpu.GetTestResults());
         }
     }
 }
