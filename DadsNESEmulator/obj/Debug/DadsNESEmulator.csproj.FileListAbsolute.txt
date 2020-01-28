@@ -10,7 +10,6 @@ C:\workspace_sandbox\MOS6502CPUEmulator\MOS6502CPUEmulator\obj\Debug\MOS6502CPUE
 C:\workspace_sandbox\DadsNESEmulator\DadsNESEmulator\bin\Debug\DadsNESEmulator.exe.config
 C:\workspace_sandbox\DadsNESEmulator\DadsNESEmulator\bin\Debug\DadsNESEmulator.exe
 C:\workspace_sandbox\DadsNESEmulator\DadsNESEmulator\bin\Debug\DadsNESEmulator.pdb
-C:\workspace_sandbox\DadsNESEmulator\DadsNESEmulator\obj\Debug\DadsNESEmulator.csprojAssemblyReference.cache
 C:\workspace_sandbox\DadsNESEmulator\DadsNESEmulator\obj\Debug\DadsNESEmulator.Form1.resources
 C:\workspace_sandbox\DadsNESEmulator\DadsNESEmulator\obj\Debug\DadsNESEmulator.Properties.Resources.resources
 C:\workspace_sandbox\DadsNESEmulator\DadsNESEmulator\obj\Debug\DadsNESEmulator.csproj.GenerateResource.cache

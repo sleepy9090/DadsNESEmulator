@@ -94,7 +94,7 @@ namespace DadsNESEmulator.NESHardware
             protected set;
         }
 
-        public Memory Mem
+        public MemoryMap Mem
         {
             get;
             protected set;
@@ -143,7 +143,7 @@ namespace DadsNESEmulator.NESHardware
 
         }
 
-        public void Power(Memory mem)
+        public void Power(MemoryMap mem)
         {
             /** - https://wiki.nesdev.com/w/index.php/CPU_power_up_state */
 
@@ -1795,28 +1795,65 @@ namespace DadsNESEmulator.NESHardware
 
         private void BPL()
         {
+            //Negative Flag is 0/false
+            if (P[7] == false)
+            {
 
+            }
         }
 
         private void BMI()
         {
+            //Negative Flag is 1/true
+            if (P[7] == true)
+            {
 
+            }
         }
 
         private void BVC()
         {
+            //Overflow Flag is 0/false
+            if (P[6] == false)
+            {
 
+            }
         }
 
         private void BVS()
         {
+            //Overflow Flag is 1/true
+            if (P[6] == true)
+            {
 
+            }
         }
 
         private void BCC()
         {
+            // Carry Flag is 0/false
             if (P[0] == false)
             {
+                /** - Branch was taken, add additional clock cycle. */
+                CPUCycles++;
+                AbsoluteAddress = (ushort)(PC + RelativeAddress);
+
+                if ((AbsoluteAddress & 0xFF00) != (PC & 0xFF00))
+                {
+                    /** - Crossed page boundary, add additional clock cycle */
+                CPUCycles++;
+                }
+
+                PC = AbsoluteAddress;
+            }
+        }
+
+        private void BCS()
+        {
+            // Carry Flag is 1/true
+            if (P[0] == true)
+            {
+                /** - Branch was taken, add additional clock cycle. */
                 CPUCycles++;
                 AbsoluteAddress = (ushort)(PC + RelativeAddress);
 
@@ -1830,19 +1867,22 @@ namespace DadsNESEmulator.NESHardware
             }
         }
 
-        private void BCS()
-        {
-
-        }
-
         private void BNE()
         {
+            // Zero Flag is 0/false
+            if (P[1] == false)
+            {
 
+            }
         }
 
         private void BEQ()
         {
+            // Zero Flag is 1/true
+            if (P[1] == true)
+            {
 
+            }
         }
 
         private void BRK()
@@ -1890,7 +1930,8 @@ namespace DadsNESEmulator.NESHardware
         private void DEC()
         {
             /** - Read the next byte. */
-            byte value = Mem.ReadByte((ushort)(AbsoluteAddress - 1));
+            byte value = Mem.ReadByte(AbsoluteAddress);
+            AbsoluteAddress--;
 
             /** - AbsoluteAddress is set in the ZeroPage, ZeroPageX, Absolute, AbsoluteX addressing. */
             Mem.WriteByte(AbsoluteAddress, value);
@@ -1954,7 +1995,8 @@ namespace DadsNESEmulator.NESHardware
 
         private void INC()
         {
-            byte value = Mem.ReadByte((ushort)(AbsoluteAddress + 1));
+            byte value = Mem.ReadByte(AbsoluteAddress);
+            value++;
 
             /** - AbsoluteAddress is set in the ZeroPage, ZeroPageX, Absolute, AbsoluteX addressing. */
             Mem.WriteByte(AbsoluteAddress, value);

@@ -46,12 +46,12 @@ namespace DadsNESEmulator
             //ArraySegment<byte> nesProgram = new ArraySegment<byte>(nesProgramBytes, 0x0010, nesProgramBytes.Length - 0x0010);
             //ArraySegment<byte> nesProgram = new ArraySegment<byte>(nesProgramBytes, 0x00, nesProgramBytes.Length);
             
-            
-            Memory memory = new Memory(0xFFFF);
-            memory.LoadROM(nesProgramBytes);
+            PPU ppu = new PPU();
+            MemoryMap memoryMap = new MemoryMap(ppu);
+            memoryMap.LoadROM(nesProgramBytes);
             
             CPU cpu = new CPU();
-            cpu.Power(memory);
+            cpu.Power(memoryMap);
 
             // try some steps see what happens
             int i = 0;

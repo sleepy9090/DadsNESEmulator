@@ -55,12 +55,14 @@
     <Compile Include="NESHardware\APU.cs" />
     <Compile Include="NESHardware\Cartridge.cs" />
     <Compile Include="NESHardware\CPU.cs" />
+    <Compile Include="NESHardware\Memory.cs" />
     <Compile Include="NESHardware\PPU.cs" />
     <Compile Include="NESHardware\ProcessorFlags.cs" />
     <Compile Include="NESHardware\Opcodes.cs" />
-    <Compile Include="NESHardware\Memory.cs" />
+    <Compile Include="NESHardware\MemoryMap.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Types\AddressModes.cs" />
     <Compile Include="Types\CPUPPUTiming.cs" />
     <Compile Include="Types\DefaultExpansionDevice.cs" />
     <Compile Include="Types\ExtendedConsoleType.cs" />

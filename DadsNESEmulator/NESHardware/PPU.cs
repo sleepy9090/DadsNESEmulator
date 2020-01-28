@@ -55,5 +55,15 @@ namespace DadsNESEmulator.NESHardware
 
         /** - @brief OAM DMA ($4014) > write */
         public const ushort _OAM_DMA = 0x4014;
+
+        public byte ReadRegister(ushort address)
+        {
+            return 0x0;
+        }
+
+        public void WriteRegister(ushort address, byte value)
+        {
+
+        }
     }
 }
