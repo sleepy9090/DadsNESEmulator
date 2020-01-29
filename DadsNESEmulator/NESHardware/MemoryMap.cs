@@ -101,35 +101,55 @@ namespace DadsNESEmulator.NESHardware
         private Memory ioRegistersMem = new Memory(0x20); // 8
         private Memory expansionRomMem = new Memory(0x1FE0); // 8160
         private Memory sramMem = new Memory(0x2000); // 8192
-        private Memory cartridgeLowerBankMem;
-        private Memory cartridgeUpperBankMem;
-        private PPU ppu;
+        private Memory cartridgeLowerBankMem = new Memory(0x4000); // 16384
+        private Memory cartridgeUpperBankMem = new Memory(0x4000); // 16384
+        private PPU _ppu;
+        private int Debug = 0;
 
         public MemoryMap(PPU ppu)
         {
-            ppu = new PPU();
+            _ppu = ppu;
         }
 
         public void LoadROM(byte[] nesProgram)
         {
+            Console.WriteLine("LoadROM: nesProgram.Length: " + nesProgram.Length.ToString("X4"));
+
             /** - Load the ROM into memory. */
             if (nesProgram.Length > 0x4000)
             {
-                cartridgeLowerBankMem = new Memory(0x4000); // 16384
-                cartridgeUpperBankMem = new Memory(0x4000); // 16384
-                cartridgeLowerBankMem.Write(0x0, new ArraySegment<byte>(nesProgram, 0, 0x4000).ToArray());
-                cartridgeUpperBankMem.Write(0x0, new ArraySegment<byte>(nesProgram, 0x4000, 0x4000).ToArray());
+                Console.WriteLine("> 0x4000");
+                cartridgeLowerBankMem.Write(0x0, new ArraySegment<byte>(nesProgram, 0, 0x4000).ToArray()); //$8000 - $BFFF
+                cartridgeUpperBankMem.Write(0x0, new ArraySegment<byte>(nesProgram, 0, 0x4000).ToArray()); //$C000 - $FFFF
+                //cartridgeUpperBankMem.Write(0x0, new ArraySegment<byte>(nesProgram, 0x4000, 0x4000).ToArray());
+                //cartridgeUpperBankMem.Write(0x0, new ArraySegment<byte>(nesProgram, 0x4000, nesProgram.Length - 0x4000).ToArray());
             }
             else
             {
+                Console.WriteLine("< 0x4000");
                 cartridgeLowerBankMem = new Memory(0x4000); // 16384
                 cartridgeUpperBankMem = cartridgeLowerBankMem;
                 cartridgeLowerBankMem.Write(0x0, nesProgram);
             }
+
+            //Console.WriteLine("Cartridge Lower Bank: ");
+            //for (ushort i = 0; i < 0x4000; i++)
+            //{
+            //    Console.Write("0x" + cartridgeLowerBankMem.Read(i).ToString("X") + " ");
+            //}
+
+            //Console.WriteLine("Cartridge Upper Bank: ");
+            //for (ushort i = 0; i < 0x4000; i++)
+            //{
+            //    Console.Write("0x" + cartridgeUpperBankMem.Read(i).ToString("X") + " ");
+            //}
+            
         }
 
         public byte ReadByte(ushort address)
         {
+            //Console.WriteLine("address to read: 0x" + address.ToString("X4"));
+
             byte byteRead;
 
             if (address < 0x2000)
@@ -140,7 +160,7 @@ namespace DadsNESEmulator.NESHardware
             else if (address < 0x4000)
             {
                 /** - @todo: implement PPU, this call is stubbed and returns 0 */
-                byteRead = ppu.ReadRegister((ushort) (0x2000 + (address - 0x2000) % 8));
+                byteRead = _ppu.ReadRegister((ushort) (0x2000 + (address - 0x2000) % 8));
             }
             else if (address < 0x4020)
             {
@@ -159,142 +179,171 @@ namespace DadsNESEmulator.NESHardware
                 byteRead = cartridgeUpperBankMem.Read((ushort) (address - 0xC000));
             }
 
-            #region Memory Read Debug
-            /* @todo: Delete me. */
-            if (address < 0x2000)
+            if (Debug == 1)
             {
-                /** - Internal 2K Work (System) RAM (mirrored to 800h-1FFFh) */
-                if (address < 0x0100)
+                #region Memory Read Debug
+
+                /* @todo: Delete me. */
+                if (address < 0x2000)
                 {
-                    /** - Zero page */
-                    Console.WriteLine("ReadByte (Zero page): address: " + address.ToString("X") + " byteRead: " + byteRead.ToString("X"));
+                    /** - Internal 2K Work (System) RAM (mirrored to 800h-1FFFh) */
+                    if (address < 0x0100)
+                    {
+                        /** - Zero page */
+                        Console.WriteLine("ReadByte (Zero page): address: 0x" + address.ToString("X") +
+                                          " byteread: 0x" + byteRead.ToString("X"));
+                    }
+                    else if (address < 0x0200)
+                    {
+                        /** - Stack memory */
+                        Console.WriteLine("ReadByte (Stack memory): address: 0x" + address.ToString("X") +
+                                          " byteread: 0x" + byteRead.ToString("X"));
+
+                    }
+                    else if (address < 0x0800)
+                    {
+                        /** - RAM */
+                        Console.WriteLine("ReadByte (RAM): address: 0x" + address.ToString("X") + " byteread: 0x" +
+                                          byteRead.ToString("X"));
+                    }
+                    else if (address < 0x0900)
+                    {
+                        /** - Zero page - Mirror of $0000-$00FF */
+                        Console.WriteLine("ReadByte (Zero page - Mirror of $0000-$00FF): address: 0x" +
+                                          address.ToString("X") + " byteread: 0x" + byteRead.ToString("X"));
+                    }
+                    else if (address < 0x0A00)
+                    {
+                        /** - Stack memory - Mirror of $0100-$01FF */
+                        Console.WriteLine("ReadByte (Stack memory - Mirror of $0100-$01FF): address: 0x" +
+                                          address.ToString("X") + " byteread: 0x" + byteRead.ToString("X"));
+                    }
+                    else if (address < 0x1000)
+                    {
+                        /** - RAM - Mirror of $0200-$07FF */
+                        Console.WriteLine("ReadByte (RAM - Mirror of $0200-$07FF): address: 0x" +
+                                          address.ToString("X") + " byteread: 0x" + byteRead.ToString("X"));
+                    }
+                    else if (address < 0x1100)
+                    {
+                        /** - Zero page - Mirror of $0000-$00FF */
+                        Console.WriteLine("ReadByte (Zero page - Mirror of $0000-$00FF): address: 0x" +
+                                          address.ToString("X") + " byteread: 0x" + byteRead.ToString("X"));
+                    }
+                    else if (address < 0x1200)
+                    {
+                        /** - Stack memory - Mirror of $0100-$01FF */
+                        Console.WriteLine("ReadByte (Stack memory - Mirror of $0100-$01FF): address: 0x" +
+                                          address.ToString("X") + " byteread: 0x" + byteRead.ToString("X"));
+                    }
+                    else if (address < 0x1800)
+                    {
+                        /** - RAM - Mirror of $0200-$07FF */
+                        Console.WriteLine("ReadByte (RAM - Mirror of $0200-$07FF): address: 0x" +
+                                          address.ToString("X") + " byteread: 0x" + byteRead.ToString("X"));
+                    }
+                    else if (address < 0x1900)
+                    {
+                        /** - Zero page - Mirror of $0000-$00FF */
+                        Console.WriteLine("ReadByte (Zero page - Mirror of $0000-$00FF): address: 0x" +
+                                          address.ToString("X") + " byteread: 0x" + byteRead.ToString("X"));
+                    }
+                    else if (address < 0x1A00)
+                    {
+                        /** - Stack memory - Mirror of $0100-$01FF */
+                        Console.WriteLine("ReadByte (Stack memory - Mirror of $0100-$01FF): address: 0x" +
+                                          address.ToString("X") + " byteread: 0x" + byteRead.ToString("X"));
+                    }
+                    else if (address < 0x2000)
+                    {
+                        /** - RAM - Mirror of $0200-$07FF */
+                        Console.WriteLine("ReadByte (RAM - Mirror of $0200-$07FF): address: 0x" +
+                                          address.ToString("X") + " byteread: 0x" + byteRead.ToString("X"));
+                    }
                 }
-                else if(address < 0x0200)
+                else if (address < 0x4000)
                 {
-                    /** - Stack memory */
-                    Console.WriteLine("ReadByte (Stack memory): address: " + address.ToString("X") + " byteRead: " + byteRead.ToString("X"));
+
+
+                    /** - Internal PPU Registers (mirrored to 2008h-3FFFh) */
+                    if (address < 0x2008)
+                    {
+                        /** - Input / Output registers */
+                        Console.WriteLine("ReadByte (Internal PPU Registers (mirrored to 2008h-3FFFh)): address: 0x" +
+                                          address.ToString("X") + " byteread: 0x" + byteRead.ToString("X"));
+                    }
+                    else
+                    {
+                        /** - Mirror of $2000 -$2007(multiple times) */
+                        Console.WriteLine("ReadByte (Mirror of $2000 -$2007(multiple times)): address: 0x" +
+                                          address.ToString("X") + " byteread: 0x" + byteRead.ToString("X"));
+                    }
+                }
+                else if (address < 0x4018)
+                {
+
+                    /** - 2A03 registers (Internal APU Registers) */
+                    Console.WriteLine("ReadByte (2A03 registers (Internal APU Registers)): address: 0x" +
+                                      address.ToString("X") + " byteread: 0x" + byteRead.ToString("X"));
 
                 }
-                else if (address < 0x0800)
+                else if (address < 0x6000)
                 {
-                    /** - RAM */
-                    Console.WriteLine("ReadByte (RAM): address: " + address.ToString("X") + " byteRead: " + byteRead.ToString("X"));
+                    /** -   4018h-5FFFh   Cartridge Expansion Area almost 8K */
+                    Console.WriteLine("ReadByte (Cartridge Expansion Area almost 8K): address: 0x" +
+                                      address.ToString("X") + " byteread: 0x" + byteRead.ToString("X"));
                 }
-                else if (address < 0x0900)
+                else if (address < 0x8000)
                 {
-                    /** - Zero page - Mirror of $0000-$00FF */
-                    Console.WriteLine("ReadByte (Zero page - Mirror of $0000-$00FF): address: " + address.ToString("X") + " byteRead: " + byteRead.ToString("X"));
+                    /** - SRAM */
+                    Console.WriteLine("ReadByte (SRAM): address: 0x" + address.ToString("X") + " byteread: 0x" +
+                                      byteRead.ToString("X"));
                 }
-                else if (address < 0x0A00)
+                else if (address < 0xC000)
                 {
-                    /** - Stack memory - Mirror of $0100-$01FF */
-                    Console.WriteLine("ReadByte (Stack memory - Mirror of $0100-$01FF): address: " + address.ToString("X") + " byteRead: " + byteRead.ToString("X"));
+                    /** - PRG-ROM lower bank */
+                    Console.WriteLine("ReadByte (PRG-ROM lower bank): address: 0x" + address.ToString("X") +
+                                      " byteread: 0x" + byteRead.ToString("X"));
                 }
-                else if (address < 0x1000)
+                else // >= 0xFFFF
                 {
-                    /** - RAM - Mirror of $0200-$07FF */
-                    Console.WriteLine("ReadByte (RAM - Mirror of $0200-$07FF): address: " + address.ToString("X") + " byteRead: " + byteRead.ToString("X"));
-                }
-                else if (address < 0x1100)
-                {
-                    /** - Zero page - Mirror of $0000-$00FF */
-                    Console.WriteLine("ReadByte (Zero page - Mirror of $0000-$00FF): address: " + address.ToString("X") + " byteRead: " + byteRead.ToString("X"));
-                }
-                else if (address < 0x1200)
-                {
-                    /** - Stack memory - Mirror of $0100-$01FF */
-                    Console.WriteLine("ReadByte (Stack memory - Mirror of $0100-$01FF): address: " + address.ToString("X") + " byteRead: " + byteRead.ToString("X"));
-                }
-                else if (address < 0x1800)
-                {
-                    /** - RAM - Mirror of $0200-$07FF */
-                    Console.WriteLine("ReadByte (RAM - Mirror of $0200-$07FF): address: " + address.ToString("X") + " byteRead: " + byteRead.ToString("X"));
-                }
-                else if (address < 0x1900)
-                {
-                    /** - Zero page - Mirror of $0000-$00FF */
-                    Console.WriteLine("ReadByte (Zero page - Mirror of $0000-$00FF): address: " + address.ToString("X") + " byteRead: " + byteRead.ToString("X"));
-                }
-                else if (address < 0x1A00)
-                {
-                    /** - Stack memory - Mirror of $0100-$01FF */
-                    Console.WriteLine("ReadByte (Stack memory - Mirror of $0100-$01FF): address: " + address.ToString("X") + " byteRead: " + byteRead.ToString("X"));
-                }
-                else if (address < 0x2000)
-                {
-                    /** - RAM - Mirror of $0200-$07FF */
-                    Console.WriteLine("ReadByte (RAM - Mirror of $0200-$07FF): address: " + address.ToString("X") + " byteRead: " + byteRead.ToString("X"));
-                }
-            }
-            else if (address < 0x4000)
-            {
-                
+                    /** - PRG-ROM upper bank */
 
-                /** - Internal PPU Registers (mirrored to 2008h-3FFFh) */
-                if (address < 0x2008)
-                {
-                    /** - Input / Output registers */
-                    Console.WriteLine("ReadByte (Internal PPU Registers (mirrored to 2008h-3FFFh)): address: " + address.ToString("X") + " byteRead: " + byteRead.ToString("X"));
+                    if (address < 0xFFFA)
+                    {
+                        Console.WriteLine("ReadByte (PRG-ROM upper bank): address: 0x" + address.ToString("X") +
+                                          " byteread: 0x" + byteRead.ToString("X"));
+                    }
+                    else if (address < 0xFFFC)
+                    {
+                        /** - Address of Non Maskable Interrupt (NMI) handler routine */
+                        Console.WriteLine(
+                            "ReadByte (Address of Non Maskable Interrupt (NMI) handler routine): address: 0x" +
+                            address.ToString("X") + " byteread: 0x" + byteRead.ToString("X"));
+                    }
+                    else if (address < 0xFFFE)
+                    {
+                        /** - Address of Power on reset handler routine */
+                        Console.WriteLine("ReadByte (Address of Power on reset handler routine): address: 0x" +
+                                          address.ToString("X") + " byteread: 0x" + byteRead.ToString("X"));
+                    }
+                    else
+                    {
+                        /** - Address of Break (BRK instruction) handler routine */
+                        Console.WriteLine("ReadByte (Address of Break (BRK instruction) handler routine): address: 0x" +
+                                          address.ToString("X") + " byteread: 0x" + byteRead.ToString("X"));
+                    }
                 }
-                else
-                {
-                    /** - Mirror of $2000 -$2007(multiple times) */
-                    Console.WriteLine("ReadByte (Mirror of $2000 -$2007(multiple times)): address: " + address.ToString("X") + " byteRead: " + byteRead.ToString("X"));
-                }
-            }
-            else if (address < 0x4018)
-            {
-                
-                /** - 2A03 registers (Internal APU Registers) */
-                Console.WriteLine("ReadByte (2A03 registers (Internal APU Registers)): address: " + address.ToString("X") + " byteRead: " + byteRead.ToString("X"));
 
+                #endregion
             }
-            else if (address < 0x6000)
-            {
-                /** -   4018h-5FFFh   Cartridge Expansion Area almost 8K */
-                Console.WriteLine("ReadByte (Cartridge Expansion Area almost 8K): address: " + address.ToString("X") + " byteRead: " + byteRead.ToString("X"));
-            }
-            else if (address < 0x8000)
-            {
-                /** - SRAM */
-                Console.WriteLine("ReadByte (SRAM): address: " + address.ToString("X") + " byteRead: " + byteRead.ToString("X"));
-            }
-            else if (address < 0xC000)
-            {
-                /** - PRG-ROM lower bank */
-                Console.WriteLine("ReadByte (PRG-ROM lower bank): address: " + address.ToString("X") + " byteRead: " + byteRead.ToString("X"));
-            }
-            else // >= 0xFFFF
-            {
-                /** - PRG-ROM upper bank */
-
-                if (address < 0xFFFA)
-                {
-                    Console.WriteLine("ReadByte (PRG-ROM upper bank): address: " + address.ToString("X") + " byteRead: " + byteRead.ToString("X"));
-                }
-                else if (address < 0xFFFC)
-                {
-                    /** - Address of Non Maskable Interrupt (NMI) handler routine */
-                    Console.WriteLine("ReadByte (Address of Non Maskable Interrupt (NMI) handler routine): address: " + address.ToString("X") + " byteRead: " + byteRead.ToString("X"));
-                }
-                else if (address < 0xFFFE)
-                {
-                    /** - Address of Power on reset handler routine */
-                    Console.WriteLine("ReadByte (Address of Power on reset handler routine): address: " + address.ToString("X") + " byteRead: " + byteRead.ToString("X"));
-                }
-                else
-                {
-                    /** - Address of Break (BRK instruction) handler routine */
-                    Console.WriteLine("ReadByte (Address of Break (BRK instruction) handler routine): address: " + address.ToString("X") + " byteRead: " + byteRead.ToString("X"));
-                }
-            }
-            #endregion
 
             return byteRead;
         }
 
         public void WriteByte(ushort address, byte value)
         {
+            //Console.WriteLine("address to write: 0x" + address.ToString("X4"));
             if (address < 0x2000)
             {
                 gameRamMem.Write((ushort) (address % 0x800), value);
@@ -302,7 +351,7 @@ namespace DadsNESEmulator.NESHardware
             else if (address < 0x4000)
             {
                 /** - @todo: implement PPU, this call is stubbed and returns 0 */
-                ppu.WriteRegister((ushort) (0x2000 + ((address - 0x2000) % 8)), value);
+                _ppu.WriteRegister((ushort) (0x2000 + ((address - 0x2000) % 8)), value);
             }
             else if (address < 0x4020)
             {
@@ -321,132 +370,162 @@ namespace DadsNESEmulator.NESHardware
                 cartridgeUpperBankMem.Write((ushort) (address - 0xC000), value);
             }
 
-            #region Memory Write Debug
-            /* @todo: Delete me. */
-            if (address < 0x2000)
+            if (Debug == 1)
             {
-                /** - System RAM */
-                if (address < 0x0100)
-                {
-                    /** - Zero page */
-                    Console.WriteLine("WriteByte (Zero page): address: " + address.ToString("X") + " byteWritten: " + value.ToString("X"));
-                }
-                else if (address < 0x0200)
-                {
-                    /** - Stack memory */
-                    Console.WriteLine("WriteByte (Stack memory): address: " + address.ToString("X") + " byteWritten: " + value.ToString("X"));
-                }
-                else if (address < 0x0800)
-                {
-                    /** - RAM */
-                    Console.WriteLine("WriteByte (RAM): address: " + address.ToString("X") + " byteWritten: " + value.ToString("X"));
-                }
-                else if (address < 0x0900)
-                {
-                    /** - Zero page - Mirror of $0000-$00FF */
-                    Console.WriteLine("WriteByte (Zero page - Mirror of $0000-$00FF): address: " + address.ToString("X") + " byteWritten: " + value.ToString("X"));
-                }
-                else if (address < 0x0A00)
-                {
-                    /** - Stack memory - Mirror of $0100-$01FF */
-                    Console.WriteLine("WriteByte (Stack memory - Mirror of $0100-$01FF): address: " + address.ToString("X") + " byteWritten: " + value.ToString("X"));
-                }
-                else if (address < 0x1000)
-                {
-                    /** - RAM - Mirror of $0200-$07FF */
-                    Console.WriteLine("WriteByte (RAM - Mirror of $0200-$07FF): address: " + address.ToString("X") + " byteWritten: " + value.ToString("X"));
-                }
-                else if (address < 0x1100)
-                {
-                    /** - Zero page - Mirror of $0000-$00FF */
-                    Console.WriteLine("WriteByte (Zero page - Mirror of $0000-$00FF): address: " + address.ToString("X") + " byteWritten: " + value.ToString("X"));
-                }
-                else if (address < 0x1200)
-                {
-                    /** - Stack memory - Mirror of $0100-$01FF */
-                    Console.WriteLine("WriteByte (Stack memory - Mirror of $0100-$01FF): address: " + address.ToString("X") + " byteWritten: " + value.ToString("X"));
-                }
-                else if (address < 0x1800)
-                {
-                    /** - RAM - Mirror of $0200-$07FF */
-                    Console.WriteLine("WriteByte (RAM - Mirror of $0200-$07FF): address: " + address.ToString("X") + " byteWritten: " + value.ToString("X"));
-                }
-                else if (address < 0x1900)
-                {
-                    /** - Zero page - Mirror of $0000-$00FF */
-                    Console.WriteLine("WriteByte (Zero page - Mirror of $0000-$00FF): address: " + address.ToString("X") + " byteWritten: " + value.ToString("X"));
-                }
-                else if (address < 0x1A00)
-                {
-                    /** - Stack memory - Mirror of $0100-$01FF */
-                    Console.WriteLine("WriteByte (Stack memory - Mirror of $0100-$01FF): address: " + address.ToString("X") + " byteWritten: " + value.ToString("X"));
-                }
-                else if (address < 0x2000)
-                {
-                    /** - RAM - Mirror of $0200-$07FF */
-                    Console.WriteLine("WriteByte (RAM - Mirror of $0200-$07FF): address: " + address.ToString("X") + " byteWritten: " + value.ToString("X"));
-                }
-            }
-            else if (address < 0x4000)
-            {
-                /** - PPU Registers */
-                if (address < 0x2008)
-                {
-                    /** - Input / Output registers */
-                    Console.WriteLine("WriteByte (PPU Registers, Input / Output registers): address: " + address.ToString("X") + " byteWritten: " + value.ToString("X"));
-                }
-                else
-                {
-                    /** - Mirror of $2000 -$2007(multiple times) */
-                    Console.WriteLine("WriteByte (PPU Registers, Mirror of $2000 -$2007(multiple times)): address: " + address.ToString("X") + " byteWritten: " + value.ToString("X"));
-                }
-            }
-            else if (address < 0x4020)
-            {
-                /** - 2A03 registers */
-                Console.WriteLine("WriteByte (2A03 registers ): address: " + address.ToString("X") + " byteWritten: " + value.ToString("X"));
+                #region Memory Write Debug
 
-            }
-            else if (address < 0x6000)
-            {
-                /** - Expansion ROM */
-                Console.WriteLine("WriteByte (Expansion ROM): address: " + address.ToString("X") + " byteWritten: " + value.ToString("X"));
-            }
-            else if (address < 0x8000)
-            {
-                /** - SRAM */
-                Console.WriteLine("WriteByte (SRAM): address: " + address.ToString("X") + " byteWritten: " + value.ToString("X"));
-            }
-            else if (address < 0xC000)
-            {
-                /** - PRG-ROM lower bank */
-                Console.WriteLine("WriteByte (PRG-ROM lower bank): address: " + address.ToString("X") + " byteWritten: " + value.ToString("X"));
-            }
-            else // >= 0xFFFF
-            {
-                /** - PRG-ROM upper bank */
+                /* @todo: Delete me. */
+                if (address < 0x2000)
+                {
+                    /** - System RAM */
+                    if (address < 0x0100)
+                    {
+                        /** - Zero page */
+                        Console.WriteLine("WriteByte (Zero page): address: 0x" + address.ToString("X") +
+                                          " byteWritten: " + value.ToString("X"));
+                    }
+                    else if (address < 0x0200)
+                    {
+                        /** - Stack memory */
+                        Console.WriteLine("WriteByte (Stack memory): address: 0x" + address.ToString("X") +
+                                          " byteWritten: " + value.ToString("X"));
+                    }
+                    else if (address < 0x0800)
+                    {
+                        /** - RAM */
+                        Console.WriteLine("WriteByte (RAM): address: 0x" + address.ToString("X") + " byteWritten: " +
+                                          value.ToString("X"));
+                    }
+                    else if (address < 0x0900)
+                    {
+                        /** - Zero page - Mirror of $0000-$00FF */
+                        Console.WriteLine("WriteByte (Zero page - Mirror of $0000-$00FF): address: 0x" +
+                                          address.ToString("X") + " byteWritten: " + value.ToString("X"));
+                    }
+                    else if (address < 0x0A00)
+                    {
+                        /** - Stack memory - Mirror of $0100-$01FF */
+                        Console.WriteLine("WriteByte (Stack memory - Mirror of $0100-$01FF): address: 0x" +
+                                          address.ToString("X") + " byteWritten: " + value.ToString("X"));
+                    }
+                    else if (address < 0x1000)
+                    {
+                        /** - RAM - Mirror of $0200-$07FF */
+                        Console.WriteLine("WriteByte (RAM - Mirror of $0200-$07FF): address: 0x" +
+                                          address.ToString("X") + " byteWritten: " + value.ToString("X"));
+                    }
+                    else if (address < 0x1100)
+                    {
+                        /** - Zero page - Mirror of $0000-$00FF */
+                        Console.WriteLine("WriteByte (Zero page - Mirror of $0000-$00FF): address: 0x" +
+                                          address.ToString("X") + " byteWritten: " + value.ToString("X"));
+                    }
+                    else if (address < 0x1200)
+                    {
+                        /** - Stack memory - Mirror of $0100-$01FF */
+                        Console.WriteLine("WriteByte (Stack memory - Mirror of $0100-$01FF): address: 0x" +
+                                          address.ToString("X") + " byteWritten: " + value.ToString("X"));
+                    }
+                    else if (address < 0x1800)
+                    {
+                        /** - RAM - Mirror of $0200-$07FF */
+                        Console.WriteLine("WriteByte (RAM - Mirror of $0200-$07FF): address: 0x" +
+                                          address.ToString("X") + " byteWritten: " + value.ToString("X"));
+                    }
+                    else if (address < 0x1900)
+                    {
+                        /** - Zero page - Mirror of $0000-$00FF */
+                        Console.WriteLine("WriteByte (Zero page - Mirror of $0000-$00FF): address: 0x" +
+                                          address.ToString("X") + " byteWritten: " + value.ToString("X"));
+                    }
+                    else if (address < 0x1A00)
+                    {
+                        /** - Stack memory - Mirror of $0100-$01FF */
+                        Console.WriteLine("WriteByte (Stack memory - Mirror of $0100-$01FF): address: 0x" +
+                                          address.ToString("X") + " byteWritten: " + value.ToString("X"));
+                    }
+                    else if (address < 0x2000)
+                    {
+                        /** - RAM - Mirror of $0200-$07FF */
+                        Console.WriteLine("WriteByte (RAM - Mirror of $0200-$07FF): address: 0x" +
+                                          address.ToString("X") + " byteWritten: " + value.ToString("X"));
+                    }
+                }
+                else if (address < 0x4000)
+                {
+                    /** - PPU Registers */
+                    if (address < 0x2008)
+                    {
+                        /** - Input / Output registers */
+                        Console.WriteLine("WriteByte (PPU Registers, Input / Output registers): address: 0x" +
+                                          address.ToString("X") + " byteWritten: " + value.ToString("X"));
+                    }
+                    else
+                    {
+                        /** - Mirror of $2000 -$2007(multiple times) */
+                        Console.WriteLine(
+                            "WriteByte (PPU Registers, Mirror of $2000 -$2007(multiple times)): address: 0x" +
+                            address.ToString("X") + " byteWritten: " + value.ToString("X"));
+                    }
+                }
+                else if (address < 0x4020)
+                {
+                    /** - 2A03 registers */
+                    Console.WriteLine("WriteByte (2A03 registers ): address: 0x" + address.ToString("X") +
+                                      " byteWritten: " + value.ToString("X"));
 
-                if (address < 0xFFFA)
-                {
-                    Console.WriteLine("WriteByte (PRG-ROM upper bank): address: " + address.ToString("X") + " byteWritten: " + value.ToString("X"));
                 }
-                else if (address < 0xFFFC)
+                else if (address < 0x6000)
                 {
-                    /** - Address of Non Maskable Interrupt (NMI) handler routine */
-                    Console.WriteLine("WriteByte (Address of Non Maskable Interrupt (NMI) handler routine): address: " + address.ToString("X") + " byteWritten: " + value.ToString("X"));
+                    /** - Expansion ROM */
+                    Console.WriteLine("WriteByte (Expansion ROM): address: 0x" + address.ToString("X") +
+                                      " byteWritten: " + value.ToString("X"));
                 }
-                else if (address < 0xFFFE)
+                else if (address < 0x8000)
                 {
-                    /** - Address of Power on reset handler routine */
-                    Console.WriteLine("WriteByte (Address of Power on reset handler routine): address: " + address.ToString("X") + " byteWritten: " + value.ToString("X"));
+                    /** - SRAM */
+                    Console.WriteLine("WriteByte (SRAM): address: 0x" + address.ToString("X") + " byteWritten: " +
+                                      value.ToString("X"));
                 }
-                else
+                else if (address < 0xC000)
                 {
-                    /** - Address of Break (BRK instruction) handler routine */
-                    Console.WriteLine("WriteByte (Address of Break (BRK instruction) handler routine): address: " + address.ToString("X") + " byteWritten: " + value.ToString("X"));
+                    /** - PRG-ROM lower bank */
+                    Console.WriteLine("WriteByte (PRG-ROM lower bank): address: 0x" + address.ToString("X") +
+                                      " byteWritten: " + value.ToString("X"));
                 }
+                else // >= 0xFFFF
+                {
+                    /** - PRG-ROM upper bank */
+
+                    if (address < 0xFFFA)
+                    {
+                        Console.WriteLine("WriteByte (PRG-ROM upper bank): address: 0x" + address.ToString("X") +
+                                          " byteWritten: " + value.ToString("X"));
+                    }
+                    else if (address < 0xFFFC)
+                    {
+                        /** - Address of Non Maskable Interrupt (NMI) handler routine */
+                        Console.WriteLine(
+                            "WriteByte (Address of Non Maskable Interrupt (NMI) handler routine): address: 0x" +
+                            address.ToString("X") + " byteWritten: " + value.ToString("X"));
+                    }
+                    else if (address < 0xFFFE)
+                    {
+                        /** - Address of Power on reset handler routine */
+                        Console.WriteLine("WriteByte (Address of Power on reset handler routine): address: 0x" +
+                                          address.ToString("X") + " byteWritten: " + value.ToString("X"));
+                    }
+                    else
+                    {
+                        /** - Address of Break (BRK instruction) handler routine */
+                        Console.WriteLine(
+                            "WriteByte (Address of Break (BRK instruction) handler routine): address: 0x" +
+                            address.ToString("X") + " byteWritten: " + value.ToString("X"));
+                    }
+                }
+
+                #endregion
             }
-            #endregion
         }
 
         public ushort ReadShort(ushort address)

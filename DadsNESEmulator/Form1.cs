@@ -41,26 +41,34 @@ namespace DadsNESEmulator
             Console.WriteLine(cartridge.GetCartridgeInfo());
 
             byte[] nesProgramBytes = File.ReadAllBytes(path);
+            byte[] nesProgramBytesToLoad;
 
-            /** - @todo: Check for ROM header? Use ArraySegment instead of byte array? */
-            //ArraySegment<byte> nesProgram = new ArraySegment<byte>(nesProgramBytes, 0x0010, nesProgramBytes.Length - 0x0010);
-            //ArraySegment<byte> nesProgram = new ArraySegment<byte>(nesProgramBytes, 0x00, nesProgramBytes.Length);
+            /** - Remove header if present */
+            if (cartridge.isiNESFormat)
+            {
+                //nesProgramBytesToLoad = new ArraySegment<byte>(nesProgramBytes, 0x0010, nesProgramBytes.Length - 0x0010).ToArray();
+                nesProgramBytesToLoad = new ArraySegment<byte>(nesProgramBytes, 0x0010, 0x4000).ToArray();
+            }
+            else
+            {
+                nesProgramBytesToLoad = nesProgramBytes;
+            }
             
+            
+
             PPU ppu = new PPU();
             MemoryMap memoryMap = new MemoryMap(ppu);
-            memoryMap.LoadROM(nesProgramBytes);
-            
+            //memoryMap.LoadROM(nesProgramBytes);
+            memoryMap.LoadROM(nesProgramBytesToLoad);
+
             CPU cpu = new CPU();
             cpu.Power(memoryMap);
 
             // Start stepping
-            int i = 0;
-            //while (true)
-            while (i < 50)
+            while (true)
             {
                 cpu.Step();
-                Console.WriteLine(cpu.GetCurrentCPUState());
-                i++;
+                //Console.WriteLine(cpu.GetCurrentCPUState());
             }
 
             //Console.WriteLine(cpu.GetTestResults());

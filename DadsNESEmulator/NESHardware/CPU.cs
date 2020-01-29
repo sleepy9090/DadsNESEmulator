@@ -182,8 +182,13 @@ namespace DadsNESEmulator.NESHardware
             //Console.WriteLine("PC at: 0xFFFC-0xFFFD: 0x" + PC.ToString("X"));
 
             /* - Nes Test - automated mode (for testing with no video/audio implemented)*/
-            PC = Mem.ReadByte(0xC000);
-            Console.WriteLine("PC at: 0xC000: 0x" + PC.ToString("X"));
+            //PC = Mem.ReadShort(0xC000);
+
+            //ushort lo = Mem.ReadByte(0xC000 + 0);
+            //ushort hi = Mem.ReadByte(0xC000 + 1);
+            //PC = (ushort)((hi << 8) | lo);
+            PC = 0xC000;
+            Console.WriteLine("PC: 0x" + PC.ToString("X"));
             
             /* - Nes Test - non-automated mode */
             //PC = Mem.ReadByte(0xC004);
@@ -253,7 +258,7 @@ namespace DadsNESEmulator.NESHardware
                     PC += 3;
                     CPUCycles += 4;
                     break;
-                case Opcodes._ADC_ABSOULTE_X:
+                case Opcodes._ADC_ABSOLUTE_X:
                     AbsoluteXIndex();
                     ADC();
                     PC += 3;
@@ -301,7 +306,7 @@ namespace DadsNESEmulator.NESHardware
                     PC += 3;
                     CPUCycles += 4;
                     break;
-                case Opcodes._AND_ABSOULTE_X:
+                case Opcodes._AND_ABSOLUTE_X:
                     AbsoluteXIndex();
                     AND();
                     PC += 3;
@@ -445,7 +450,7 @@ namespace DadsNESEmulator.NESHardware
                     PC += 3;
                     CPUCycles += 4;
                     break;
-                case Opcodes._CMP_ABSOULTE_X:
+                case Opcodes._CMP_ABSOLUTE_X:
                     AbsoluteXIndex();
                     CMP();
                     PC += 3;
@@ -523,7 +528,7 @@ namespace DadsNESEmulator.NESHardware
                     PC += 3;
                     CPUCycles += 6;
                     break;
-                case Opcodes._DEC_ABSOULTE_X:
+                case Opcodes._DEC_ABSOLUTE_X:
                     AbsoluteXIndex();
                     DEC();
                     PC += 3;
@@ -553,7 +558,7 @@ namespace DadsNESEmulator.NESHardware
                     PC += 3;
                     CPUCycles += 4;
                     break;
-                case Opcodes._EOR_ABSOULTE_X:
+                case Opcodes._EOR_ABSOLUTE_X:
                     AbsoluteXIndex();
                     EOR();
                     PC += 3;
@@ -630,7 +635,7 @@ namespace DadsNESEmulator.NESHardware
                     PC += 3;
                     CPUCycles += 6;
                     break;
-                case Opcodes._INC_ABSOULTE_X:
+                case Opcodes._INC_ABSOLUTE_X:
                     AbsoluteXIndex();
                     INC();
                     PC += 3;
@@ -726,7 +731,7 @@ namespace DadsNESEmulator.NESHardware
                     PC += 3;
                     CPUCycles += 4;
                     break;
-                case Opcodes._LDX_ABSOULTE_Y:
+                case Opcodes._LDX_ABSOLUTE_Y:
                     AbsoluteYIndex();
                     LDX();
                     PC += 3;
@@ -821,7 +826,7 @@ namespace DadsNESEmulator.NESHardware
                     PC += 3;
                     CPUCycles += 4;
                     break;
-                case Opcodes._ORA_ABSOULTE_X:
+                case Opcodes._ORA_ABSOLUTE_X:
                     AbsoluteXIndex();
                     ORA();
                     PC += 3;
@@ -1647,7 +1652,7 @@ namespace DadsNESEmulator.NESHardware
         private byte ReadNextByte()
         {
             byte opCode = Mem.ReadByte(PC++);
-            Console.WriteLine("PC: " + PC);
+            Console.WriteLine("  ReadNextByte PC: 0x" + PC.ToString("X4") + " Returned opcode: 0x" + opCode.ToString("X2") + " " + Opcodes.GetOpcodeName(opCode));
 
             return opCode;
         }
@@ -2924,21 +2929,17 @@ namespace DadsNESEmulator.NESHardware
 
             StringBuilder stringBuilder = new StringBuilder();
 
-            stringBuilder.AppendLine("PC: " + PC.ToString("X4") + "  "//AbsoluteAddress.ToString("X4") + "  "
-                                     + "Mem.ReadByte(PC): " + Mem.ReadByte(PC).ToString("X2") + " "
-                                     + "Mem.ReadByte(PC + 1): " + Mem.ReadByte((ushort) (PC + 1)).ToString("X2") + " "
-                                     + "Mem.ReadByte(PC + 2): " + Mem.ReadByte((ushort) (PC + 2)).ToString("X2") + " "
-                                     + "Opcode: " + Opcode.ToString("X2") + " "
-                                     + "A: " + A.ToString("X2") + " "
-                                     + "X: " + X.ToString("X2") + " "
-                                     + "Y: " + Y.ToString("X2") + " "
-                                     + "P: " + ConvertToByte(P).ToString("X2") + " "
-                                     + "SP: " + S.ToString("X2") + " "
+            stringBuilder.AppendLine("PC: 0x" + PC.ToString("X4") + "  "
+                                     + "Opcode: 0x" + Opcode.ToString("X2") + " "
+                                     + "A: 0x" + A.ToString("X2") + " "
+                                     + "X: 0x" + X.ToString("X2") + " "
+                                     + "Y: 0x" + Y.ToString("X2") + " "
+                                     + "P: 0x" + ConvertToByte(P).ToString("X2") + " "
+                                     + "SP: 0x" + S.ToString("X2") + " "
                                      + "CYC:" + CPUCycles + " "
-                                     + "Current address mode: " + CurrentAddressMode + " "
-                                     + "Relative address: " + RelativeAddress + " "
-                                     + "Absolute address: " + AbsoluteAddress + " "
-
+                                     + "Relative address: 0x" + RelativeAddress.ToString("X4") + " "
+                                     + "Absolute address: 0x" + AbsoluteAddress.ToString("X4") + " "
+                                     + "Current address mode: [" + CurrentAddressMode + "] "
             );
 
             
