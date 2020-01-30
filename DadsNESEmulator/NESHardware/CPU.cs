@@ -2436,8 +2436,8 @@ namespace DadsNESEmulator.NESHardware
             P[0] = (result & 0x80) == 0;
 
             /** - Set the overflow flag - Set if overflow in bit 7 */
-            P[6] = (~(oldA ^ byteRead) & (oldA ^ (byte)result) & 0x80) != 0;
-            //P[6] = (A >> 7 & 1) != 0;
+            //P[6] = (~(oldA ^ byteRead) & (oldA ^ (byte)result) & 0x80) != 0;
+            P[6] = (A >> 7 & 1) != 0;
             //P[6] = ((A ^ result) & (byteRead ^ result) & 0x80) != 0;
         }
 
