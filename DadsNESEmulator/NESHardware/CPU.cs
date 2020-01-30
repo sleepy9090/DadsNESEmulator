@@ -134,6 +134,12 @@ namespace DadsNESEmulator.NESHardware
             get;
             protected set;
         }
+
+        public byte ImmediateByte
+        {
+            get;
+            protected set;
+        }
         #endregion
 
         #region Class methods
@@ -188,7 +194,7 @@ namespace DadsNESEmulator.NESHardware
             //ushort hi = Mem.ReadByte(0xC000 + 1);
             //PC = (ushort)((hi << 8) | lo);
             PC = 0xC000;
-            Console.WriteLine("PC: 0x" + PC.ToString("X"));
+            Console.WriteLine("Now you're playing with POWER: Program Counter: 0x" + PC.ToString("X"));
             
             /* - Nes Test - non-automated mode */
             //PC = Mem.ReadByte(0xC004);
@@ -229,1134 +235,1138 @@ namespace DadsNESEmulator.NESHardware
 
         public void Step()
         {
+            Console.Write(PC.ToString("X") + "  ");
             /** Set global for debugging or other uses for now. */
             Opcode = ReadNextByte();
+
+            //Console.WriteLine("Processing Opcode: 0x" + Opcode.ToString("X2") + " " + Opcodes.GetOpcodeName(Opcode));
+            Console.WriteLine(Opcodes.GetOpcodeName(Opcode));
 
             switch (Opcode)
             {
                 case Opcodes._ADC_IMMEDIATE:
                     Immediate();
                     ADC();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._ADC_ZERO_PAGE:
                     ZeroPage();
                     ADC();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 3;
                     break;
                 case Opcodes._ADC_ZERO_PAGE_X:
                     ZeroPageXIndex();
                     ADC();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 4;
                     break;
                 case Opcodes._ADC_ABSOLUTE:
                     Absolute();
                     ADC();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._ADC_ABSOLUTE_X:
                     AbsoluteXIndex();
                     ADC();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._ADC_ABSOLUTE_Y:
                     AbsoluteYIndex();
                     ADC();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._ADC_INDIRECT_X:
                     IndirectXIndex();
                     ADC();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 6;
                     break;
                 case Opcodes._ADC_INDIRECT_Y:
                     IndirectYIndex();
                     ADC();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 5;
                     break;
                 case Opcodes._AND_IMMEDIATE:
                     Immediate();
                     AND();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._AND_ZERO_PAGE:
                     ZeroPage();
                     AND();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 3;
                     break;
                 case Opcodes._AND_ZERO_PAGE_X:
                     ZeroPageXIndex();
                     AND();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 4;
                     break;
                 case Opcodes._AND_ABSOLUTE:
                     Absolute();
                     AND();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._AND_ABSOLUTE_X:
                     AbsoluteXIndex();
                     AND();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._AND_ABSOLUTE_Y:
                     AbsoluteYIndex();
                     AND();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._AND_INDIRECT_X:
                     IndirectXIndex();
                     AND();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 6;
                     break;
                 case Opcodes._AND_INDIRECT_Y:
                     IndirectYIndex();
                     AND();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 5;
                     break;
                 case Opcodes._ASL_ACCUMULATOR:
                     Accumulator();
                     ASL();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 2;
                     break;
                 case Opcodes._ASL_ZERO_PAGE:
                     ZeroPage();
                     ASL();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 5;
                     break;
                 case Opcodes._ASL_ZERO_PAGE_X:
                     ZeroPageXIndex();
                     ASL();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 6;
                     break;
                 case Opcodes._ASL_ABSOLUTE:
                     Absolute();
                     ASL();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 6;
                     break;
                 case Opcodes._ASL_ABSOLUTE_X:
                     AbsoluteXIndex();
                     ASL();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 7;
                     break;
                 case Opcodes._BIT_ZERO_PAGE:
                     ZeroPage();
                     BIT();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 3;
                     break;
                 case Opcodes._BIT_ABSOLUTE:
                     Absolute();
                     BIT();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._BPL:
                     Relative();
                     BPL();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._BMI:
                     Relative();
                     BMI();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._BVC:
                     Relative();
                     BVC();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._BVS:
                     Relative();
                     BVS();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._BCC:
                     Relative();
                     BCC();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._BCS:
                     Relative();
                     BCS();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._BNE:
                     Relative();
                     BNE();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._BEQ:
                     Relative();
                     BEQ();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._BRK:
                     Implied();
                     BRK();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 7;
                     break;
                 case Opcodes._CMP_IMMEDIATE:
                     Immediate();
                     CMP();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._CMP_ZERO_PAGE:
                     ZeroPage();
                     CMP();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 3;
                     break;
                 case Opcodes._CMP_ZERO_PAGE_X:
                     ZeroPageXIndex();
                     CMP();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 4;
                     break;
                 case Opcodes._CMP_ABSOLUTE:
                     Absolute();
                     CMP();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._CMP_ABSOLUTE_X:
                     AbsoluteXIndex();
                     CMP();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._CMP_ABSOLUTE_Y:
                     AbsoluteYIndex();
                     CMP();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._CMP_INDIRECT_X:
                     IndirectXIndex();
                     CMP();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 6;
                     break;
                 case Opcodes._CMP_INDIRECT_Y:
                     IndirectYIndex();
                     CMP();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 5;
                     break;
                 case Opcodes._CPX_IMMEDIATE:
                     Immediate();
                     CPX();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._CPX_ZERO_PAGE:
                     ZeroPage();
                     CPX();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 3;
                     break;
                 case Opcodes._CPX_ABSOLUTE:
                     Absolute();
                     CPX();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._CPY_IMMEDIATE:
                     Immediate();
                     CPY();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._CPY_ZERO_PAGE:
                     ZeroPage();
                     CPY();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 3;
                     break;
                 case Opcodes._CPY_ABSOLUTE:
                     Absolute();
                     CPY();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._DEC_ZERO_PAGE:
                     ZeroPage();
                     DEC();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 5;
                     break;
                 case Opcodes._DEC_ZERO_PAGE_X:
                     ZeroPageXIndex();
                     DEC();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 6;
                     break;
                 case Opcodes._DEC_ABSOLUTE:
                     Absolute();
                     DEC();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 6;
                     break;
                 case Opcodes._DEC_ABSOLUTE_X:
                     AbsoluteXIndex();
                     DEC();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 7;
                     break;
                 case Opcodes._EOR_IMMEDIATE:
                     Immediate();
                     EOR();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._EOR_ZERO_PAGE:
                     ZeroPage();
                     EOR();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 3;
                     break;
                 case Opcodes._EOR_ZERO_PAGE_X:
                     ZeroPageXIndex();
                     EOR();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 4;
                     break;
                 case Opcodes._EOR_ABSOLUTE:
                     Absolute();
                     EOR();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._EOR_ABSOLUTE_X:
                     AbsoluteXIndex();
                     EOR();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._EOR_ABSOLUTE_Y:
                     AbsoluteYIndex();
                     EOR();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._EOR_INDIRECT_X:
                     IndirectXIndex();
                     EOR();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 6;
                     break;
                 case Opcodes._EOR_INDIRECT_Y:
                     IndirectYIndex();
                     EOR();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 5;
                     break;
                 case Opcodes._CLC:
                     CLC();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 2;
                     break;
                 case Opcodes._SEC:
                     SEC();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 2;
                     break;
                 case Opcodes._CLI:
                     CLI();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 2;
                     break;
                 case Opcodes._SEI:
                     SEI();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 2;
                     break;
                 case Opcodes._CLV:
                     CLV();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 2;
                     break;
                 case Opcodes._CLD:
                     CLD();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 2;
                     break;
                 case Opcodes._SED:
                     SED();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 2;
                     break;
                 case Opcodes._INC_ZERO_PAGE:
                     ZeroPage();
                     INC();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 5;
                     break;
                 case Opcodes._INC_ZERO_PAGE_X:
                     ZeroPageXIndex();
                     INC();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 6;
                     break;
                 case Opcodes._INC_ABSOLUTE:
                     Absolute();
                     INC();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 6;
                     break;
                 case Opcodes._INC_ABSOLUTE_X:
                     AbsoluteXIndex();
                     INC();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 7;
                     break;
                 case Opcodes._JMP_ABSOLUTE:
                     Absolute();
                     JMP();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 3;
                     break;
                 case Opcodes._JMP_INDIRECT:
                     Indirect();
                     JMP();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 5;
                     break;
                 case Opcodes._JSR_ABSOLUTE:
                     Absolute();
                     JSR();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 6;
                     break;
                 case Opcodes._LDA_IMMEDIATE:
                     Immediate();
                     LDA();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._LDA_ZERO_PAGE:
                     ZeroPage();
                     LDA();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 3;
                     break;
                 case Opcodes._LDA_ZERO_PAGE_X:
                     ZeroPageXIndex();
                     LDA();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 4;
                     break;
                 case Opcodes._LDA_ABSOLUTE:
                     Absolute();
                     LDA();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._LDA_ABSOLUTE_X:
                     AbsoluteXIndex();
                     LDA();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._LDA_ABSOLUTE_Y:
                     AbsoluteYIndex();
                     LDA();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._LDA_INDIRECT_X:
                     IndirectXIndex();
                     LDA();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 6;
                     break;
                 case Opcodes._LDA_INDIRECT_Y:
                     IndirectYIndex();
                     LDA();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 5;
                     break;
                 case Opcodes._LDX_IMMEDIATE:
                     Immediate();
                     LDX();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._LDX_ZERO_PAGE:
                     ZeroPage();
                     LDX();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 3;
                     break;
                 case Opcodes._LDX_ZERO_PAGE_Y:
                     ZeroPageYIndex();
                     LDX();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 4;
                     break;
                 case Opcodes._LDX_ABSOLUTE:
                     Absolute();
                     LDX();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._LDX_ABSOLUTE_Y:
                     AbsoluteYIndex();
                     LDX();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._LDY_IMMEDIATE:
                     Immediate();
                     LDY();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._LDY_ZERO_PAGE:
                     ZeroPage();
                     LDY();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 3;
                     break;
                 case Opcodes._LDY_ZERO_PAGE_X:
                     ZeroPageXIndex();
                     LDY();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 4;
                     break;
                 case Opcodes._LDY_ABSOLUTE:
                     Absolute();
                     LDY();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._LDY_ABSOLUTE_X:
                     AbsoluteXIndex();
                     LDY();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._LSR_ACCUMULATOR:
                     Accumulator();
                     LSR();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 2;
                     break;
                 case Opcodes._LSR_ZERO_PAGE:
                     ZeroPage();
                     LSR();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 5;
                     break;
                 case Opcodes._LSR_ZERO_PAGE_X:
                     ZeroPageXIndex();
                     LSR();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 6;
                     break;
                 case Opcodes._LSR_ABSOLUTE:
                     Absolute();
                     LSR();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 6;
                     break;
                 case Opcodes._LSR_ABSOLUTE_X:
                     AbsoluteXIndex();
                     LSR();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 7;
                     break;
                 case Opcodes._NOP:
                     NOP();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 2;
                     break;
                 case Opcodes._ORA_IMMEDIATE:
                     Immediate();
                     ORA();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._ORA_ZERO_PAGE:
                     ZeroPage();
                     ORA();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 3;
                     break;
                 case Opcodes._ORA_ZERO_PAGE_X:
                     ZeroPageXIndex();
                     ORA();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 4;
                     break;
                 case Opcodes._ORA_ABSOLUTE:
                     Absolute();
                     ORA();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._ORA_ABSOLUTE_X:
                     AbsoluteXIndex();
                     ORA();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._ORA_ABSOLUTE_Y:
                     AbsoluteYIndex();
                     ORA();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._ORA_INDIRECT_X:
                     IndirectXIndex();
                     ORA();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 6;
                     break;
                 case Opcodes._ORA_INDIRECT_Y:
                     IndirectYIndex();
                     ORA();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 5;
                     break;
                 case Opcodes._TAX:
                     TAX();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 2;
                     break;
                 case Opcodes._TXA:
                     TXA();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 2;
                     break;
                 case Opcodes._DEX:
                     DEX();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 2;
                     break;
                 case Opcodes._INX:
                     INX();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 2;
                     break;
                 case Opcodes._TAY:
                     TAY();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 2;
                     break;
                 case Opcodes._TYA:
                     TYA();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 2;
                     break;
                 case Opcodes._DEY:
                     DEY();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 2;
                     break;
                 case Opcodes._INY:
                     INY();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 2;
                     break;
                 case Opcodes._ROL_ACCUMULATOR:
                     Accumulator();
                     ROL();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 2;
                     break;
                 case Opcodes._ROL_ZERO_PAGE:
                     ZeroPage();
                     ROL();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 5;
                     break;
                 case Opcodes._ROL_ZERO_PAGE_X:
                     ZeroPageXIndex();
                     ROL();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 6;
                     break;
                 case Opcodes._ROL_ABSOLUTE:
                     Absolute();
                     ROL();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 6;
                     break;
                 case Opcodes._ROL_ABSOLUTE_X:
                     AbsoluteXIndex();
                     ROL();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 7;
                     break;
                 case Opcodes._ROR_ACCUMULATOR:
                     Accumulator();
                     ROR();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 2;
                     break;
                 case Opcodes._ROR_ZERO_PAGE:
                     ZeroPage();
                     ROR();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 5;
                     break;
                 case Opcodes._ROR_ZERO_PAGE_X:
                     ZeroPageXIndex();
                     ROR();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 6;
                     break;
                 case Opcodes._ROR_ABSOLUTE:
                     Absolute();
                     ROR();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 6;
                     break;
                 case Opcodes._ROR_ABSOLUTE_X:
                     AbsoluteXIndex();
                     ROR();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 7;
                     break;
                 case Opcodes._RTI_IMPLIED:
                     Implied();
                     RTI();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 6;
                     break;
                 case Opcodes._RTS_IMPLIED:
                     Implied();
                     RTS();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 6;
                     break;
                 case Opcodes._SBC_IMMEDIATE:
                     Immediate();
                     SBC();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._SBC_ZERO_PAGE:
                     ZeroPage();
                     SBC();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 3;
                     break;
                 case Opcodes._SBC_ZERO_PAGE_X:
                     ZeroPageXIndex();
                     SBC();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 4;
                     break;
                 case Opcodes._SBC_ABSOLUTE:
                     Absolute();
                     SBC();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._SBC_ABSOLUTE_X:
                     AbsoluteXIndex();
                     SBC();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._SBC_ABSOLUTE_Y:
                     AbsoluteYIndex();
                     SBC();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._SBC_INDIRECT_X:
                     IndirectXIndex();
                     SBC();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 6;
                     break;
                 case Opcodes._SBC_INDIRECT_Y:
                     IndirectYIndex();
                     SBC();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 5;
                     break;
                 case Opcodes._STA_ZERO_PAGE:
                     ZeroPage();
                     STA();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 3;
                     break;
                 case Opcodes._STA_ZERO_PAGE_X:
                     ZeroPageXIndex();
                     STA();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 4;
                     break;
                 case Opcodes._STA_ABSOLUTE:
                     Absolute();
                     STA();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._STA_ABSOLUTE_X:
                     AbsoluteXIndex();
                     STA();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 5;
                     break;
                 case Opcodes._STA_ABSOLUTE_Y:
                     AbsoluteYIndex();
                     STA();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 5;
                     break;
                 case Opcodes._STA_INDIRECT_X:
                     IndirectXIndex();
                     STA();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 6;
                     break;
                 case Opcodes._STA_INDIRECT_Y:
                     IndirectYIndex();
                     STA();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 6;
                     break;
                 case Opcodes._TXS:
                     TXS();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 2;
                     break;
                 case Opcodes._TSX:
                     TSX();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 2;
                     break;
                 case Opcodes._PHA:
                     PHA();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 3;
                     break;
                 case Opcodes._PLA:
                     PLA();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 4;
                     break;
                 case Opcodes._PHP:
                     PHP();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 3;
                     break;
                 case Opcodes._PLP:
                     PLP();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 4;
                     break;
                 case Opcodes._STX_ZERO_PAGE:
                     ZeroPage();
                     STX();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 3;
                     break;
                 case Opcodes._STX_ZERO_PAGE_Y:
                     ZeroPageYIndex();
                     STX();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 4;
                     break;
                 case Opcodes._STX_ABSOLUTE:
                     Absolute();
                     STX();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._STY_ZERO_PAGE:
                     ZeroPage();
                     STY();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 3;
                     break;
                 case Opcodes._STY_ZERO_PAGE_Y:
                     ZeroPageYIndex();
                     STY();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 4;
                     break;
                 case Opcodes._STY_ABSOLUTE:
                     Absolute();
                     STY();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 /** - Unofficial / Illegal Opcodes */
                 case Opcodes._AAC_IMMEDIATE:
                     Immediate();
                     AAC();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._AAC_IMMEDIATE_ALT:
                     Immediate();
                     AAC();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._AAX_ZERO_PAGE:
                     ZeroPage();
                     AAX();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 3;
                     break;
                 case Opcodes._AAX_ZERO_PAGE_Y:
                     ZeroPageYIndex();
                     AAX();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 4;
                     break;
                 case Opcodes._AAX_INDIRECT_X:
                     IndirectXIndex();
                     AAX();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 6;
                     break;
                 case Opcodes._AAX_ABSOLUTE:
                     Absolute();
                     AAX();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._ARR_IMMEDIATE:
                     Immediate();
                     ARR();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._ASR_IMMEDIATE:
                     Immediate();
                     ASR();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._ATX_IMMEDIATE:
                     Immediate();
                     ATX();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._AXA_ABSOLUTE_Y:
                     Absolute();
                     AXA();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 5;
                     break;
                 case Opcodes._AXA_INDIRECT_Y:
                     Indirect();
                     AXA();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 6;
                     break;
                 case Opcodes._AXS_IMMEDIATE:
                     Immediate();
                     AXS();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._DCP_ZERO_PAGE:
                     ZeroPage();
                     DCP();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 5;
                     break;
                 case Opcodes._DCP_ZERO_PAGE_X:
                     ZeroPageXIndex();
                     DCP();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 6;
                     break;
                 case Opcodes._DCP_ABSOLUTE:
                     Absolute();
                     DCP();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 6;
                     break;
                 case Opcodes._DCP_ABSOLUTE_X:
                     AbsoluteXIndex();
                     DCP();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 7;
                     break;
                 case Opcodes._DCP_ABSOLUTE_Y:
                     AbsoluteYIndex();
                     DCP();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 7;
                     break;
                 case Opcodes._DCP_INDIRECT_X:
                     IndirectXIndex();
                     DCP();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 8;
                     break;
                 case Opcodes._DCP_INDIRECT_Y:
                     IndirectYIndex();
                     DCP();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 8;
                     break;
                 case Opcodes._DOP_ZERO_PAGE:
                     ZeroPage();
                     DOP();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 3;
                     break;
                 case Opcodes._DOP_ZERO_PAGE_X:
                     ZeroPageXIndex();
                     DOP();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 4;
                     break;
                 case Opcodes._DOP_ZERO_PAGE_X_ALT:
                     ZeroPageXIndex();
                     DOP();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 4;
                     break;
                 case Opcodes._DOP_ZERO_PAGE_ALT:
                     ZeroPage();
                     DOP();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 3;
                     break;
                 case Opcodes._DOP_ZERO_PAGE_X_ALT_2:
                     ZeroPageXIndex();
                     DOP();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 4;
                     break;
                 case Opcodes._DOP_ZERO_PAGE_ALT_2:
                     ZeroPage();
                     DOP();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 3;
                     break;
                 case Opcodes._DOP_ZERO_PAGE_X_ALT_3:
                     ZeroPageXIndex();
                     DOP();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 4;
                     break;
                 case Opcodes._DOP_IMMEDIATE:
                     Immediate();
                     DOP();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._DOP_IMMEDIATE_ALT:
                     Immediate();
                     DOP();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._DOP_IMMEDIATE_ALT_2:
                     Immediate();
                     DOP();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._DOP_IMMEDIATE_ALT_3:
                     Immediate();
                     DOP();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._DOP_ZERO_PAGE_X_ALT_4:
                     ZeroPageXIndex();
                     DOP();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 4;
                     break;
                 case Opcodes._DOP_IMMEDIATE_ALT_4:
                     Immediate();
                     DOP();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._DOP_ZERO_PAGE_X_ALT_5:
                     ZeroPageXIndex();
                     DOP();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 4;
                     break;
                 case Opcodes._ISC_ZERO_PAGE:
                     ZeroPage();
                     ISC();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 5;
                     break;
                 case Opcodes._ISC_ZERO_PAGE_X:
                     ZeroPageXIndex();
                     ISC();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 6;
                     break;
                 case Opcodes._ISC_ABSOLUTE:
                     Absolute();
                     ISC();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 6;
                     break;
                 case Opcodes._ISC_ABSOLUTE_X:
                     AbsoluteXIndex();
                     ISC();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 7;
                     break;
                 case Opcodes._ISC_ABSOLUTE_Y:
                     AbsoluteYIndex();
                     ISC();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 7;
                     break;
                 case Opcodes._ISC_INDIRECT_X:
                     IndirectXIndex();
                     ISC();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 8;
                     break;
                 case Opcodes._ISC_INDIRECT_Y:
                     IndirectYIndex();
                     ISC();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 8;
                     break;
                 case Opcodes._KIL_IMPLIED:
@@ -1373,48 +1383,48 @@ namespace DadsNESEmulator.NESHardware
                 case Opcodes._KIL_IMPLIED_ALT_11:
                     Implied();
                     KIL();
-                    PC += 1;
+                    //PC += 1;
                     break;
                 case Opcodes._LAR_ABSOLUTE_Y:
                     Absolute();
                     LAR();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._LAX_ZERO_PAGE:
                     ZeroPage();
                     LAX();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 3;
                     break;
                 case Opcodes._LAX_ZERO_PAGE_Y:
                     ZeroPageYIndex();
                     LAX();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 4;
                     break;
                 case Opcodes._LAX_ABSOLUTE:
                     Absolute();
                     LAX();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._LAX_ABSOLUTE_Y:
                     AbsoluteYIndex();
                     LAX();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._LAX_INDIRECT_X:
                     IndirectXIndex();
                     LAX();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 6;
                     break;
                 case Opcodes._LAX_INDIRECT_Y:
                     IndirectYIndex();
                     LAX();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 5;
                     break;
                 case Opcodes._NOP_IMPLIED:
@@ -1425,199 +1435,199 @@ namespace DadsNESEmulator.NESHardware
                 case Opcodes._NOP_IMPLIED_ALT_5:
                     Implied();
                     NOP();
-                    PC += 1;
+                    //PC += 1;
                     CPUCycles += 2;
                     break;
                 case Opcodes._RLA_ZERO_PAGE:
                     ZeroPage();
                     RLA();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 5;
                     break;
                 case Opcodes._RLA_ZERO_PAGE_X:
                     ZeroPageXIndex();
                     RLA();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 6;
                     break;
                 case Opcodes._RLA_ABSOLUTE:
                     Absolute();
                     RLA();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 6;
                     break;
                 case Opcodes._RLA_ABSOLUTE_X:
                     AbsoluteXIndex();
                     RLA();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 7;
                     break;
                 case Opcodes._RLA_ABSOLUTE_Y:
                     AbsoluteYIndex();
                     RLA();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 7;
                     break;
                 case Opcodes._RLA_INDIRECT_X:
                     IndirectXIndex();
                     RLA();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 8;
                     break;
                 case Opcodes._RLA_INDIRECT_Y:
                     IndirectYIndex();
                     RLA();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 8;
                     break;
                 case Opcodes._RRA_ZERO_PAGE:
                     ZeroPage();
                     RRA();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 5;
                     break;
                 case Opcodes._RRA_ZERO_PAGE_X:
                     ZeroPageXIndex();
                     RRA();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 6;
                     break;
                 case Opcodes._RRA_ABSOLUTE:
                     Absolute();
                     RRA();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 6;
                     break;
                 case Opcodes._RRA_ABSOLUTE_X:
                     AbsoluteXIndex();
                     RRA();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 7;
                     break;
                 case Opcodes._RRA_ABSOLUTE_Y:
                     AbsoluteYIndex();
                     RRA();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 7;
                     break;
                 case Opcodes._RRA_INDIRECT_X:
                     IndirectXIndex();
                     RRA();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 8;
                     break;
                 case Opcodes._RRA_INDIRECT_Y:
                     IndirectYIndex();
                     RRA();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 8;
                     break;
                 case Opcodes._SBC_IMMEDIATE_ALT:
                     Immediate();
                     SBC();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._SLO_ZERO_PAGE:
                     ZeroPage();
                     SLO();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 5;
                     break;
                 case Opcodes._SLO_ZERO_PAGE_X:
                     ZeroPageXIndex();
                     SLO();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 6;
                     break;
                 case Opcodes._SLO_ABSOLUTE:
                     Absolute();
                     SLO();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 6;
                     break;
                 case Opcodes._SLO_ABSOLUTE_X:
                     AbsoluteXIndex();
                     SLO();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 7;
                     break;
                 case Opcodes._SLO_ABSOLUTE_Y:
                     AbsoluteYIndex();
                     SLO();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 7;
                     break;
                 case Opcodes._SLO_INDIRECT_X:
                     IndirectXIndex();
                     SLO();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 8;
                     break;
                 case Opcodes._SLO_INDIRECT_Y:
                     IndirectYIndex();
                     SLO();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 8;
                     break;
                 case Opcodes._SRE_ZERO_PAGE:
                     ZeroPage();
                     SRE();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 5;
                     break;
                 case Opcodes._SRE_ZERO_PAGE_X:
                     ZeroPageXIndex();
                     SRE();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 6;
                     break;
                 case Opcodes._SRE_ABSOLUTE:
                     Absolute();
                     SRE();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 6;
                     break;
                 case Opcodes._SRE_ABSOLUTE_X:
                     AbsoluteXIndex();
                     SRE();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 7;
                     break;
                 case Opcodes._SRE_ABSOLUTE_Y:
                     AbsoluteYIndex();
                     SRE();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 7;
                     break;
                 case Opcodes._SRE_INDIRECT_X:
                     IndirectXIndex();
                     SRE();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 8;
                     break;
                 case Opcodes._SRE_INDIRECT_Y:
                     IndirectYIndex();
                     SRE();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 8;
                     break;
                 case Opcodes._SXA_ABSOLUTE_Y:
                     AbsoluteYIndex();
                     SXA();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 5;
                     break;
                 case Opcodes._SYA_ABSOLUTE_X:
                     AbsoluteXIndex();
                     SYA();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 5;
                     break;
                 case Opcodes._TOP_ABSOLUTE:
                     Absolute();
                     TOP();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._TOP_ABSOLUTE_X:
@@ -1628,19 +1638,19 @@ namespace DadsNESEmulator.NESHardware
                 case Opcodes._TOP_ABSOLUTE_X_ALT_5:
                     Absolute();
                     TOP();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 4;
                     break;
                 case Opcodes._XAA_IMMEDIATE:
                     Immediate();
                     XAA();
-                    PC += 2;
+                    //PC += 2;
                     CPUCycles += 2;
                     break;
                 case Opcodes._XAS_ABSOLUTE_Y:
                     AbsoluteYIndex();
                     XAS();
-                    PC += 3;
+                    //PC += 3;
                     CPUCycles += 5;
                     break;
                 default:
@@ -1651,10 +1661,12 @@ namespace DadsNESEmulator.NESHardware
 
         private byte ReadNextByte()
         {
-            byte opCode = Mem.ReadByte(PC++);
-            Console.WriteLine("  ReadNextByte PC: 0x" + PC.ToString("X4") + " Returned opcode: 0x" + opCode.ToString("X2") + " " + Opcodes.GetOpcodeName(opCode));
+            byte byteRead = Mem.ReadByte(PC);
+            //Console.WriteLine("  ReadNextByte PC: 0x" + PC.ToString("X4") + " Returned byte: 0x" + byteRead.ToString("X2"));
+            Console.Write(byteRead.ToString("X2") + "  ");
+            PC++;
 
-            return opCode;
+            return byteRead;
         }
 
         #endregion
@@ -1681,7 +1693,7 @@ namespace DadsNESEmulator.NESHardware
         private void ADC()
         {
             /** - Read the next byte. */
-            byte byteRead = Mem.ReadByte(AbsoluteAddress);
+            byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
 
             /** - If P[0](Carry) is true, carryflag = 1 else carryflag = 0 */
             byte carryFlag = P[0] ? (byte)1 : (byte)0;
@@ -1695,16 +1707,13 @@ namespace DadsNESEmulator.NESHardware
             /** - Set the zero and negative flags */
             SetZNStatusRegisterProcessorFlags(A);
 
-            /** - Set the carry flag (true if greater than 255) */
-            P[0] = result > 0xFF;
+            /** - Set the carry flag (Set if overflow in bit 7) */
+            P[0] = (byteRead & 0x80) != 0;
 
-            /** - Set the overflow flag - Set if sign bit is incorrect.
-             * ((Accumulator XOR result) AND (value XOR result) AND (128)) != 0.
-             * If both inputs have the opposite sign to the result, it's an overflow.
-             * e.g. -128 & 128 & 128 = 0 is overflow
-             */
-            P[6] = ((A ^ result) & (byteRead ^ result) & 0x80) != 0;
-            
+            /** - Set the overflow flag - Set if overflow in bit 7 */
+            P[6] = (A >> 7 & 1) != 0;
+            //P[6] = ((A ^ result) & (byteRead ^ result) & 0x80) != 0;
+
         }
 
         /**
@@ -1720,10 +1729,10 @@ namespace DadsNESEmulator.NESHardware
         private void AND()
         {
             /** - Read the next byte. */
-            byte value = Mem.ReadByte(AbsoluteAddress);
+            byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
 
             /** - AND values from the operand and the accumulator together, store the result in the Accumulator Register. */
-            A &= value;
+            A &= byteRead;
 
             /** - Set the zero and negative flags */
             SetZNStatusRegisterProcessorFlags(A);
@@ -1788,15 +1797,17 @@ namespace DadsNESEmulator.NESHardware
          * @note    A & M, N = M7, V = M6
          * 
          */
-            private void BIT()
+        private void BIT()
         {
             /** - Read the next byte. */
-            byte value = Mem.ReadByte(AbsoluteAddress);
-            byte temp = (byte)(A & value);
+            byte byteRead = Mem.ReadByte(AbsoluteAddress);
+            byte temp = (byte)(A & byteRead);
 
-            SetStatusRegisterProcessorFlag(ProcessorFlags.Z, temp);
-            SetStatusRegisterProcessorFlag(ProcessorFlags.N, value);
-            SetStatusRegisterProcessorFlag(ProcessorFlags.V, value);
+            //SetStatusRegisterProcessorFlag(ProcessorFlags.Z, temp);
+            /** - Sets the Zero Flag if the value is 0x00, otherwise clears it. */
+            P[1] = ((temp & 0xFF) == 0);
+            SetStatusRegisterProcessorFlag(ProcessorFlags.N, byteRead);
+            SetStatusRegisterProcessorFlag(ProcessorFlags.V, byteRead);
         }
 
         private void BPL()
@@ -1804,6 +1815,7 @@ namespace DadsNESEmulator.NESHardware
             //Negative Flag is 0/false
             if (P[7] == false)
             {
+                Console.WriteLine("    BPL taken");
                 /** - Branch was taken, add additional clock cycle. */
                 CPUCycles++;
                 AbsoluteAddress = (ushort)(PC + RelativeAddress);
@@ -1823,6 +1835,7 @@ namespace DadsNESEmulator.NESHardware
             //Negative Flag is 1/true
             if (P[7] == true)
             {
+                Console.WriteLine("    BMI taken");
                 /** - Branch was taken, add additional clock cycle. */
                 CPUCycles++;
                 AbsoluteAddress = (ushort)(PC + RelativeAddress);
@@ -1842,6 +1855,7 @@ namespace DadsNESEmulator.NESHardware
             //Overflow Flag is 0/false
             if (P[6] == false)
             {
+                Console.WriteLine("    BVC taken");
                 /** - Branch was taken, add additional clock cycle. */
                 CPUCycles++;
                 AbsoluteAddress = (ushort)(PC + RelativeAddress);
@@ -1861,6 +1875,7 @@ namespace DadsNESEmulator.NESHardware
             //Overflow Flag is 1/true
             if (P[6] == true)
             {
+                Console.WriteLine("    BVS taken");
                 /** - Branch was taken, add additional clock cycle. */
                 CPUCycles++;
                 AbsoluteAddress = (ushort)(PC + RelativeAddress);
@@ -1877,9 +1892,10 @@ namespace DadsNESEmulator.NESHardware
 
         private void BCC()
         {
-            // Carry Flag is 0/false
+            // Carry Flag is clear, 0/false
             if (P[0] == false)
             {
+                Console.WriteLine("    BCC taken");
                 /** - Branch was taken, add additional clock cycle. */
                 CPUCycles++;
                 AbsoluteAddress = (ushort)(PC + RelativeAddress);
@@ -1896,9 +1912,10 @@ namespace DadsNESEmulator.NESHardware
 
         private void BCS()
         {
-            // Carry Flag is 1/true
+            // Carry Flag is set, 1/true
             if (P[0] == true)
             {
+                Console.WriteLine("    BCS taken");
                 /** - Branch was taken, add additional clock cycle. */
                 CPUCycles++;
                 AbsoluteAddress = (ushort)(PC + RelativeAddress);
@@ -1918,6 +1935,7 @@ namespace DadsNESEmulator.NESHardware
             // Zero Flag is 0/false
             if (P[1] == false)
             {
+                Console.WriteLine("    BNE taken");
                 /** - Branch was taken, add additional clock cycle. */
                 CPUCycles++;
                 AbsoluteAddress = (ushort)(PC + RelativeAddress);
@@ -1937,6 +1955,7 @@ namespace DadsNESEmulator.NESHardware
             // Zero Flag is 1/true
             if (P[1] == true)
             {
+                Console.WriteLine("    BEQ taken");
                 /** - Branch was taken, add additional clock cycle. */
                 CPUCycles++;
                 AbsoluteAddress = (ushort)(PC + RelativeAddress);
@@ -1965,37 +1984,69 @@ namespace DadsNESEmulator.NESHardware
             //PC = (ushort)(Mem.ReadByte(0xFFFE) | (Mem.ReadByte(0xFFFF) << 8));
 
             /** - Setting this an running nes test sticks this in an infinite loop. */
-            //PC = Mem.ReadShort(IRQ_BRK_VECTOR_ADDRESS);
+            PC = Mem.ReadShort(IRQ_BRK_VECTOR_ADDRESS);
         }
 
+        /**
+         * @brief   CMP - Compare Memory and Accumulator
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    A - M
+         * 
+         */
         private void CMP()
         {
             /** - Read the next byte. */
-            byte value = Mem.ReadByte(AbsoluteAddress);
-            byte temp = (byte)(A - value);
-            P[0] = A >= value;
-            P[1] = A == value;
-            P[7] = temp > 0x7F;
+            byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
+            
+            byte tempByte = (byte)(A - byteRead);
+
+            /** - Set the Carry flag. */
+            //P[0] = (tempByte & 0x80) != 0;
+            //P[0] = ((tempByte & 0x100) == 0);
+            P[0] = A >= byteRead;
+
+            /** - Set the Zero flag and Negative flag. */
+            SetZNStatusRegisterProcessorFlags(tempByte);
         }
 
         private void CPX()
         {
             /** - Read the next byte. */
-            byte value = Mem.ReadByte(AbsoluteAddress);
-            byte temp = (byte)(X - value);
-            P[0] = X >= value;
-            P[1] = X == value;
-            P[7] = temp > 0x7F;
+            byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
+
+            byte tempByte = (byte)(X - byteRead);
+
+            /** - Set the Carry flag. */
+            //P[0] = (tempByte & 0x80) != 0;
+            //P[0] = ((tempByte & 0x100) == 0);
+            P[0] = X >= byteRead;
+            //P[1] = X == value;
+            //P[7] = temp > 0x7F;
+
+            /** - Set the Zero flag and Negative flag. */
+            SetZNStatusRegisterProcessorFlags(tempByte);
         }
 
         private void CPY()
         {
             /** - Read the next byte. */
-            byte value = Mem.ReadByte(AbsoluteAddress);
-            byte temp = (byte)(Y - value);
-            P[0] = Y >= value;
-            P[1] = Y == value;
-            P[7] = temp > 0x7F;
+            byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
+
+            byte tempByte = (byte)(Y - byteRead);
+
+            /** - Set the Carry flag. */
+            //P[0] = (tempByte & 0x80) != 0;
+            //P[0] = ((tempByte & 0x100) == 0);
+            P[0] = Y >= byteRead;
+            //P[1] = Y == value;
+            //P[7] = temp > 0x7F;
+
+            /** - Set the Zero flag and Negative flag. */
+            SetZNStatusRegisterProcessorFlags(tempByte);
         }
 
         private void DEC()
@@ -2012,15 +2063,16 @@ namespace DadsNESEmulator.NESHardware
 
         private void EOR()
         {
-            byte operand = Mem.ReadByte((ushort)(PC + 1));
+            /** - Read the next byte. */
+            byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
 
             /** - XOR values from the operand and the accumulator together */
-            operand ^= A;
+            byteRead ^= A;
 
-            SetZNStatusRegisterProcessorFlags(operand);
+            SetZNStatusRegisterProcessorFlags(byteRead);
 
             /** - Store the Operand in the Accumulator Register. */
-            A = operand;
+            A = byteRead;
         }
 
         private void CLC()
@@ -2088,32 +2140,34 @@ namespace DadsNESEmulator.NESHardware
 
         private void LDA()
         {
-            byte operand = Mem.ReadByte((ushort)(PC + 1));
+            byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
             
-            SetZNStatusRegisterProcessorFlags(operand);
+            SetZNStatusRegisterProcessorFlags(byteRead);
 
             /** - Stores the Operand in the Accumulator Register. */
-            A = operand;
+            A = byteRead;
         }
 
         private void LDX()
         {
-            byte operand = Mem.ReadByte((ushort)(PC + 1));
+            /** - Read the next byte. */
+            byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
 
-            SetZNStatusRegisterProcessorFlags(operand);
+            SetZNStatusRegisterProcessorFlags(byteRead);
 
             /** - Stores the Operand in the X Index Register. */
-            X = operand;
+            X = byteRead;
         }
 
         private void LDY()
         {
-            byte operand = Mem.ReadByte((ushort)(PC + 1));
+            /** - Read the next byte. */
+            byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
 
-            SetZNStatusRegisterProcessorFlags(operand);
+            SetZNStatusRegisterProcessorFlags(byteRead);
 
             /** - Stores the Operand in the Y Index Register. */
-            Y = operand;
+            Y = byteRead;
         }
 
         /**
@@ -2178,7 +2232,7 @@ namespace DadsNESEmulator.NESHardware
 
         private void ORA()
         {
-            byte byteRead = Mem.ReadByte(AbsoluteAddress);
+            byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
 
             /** - OR values from the byte read and the accumulator together */
             byteRead |= A;
@@ -2349,18 +2403,28 @@ namespace DadsNESEmulator.NESHardware
             PC = (ushort)(ConvertFromBytes(Pop(), Pop()) + 1);
         }
 
+        /**
+         * @brief   SBC - Subtract Memory from Accumulator with Borrow
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    A - M - ~C -> A 
+         * 
+         */
         private void SBC()
         {
-            byte byteRead = Mem.ReadByte(AbsoluteAddress);
-
-            /** - Invert byte read and treat it like ADC */
-            byteRead ^= 0xFF;
+            byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
 
             /** - If P[0](Carry) is true, carryflag = 1 else carryflag = 0 */
             byte carryFlag = P[0] ? (byte)1 : (byte)0;
 
+            // ug ~carryFlag = -2, so using 1 - carryFlag instead
             /** - Add the accumulator, byte read, and carryFlag */
-            byte result = (byte)(A + byteRead + carryFlag);
+            byte result = (byte)(A - byteRead - (1 - carryFlag));
+
+            byte oldA = A;
 
             /** - Set the Accumulator (0xFF keeps the value in the last 8 bits, not needed because this is a byte, but kept for reference) */
             A = (byte)(result & 0xFF);
@@ -2368,15 +2432,13 @@ namespace DadsNESEmulator.NESHardware
             /** - Set the zero and negative flags */
             SetZNStatusRegisterProcessorFlags(A);
 
-            /** - Set the carry flag (true if greater than 255) */
-            P[0] = result > 0xFF;
+            /** - Clear the carry flag (Clear if overflow in bit 7) */
+            P[0] = (result & 0x80) == 0;
 
-            /** - Set the overflow flag - Set if sign bit is incorrect.
-             * ((Accumulator XOR result) AND (value XOR result) AND (128)) != 0.
-             * If both inputs have the opposite sign to the result, it's an overflow.
-             * e.g. -128 & 128 & 128 = 0 is overflow
-             */
-            P[6] = ((A ^ result) & (byteRead ^ result) & 0x80) != 0;
+            /** - Set the overflow flag - Set if overflow in bit 7 */
+            P[6] = (~(oldA ^ byteRead) & (oldA ^ (byte)result) & 0x80) != 0;
+            //P[6] = (A >> 7 & 1) != 0;
+            //P[6] = ((A ^ result) & (byteRead ^ result) & 0x80) != 0;
         }
 
         /**
@@ -2442,7 +2504,7 @@ namespace DadsNESEmulator.NESHardware
         private void STX()
         {
             /** - Stores the X Index Register into memory. */
-            Mem.WriteByte(PC, X);
+            Mem.WriteByte(AbsoluteAddress, X);
         }
 
         private void STY()
@@ -2456,7 +2518,7 @@ namespace DadsNESEmulator.NESHardware
         #region Illegal Opcodes
         private void AAC()
         {
-
+            byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
         }
 
         private void AAX()
@@ -2466,17 +2528,17 @@ namespace DadsNESEmulator.NESHardware
 
         private void ARR()
         {
-
+            byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
         }
 
         private void ASR()
         {
-
+            byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
         }
 
         private void ATX()
         {
-
+            byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
         }
 
         private void AXA()
@@ -2486,7 +2548,7 @@ namespace DadsNESEmulator.NESHardware
 
         private void AXS()
         {
-
+            byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
         }
 
         private void DCP()
@@ -2496,7 +2558,7 @@ namespace DadsNESEmulator.NESHardware
 
         private void DOP()
         {
-
+            byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
         }
 
         private void ISC()
@@ -2555,7 +2617,7 @@ namespace DadsNESEmulator.NESHardware
 
         private void XAA()
         {
-
+            byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
         }
 
         private void XAS()
@@ -2585,9 +2647,9 @@ namespace DadsNESEmulator.NESHardware
         private void Immediate()
         {
             CurrentAddressMode = AddressModes.Immediate;
-
-            ushort absoluteAddress = ReadNextByte();
-            AbsoluteAddress = absoluteAddress;
+            ImmediateByte = ReadNextByte();
+            //ushort absoluteAddress = ReadNextByte();
+            //AbsoluteAddress = absoluteAddress;
         }
 
         private void Implied()
@@ -2595,13 +2657,10 @@ namespace DadsNESEmulator.NESHardware
             CurrentAddressMode = AddressModes.Implied;
 
             /*
-             * Many instructions do not require access to operands stored in memory.
-             * Examples of implied instructions are CLD (Clear Decimal Mode) and NOP (No Operation).
+             * For many 6502 instructions the source and destination of the information to be manipulated is implied directly by the
+             * function of the instruction itself and no further operand needs to be specified. Operations like 'Clear Carry Flag'
+             * (CLC), CLD (Clear Decimal Mode), NOP (No Operation) and 'Return from Subroutine' (RTS) are implicit.
              */
-
-            // Store Accumulator in a temp var???
-            // ushort tempAccumulatorValue = A;
-
         }
 
         private void ZeroPage()
@@ -2638,7 +2697,13 @@ namespace DadsNESEmulator.NESHardware
             ushort low = ReadNextByte();
             ushort high = ReadNextByte();
 
+            //Console.WriteLine("low: 0x" + low.ToString("X"));
+            //Console.WriteLine("high: 0x" + high.ToString("X"));
+
             ushort absoluteAddress = (ushort)((high << 8) | low);
+
+            Console.WriteLine("    Absolute Address: 0x" + absoluteAddress.ToString("X"));
+
             AbsoluteAddress = absoluteAddress;
         }
 
@@ -2817,10 +2882,10 @@ namespace DadsNESEmulator.NESHardware
             /** - Sets the Negative Flag equal to the 7th bit. */
             SetStatusRegisterProcessorFlag(ProcessorFlags.N, value);
 
-            /** - Sets the Zero Flag if the Operand is $#00, otherwise clears it. */
-            //P[1] = (value & 0xFF) == 0;
-            SetStatusRegisterProcessorFlag(ProcessorFlags.Z, value);
+            /** - Sets the Zero Flag if the value is 0x00, otherwise clears it. */
+            P[1] = ((value & 0xFF) == 0);
 
+            //Console.WriteLine("value: " + value + " Zero Flag P[1]: " + P[1] + " Negative Flag: " + P[7]);
         }
 
         private byte ConvertToByte(BitArray bits)
@@ -2866,7 +2931,7 @@ namespace DadsNESEmulator.NESHardware
         private byte Pop()
         {
             S++;
-            byte value = Mem.ReadByte((ushort)(STACK_ADDRESS + ++S));
+            byte value = Mem.ReadByte((ushort)(STACK_ADDRESS + S));
             return value;
         }
 

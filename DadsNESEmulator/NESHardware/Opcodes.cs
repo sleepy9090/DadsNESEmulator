@@ -1089,7 +1089,7 @@ namespace DadsNESEmulator.NESHardware
                 case _KIL_IMPLIED_ALT_9:
                 case _KIL_IMPLIED_ALT_10:
                 case _KIL_IMPLIED_ALT_11:
-                    opcodeName = "KIL Implied";
+                    opcodeName = "KIL Implied (Illegal)";
                     break;
                 case _LAR_ABSOLUTE_Y:
                     opcodeName = "LAR Absolute Y (Illegal)";
@@ -1118,7 +1118,7 @@ namespace DadsNESEmulator.NESHardware
                 case _NOP_IMPLIED_ALT_3:
                 case _NOP_IMPLIED_ALT_4:
                 case _NOP_IMPLIED_ALT_5:
-                    opcodeName = "NOP Implied";
+                    opcodeName = "NOP Implied (Illegal)";
                     break;
                 case _RLA_ZERO_PAGE:
                     opcodeName = "RLA Zero Page (Illegal)";
