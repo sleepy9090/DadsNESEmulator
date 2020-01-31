@@ -249,8 +249,8 @@ namespace DadsNESEmulator.NESHardware
             using (BinaryReader nesProgramBinaryReader = new BinaryReader(File.Open(Path, FileMode.Open)))
             {
                 Identification = new string(nesProgramBinaryReader.ReadChars(4));  // flags(0..3)
-                PRGROMSizeLSB = nesProgramBinaryReader.ReadByte(); // flags4
-                CHRROMSizeLSB = nesProgramBinaryReader.ReadByte(); // flags5
+                PRGROMSizeLSB = nesProgramBinaryReader.ReadByte(); // flags4 - Number of PRG banks
+                CHRROMSizeLSB = nesProgramBinaryReader.ReadByte(); // flags5 - Number of CHR banks
                 flags6 = nesProgramBinaryReader.ReadByte();
                 flags7 = nesProgramBinaryReader.ReadByte();
                 flags8 = nesProgramBinaryReader.ReadByte();

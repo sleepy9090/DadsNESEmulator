@@ -101,8 +101,9 @@ namespace DadsNESEmulator.NESHardware
         private Memory ioRegistersMem = new Memory(0x20); // 8
         private Memory expansionRomMem = new Memory(0x1FE0); // 8160
         private Memory sramMem = new Memory(0x2000); // 8192
-        private Memory cartridgeLowerBankMem = new Memory(0x4000); // 16384
-        private Memory cartridgeUpperBankMem = new Memory(0x4000); // 16384
+
+        private Memory cartridgeLowerPrgBankMem = new Memory(0x4000); // 16384
+        private Memory cartridgeUpperPrgBankMem = new Memory(0x4000); // 16384
         private PPU _ppu;
         private int Debug = 0;
 
@@ -111,26 +112,61 @@ namespace DadsNESEmulator.NESHardware
             _ppu = ppu;
         }
 
-        public void LoadROM(byte[] nesProgram)
+        public void LoadROM(byte[] nesProgram, int prgRomSize, byte prgRomBanks, int chrRomSize, byte chrRomBanks)
         {
             Console.WriteLine("LoadROM: nesProgram.Length: " + nesProgram.Length.ToString("X4"));
 
-            /** - Load the ROM into memory. */
-            if (nesProgram.Length > 0x4000)
+            // Just NROM for now, later down the road pull this out into a separate object and add the other mappers
+            /**
+             * PRG ROM size: 16 KiB for NROM-128, 32 KiB for NROM-256 (DIP-28 standard pinout)
+             * PRG ROM bank size: Not bankswitched
+             * PRG RAM: 2 or 4 KiB, not bankswitched, only in Family Basic (but most emulators provide 8)
+             * CHR capacity: 8 KiB ROM (DIP-28 standard pinout) but most emulators support RAM
+             * CHR bank size: Not bankswitched, see CNROM
+             * Nametable mirroring: Solder pads select vertical or horizontal mirroring
+             * Subject to bus conflicts: Yes, but irrelevant
+             *
+             * All Banks are fixed,
+             * CPU $6000-$7FFF: Family Basic only: PRG RAM, mirrored as necessary to fill entire 8 KiB window, write protectable with an external switch
+             * CPU $8000-$BFFF: First 16 KB of ROM.
+             * CPU $C000-$FFFF: Last 16 KB of ROM (NROM-256) or mirror of $8000-$BFFF (NROM-128).
+             */
+            int prgBankSize = prgRomSize / prgRomBanks;
+
+            if (prgRomBanks == 2)
             {
-                Console.WriteLine("> 0x4000");
-                cartridgeLowerBankMem.Write(0x0, new ArraySegment<byte>(nesProgram, 0, 0x4000).ToArray()); //$8000 - $BFFF
-                cartridgeUpperBankMem.Write(0x0, new ArraySegment<byte>(nesProgram, 0, 0x4000).ToArray()); //$C000 - $FFFF
-                //cartridgeUpperBankMem.Write(0x0, new ArraySegment<byte>(nesProgram, 0x4000, 0x4000).ToArray());
-                //cartridgeUpperBankMem.Write(0x0, new ArraySegment<byte>(nesProgram, 0x4000, nesProgram.Length - 0x4000).ToArray());
+                cartridgeLowerPrgBankMem.Write(0x0, new ArraySegment<byte>(nesProgram, 0, prgBankSize).ToArray()); //$8000 - $BFFF
+                cartridgeUpperPrgBankMem.Write(0x0, new ArraySegment<byte>(nesProgram, 0x4000, prgBankSize).ToArray()); //$C000 - $FFFF
+                // chrrom is mapped to the PPU - ROM in the cartridge which is connected to the PPU, normally mapped at $0000-$1FFF and holding pattern tables.
             }
             else
             {
-                Console.WriteLine("< 0x4000");
-                cartridgeLowerBankMem = new Memory(0x4000); // 16384
-                cartridgeUpperBankMem = cartridgeLowerBankMem;
-                cartridgeLowerBankMem.Write(0x0, nesProgram);
+                // Mirror
+                cartridgeLowerPrgBankMem.Write(0x0, new ArraySegment<byte>(nesProgram, 0, 0x4000).ToArray()); //$8000 - $BFFF
+                cartridgeUpperPrgBankMem.Write(0x0, new ArraySegment<byte>(nesProgram, 0, 0x4000).ToArray()); //$8000 - $BFFF
+                // chrrom is mapped to the PPU - ROM in the cartridge which is connected to the PPU, normally mapped at $0000-$1FFF and holding pattern tables.
             }
+
+
+
+
+
+            /** - Load the ROM into memory. */
+            //if (nesProgram.Length > 0x4000)
+            //{
+            //Console.WriteLine("> 0x4000");
+            //cartridgeLowerBankMem.Write(0x0, new ArraySegment<byte>(nesProgram, 0, 0x4000).ToArray()); //$8000 - $BFFF
+            //cartridgeUpperBankMem.Write(0x0, new ArraySegment<byte>(nesProgram, 0, 0x4000).ToArray()); //$C000 - $FFFF
+            //cartridgeUpperBankMem.Write(0x0, new ArraySegment<byte>(nesProgram, 0x4000, 0x4000).ToArray());
+            //cartridgeUpperBankMem.Write(0x0, new ArraySegment<byte>(nesProgram, 0x4000, nesProgram.Length - 0x4000).ToArray());
+            //}
+            //else
+            //{
+            //    Console.WriteLine("< 0x4000");
+            //    cartridgeLowerBankMem = new Memory(0x4000); // 16384
+            //    cartridgeUpperBankMem = cartridgeLowerBankMem;
+            //    cartridgeLowerBankMem.Write(0x0, nesProgram);
+            //}
 
             //Console.WriteLine("Cartridge Lower Bank: ");
             //for (ushort i = 0; i < 0x4000; i++)
@@ -143,7 +179,7 @@ namespace DadsNESEmulator.NESHardware
             //{
             //    Console.Write("0x" + cartridgeUpperBankMem.Read(i).ToString("X") + " ");
             //}
-            
+
         }
 
         public byte ReadByte(ushort address)
@@ -172,11 +208,11 @@ namespace DadsNESEmulator.NESHardware
             }
             else if (address < 0xC000)
             {
-                byteRead = cartridgeLowerBankMem.Read((ushort) (address - 0x8000));
+                byteRead = cartridgeLowerPrgBankMem.Read((ushort) (address - 0x8000));
             }
             else
             {
-                byteRead = cartridgeUpperBankMem.Read((ushort) (address - 0xC000));
+                byteRead = cartridgeUpperPrgBankMem.Read((ushort) (address - 0xC000));
             }
 
             if (Debug == 1)
@@ -363,11 +399,11 @@ namespace DadsNESEmulator.NESHardware
             }
             else if (address < 0xC000)
             {
-                cartridgeLowerBankMem.Write((ushort) (address - 0x8000), value);
+                cartridgeLowerPrgBankMem.Write((ushort) (address - 0x8000), value);
             }
             else
             {
-                cartridgeUpperBankMem.Write((ushort) (address - 0xC000), value);
+                cartridgeUpperPrgBankMem.Write((ushort) (address - 0xC000), value);
             }
 
             if (Debug == 1)

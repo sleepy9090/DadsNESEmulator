@@ -480,17 +480,16 @@ namespace DadsNESEmulator.NESHardware
         public const byte _SRE_INDIRECT_X = 0x43; // 2, 8
         public const byte _SRE_INDIRECT_Y = 0x53; // 2, 8
 
-        /** - SXA (SHX) [XAS] (AND X register with the high byte of the target address of the argument + 1. Store the result in memory. M =3D X AND HIGH(arg) + 1 */
+        /** - SXA (SHX) [XAS] (AND X register with the high byte of the target address of the argument + 1. Store the result in memory. M =3D X AND HIGH(arg) + 1) */
         /** - Affects Flags: none */
         public const byte _SXA_ABSOLUTE_Y = 0x9E; // 3, 5
 
-        /** - SYA (SHY) [SAY] (AND Y register with the high byte of the target address of the argument + 1. Store the result in memory. M =3D Y AND HIGH(arg) + 1 */
+        /** - SYA (SHY) [SAY] (AND Y register with the high byte of the target address of the argument + 1. Store the result in memory. M =3D Y AND HIGH(arg) + 1) */
         /** - Affects Flags: none */
         public const byte _SYA_ABSOLUTE_X = 0x9C; // 3, 5
 
-        /** - SYA (SHY) [SAY] (AND Y register with the high byte of the target address of the argument + 1. Store the result in memory. M =3D Y AND HIGH(arg) + 1 */
+        /** - TOP (NOP) [SKW](No operation (tripple NOP). The argument has no signifi-cance.) */
         /** - Affects Flags: none */
-        /** - + add 1 cycle if page boundary crossed */
         public const byte _TOP_ABSOLUTE = 0x0C; // 3, 4
         public const byte _TOP_ABSOLUTE_X = 0x1C; // 3, 4+
         public const byte _TOP_ABSOLUTE_X_ALT = 0x3C; // 3, 4+
@@ -658,7 +657,7 @@ namespace DadsNESEmulator.NESHardware
                     opcodeName = "CPX Absolute";
                     break;
                 case _CPY_IMMEDIATE:
-                    opcodeName = "CPX Immediate";
+                    opcodeName = "CPY Immediate";
                     break;
                 case _CPY_ZERO_PAGE:
                     opcodeName = "CPY Zero Page";

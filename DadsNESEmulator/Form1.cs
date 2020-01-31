@@ -43,23 +43,28 @@ namespace DadsNESEmulator
             byte[] nesProgramBytes = File.ReadAllBytes(path);
             byte[] nesProgramBytesToLoad;
 
+            if (cartridge.MapperByte != 0x0)
+            {
+                Console.WriteLine("Unsupported mapper: " + cartridge.MapperByte);
+                Console.WriteLine("Only NROM is supported at this time.");
+            }
+
             /** - Remove header if present */
             if (cartridge.isiNESFormat)
             {
-                //nesProgramBytesToLoad = new ArraySegment<byte>(nesProgramBytes, 0x0010, nesProgramBytes.Length - 0x0010).ToArray();
-                nesProgramBytesToLoad = new ArraySegment<byte>(nesProgramBytes, 0x0010, 0x4000).ToArray();
+                // Copy from end of header + 0x4000
+                nesProgramBytesToLoad = new ArraySegment<byte>(nesProgramBytes, 0x0010, nesProgramBytes.Length - 0x0010).ToArray();
             }
             else
             {
-                nesProgramBytesToLoad = nesProgramBytes;
+                // Copy 0x4000
+                nesProgramBytesToLoad = new ArraySegment<byte>(nesProgramBytes, 0x0000, nesProgramBytes.Length).ToArray();
             }
-            
-            
 
             PPU ppu = new PPU();
             MemoryMap memoryMap = new MemoryMap(ppu);
             //memoryMap.LoadROM(nesProgramBytes);
-            memoryMap.LoadROM(nesProgramBytesToLoad);
+            memoryMap.LoadROM(nesProgramBytesToLoad, cartridge.PRGROMSize, cartridge.PRGROMSizeLSB, cartridge.CHRROMSize, cartridge.CHRROMSizeLSB);
 
             CPU cpu = new CPU();
             cpu.Power(memoryMap);

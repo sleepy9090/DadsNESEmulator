@@ -187,19 +187,22 @@ namespace DadsNESEmulator.NESHardware
             //PC = (ushort)((hi << 8) | lo);
             //Console.WriteLine("PC at: 0xFFFC-0xFFFD: 0x" + PC.ToString("X"));
 
-            /* - Nes Test - automated mode (for testing with no video/audio implemented)*/
-            //PC = Mem.ReadShort(0xC000);
+            /* - Nes Test - automated mode (for testing with no video/audio implemented) for nestest.nes test ROM */
+            //PC = 0xC000;
 
             //ushort lo = Mem.ReadByte(0xC000 + 0);
             //ushort hi = Mem.ReadByte(0xC000 + 1);
             //PC = (ushort)((hi << 8) | lo);
-            PC = 0xC000;
+            //PC = 0xC000;
+            /** Correct start point (for NROM), and all_instrs.nes test ROM */
+            PC = Mem.ReadShort(0xFFFC);
             Console.WriteLine("Now you're playing with POWER: Program Counter: 0x" + PC.ToString("X"));
-            
+            Console.WriteLine("");
+
             /* - Nes Test - non-automated mode */
-            //PC = Mem.ReadByte(0xC004);
+            //PC = 0xC004;
             //Console.WriteLine("PC at: 0xC004: 0x" + PC.ToString("X"));
-            
+
 
         }
 
@@ -1701,12 +1704,12 @@ namespace DadsNESEmulator.NESHardware
             /** - Add the accumulator, byte read, and carryFlag */
             //byte result = (byte)(A + byteRead + carryFlag);
             int result = A + byteRead + carryFlag;
-            Console.WriteLine("    ADC CurrentAddressMode: " + CurrentAddressMode);
-            Console.WriteLine("    ADC A: " + A);
-            Console.WriteLine("    ADC byteRead: " + byteRead);
-            Console.WriteLine("    ADC carryFlag: " + carryFlag);
-            Console.WriteLine("    ADC P[0]: " + P[0]);
-            Console.WriteLine("    ADC RESULT: " + result);
+            //Console.WriteLine("    ADC CurrentAddressMode: " + CurrentAddressMode);
+            //Console.WriteLine("    ADC A: " + A);
+            //Console.WriteLine("    ADC byteRead: " + byteRead);
+            //Console.WriteLine("    ADC carryFlag: " + carryFlag);
+            //Console.WriteLine("    ADC P[0]: " + P[0]);
+            //Console.WriteLine("    ADC RESULT: " + result);
 
             byte oldA = A;
 
@@ -1816,13 +1819,13 @@ namespace DadsNESEmulator.NESHardware
             /** - Sets the Zero Flag if the value is 0x00, otherwise clears it. */
             P[1] = ((temp & 0xFF) == 0);
 
-            Console.WriteLine("byteRead: " + byteRead);
-            Console.WriteLine("P[7]: " + P[7]);
+            //Console.WriteLine("byteRead: " + byteRead);
+            //Console.WriteLine("P[7]: " + P[7]);
 
             /** - Set Negative flag to bit 7 of the memory value. */
             SetStatusRegisterProcessorFlag(ProcessorFlags.N, byteRead);
 
-            Console.WriteLine("P[7]: " + P[7]);
+            //Console.WriteLine("P[7]: " + P[7]);
 
             /** - Set Overflow flag to bit 6 of the memory value. */
             SetStatusRegisterProcessorFlag(ProcessorFlags.V, byteRead);
@@ -2024,6 +2027,10 @@ namespace DadsNESEmulator.NESHardware
             byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
             
             byte tempByte = (byte)(A - byteRead);
+            //Console.WriteLine("A: " + A);
+            //Console.WriteLine("byteRead: " + byteRead);
+            //Console.WriteLine("byteRead: " + tempByte);
+            //Console.WriteLine("ZF P[1]: " + P[1]);
 
             /** - Set the Carry flag. */
             //P[0] = (tempByte & 0x80) != 0;
@@ -2032,6 +2039,8 @@ namespace DadsNESEmulator.NESHardware
 
             /** - Set the Zero flag and Negative flag. */
             SetZNStatusRegisterProcessorFlags(tempByte);
+
+            Console.WriteLine("ZF P[1]: " + P[1]);
         }
 
         private void CPX()
@@ -2163,7 +2172,12 @@ namespace DadsNESEmulator.NESHardware
         {
             byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
             
+            //Console.WriteLine("byteRead: " + byteRead);
+            //Console.WriteLine("ZF P[1]: " + P[1]);
+
             SetZNStatusRegisterProcessorFlags(byteRead);
+
+            //Console.WriteLine("ZF P[1]: " + P[1]);
 
             /** - Stores the Operand in the Accumulator Register. */
             A = byteRead;
@@ -2409,14 +2423,14 @@ namespace DadsNESEmulator.NESHardware
                 Mem.WriteByte(AbsoluteAddress, byteRotated);
             }
 
-            Console.WriteLine("byte read: " + byteRead);
-            Console.WriteLine("byte rotated: " + byteRotated);
-            Console.WriteLine("P[7] neg: " + P[7]);
+            //Console.WriteLine("byte read: " + byteRead);
+            //Console.WriteLine("byte rotated: " + byteRotated);
+            //Console.WriteLine("P[7] neg: " + P[7]);
             
             /** - Set the zero flag and negative flag. */
             SetZNStatusRegisterProcessorFlags(byteRotated);
 
-            Console.WriteLine("P[7] neg: " + P[7]);
+            //Console.WriteLine("P[7] neg: " + P[7]);
         }
 
         private void RTI()
@@ -2457,12 +2471,12 @@ namespace DadsNESEmulator.NESHardware
             //byte result = (byte)(A - byteRead - (1 - carryFlag));
             int result = A - byteRead - (1 - carryFlag);
 
-            Console.WriteLine("    SBC CurrentAddressMode: " + CurrentAddressMode);
-            Console.WriteLine("    SBC A: " + A);
-            Console.WriteLine("    SBC byteRead: " + byteRead);
-            Console.WriteLine("    SBC carryFlag: " + carryFlag);
-            Console.WriteLine("    SBC P[0]: " + P[0]);
-            Console.WriteLine("    SBC RESULT: " + result);
+            //Console.WriteLine("    SBC CurrentAddressMode: " + CurrentAddressMode);
+            //Console.WriteLine("    SBC A: " + A);
+            //Console.WriteLine("    SBC byteRead: " + byteRead);
+            //Console.WriteLine("    SBC carryFlag: " + carryFlag);
+            //Console.WriteLine("    SBC P[0]: " + P[0]);
+            //Console.WriteLine("    SBC RESULT: " + result);
 
             byte oldA = A;
 
@@ -2630,22 +2644,57 @@ namespace DadsNESEmulator.NESHardware
         private void STY()
         {
             /** - Stores the Y Index Register into memory. */
-            Mem.WriteByte(PC, Y);
+            Mem.WriteByte(AbsoluteAddress, Y);
         }
 
         #endregion
 
         #region Illegal Opcodes
+
+        /**
+         * @brief   AAC - AND byte with accumulator. If result is negative then carry is set.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: N,Z,C
+         * 
+         */
         private void AAC()
         {
             byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
         }
 
+        /**
+         * @brief   AAX - AND X register with accumulator and store result in memory.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: N,Z
+         * 
+         */
         private void AAX()
         {
 
         }
 
+        /**
+         * @brief   ARR - AND byte with accumulator, then rotate one bit right in accu-mulator and check bit 5 and 6:
+         *          If both bits are 1: set C, clear V.
+         *          If both bits are 0: clear C and V.
+         *          If only bit 5 is 1: set V, clear C.
+         *          If only bit 6 is 1: set C and V.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: N,V,Z,C
+         * 
+         */
         private void ARR()
         {
             byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
@@ -2816,14 +2865,8 @@ namespace DadsNESEmulator.NESHardware
 
             ushort low = ReadNextByte();
             ushort high = ReadNextByte();
-
-            //Console.WriteLine("low: 0x" + low.ToString("X"));
-            //Console.WriteLine("high: 0x" + high.ToString("X"));
-
+            
             ushort absoluteAddress = (ushort)((high << 8) | low);
-
-            Console.WriteLine("    Absolute Address: 0x" + absoluteAddress.ToString("X"));
-
             AbsoluteAddress = absoluteAddress;
         }
 
