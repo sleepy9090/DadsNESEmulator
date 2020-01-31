@@ -1699,7 +1699,16 @@ namespace DadsNESEmulator.NESHardware
             byte carryFlag = P[0] ? (byte)1 : (byte)0;
 
             /** - Add the accumulator, byte read, and carryFlag */
-            byte result = (byte)(A + byteRead + carryFlag);
+            //byte result = (byte)(A + byteRead + carryFlag);
+            int result = A + byteRead + carryFlag;
+            Console.WriteLine("    ADC CurrentAddressMode: " + CurrentAddressMode);
+            Console.WriteLine("    ADC A: " + A);
+            Console.WriteLine("    ADC byteRead: " + byteRead);
+            Console.WriteLine("    ADC carryFlag: " + carryFlag);
+            Console.WriteLine("    ADC P[0]: " + P[0]);
+            Console.WriteLine("    ADC RESULT: " + result);
+
+            byte oldA = A;
 
             /** - Set the Accumulator (0xFF keeps the value in the last 8 bits, not needed because this is a byte, but kept for reference) */
             A = (byte)(result & 0xFF);
@@ -1708,12 +1717,13 @@ namespace DadsNESEmulator.NESHardware
             SetZNStatusRegisterProcessorFlags(A);
 
             /** - Set the carry flag (Set if overflow in bit 7) */
-            P[0] = (byteRead & 0x80) != 0;
+            //P[0] = (byteRead & 0x80) != 0;
+            P[0] = result > 0xFF;
 
             /** - Set the overflow flag - Set if overflow in bit 7 */
-            P[6] = (A >> 7 & 1) != 0;
+            //P[6] = (A >> 7 & 1) != 0;
             //P[6] = ((A ^ result) & (byteRead ^ result) & 0x80) != 0;
-
+            P[6] = (((oldA ^ byteRead) & 0x80) == 0 && ((oldA ^ A) & 0x80) != 0);
         }
 
         /**
@@ -1803,15 +1813,26 @@ namespace DadsNESEmulator.NESHardware
             byte byteRead = Mem.ReadByte(AbsoluteAddress);
             byte temp = (byte)(A & byteRead);
 
-            //SetStatusRegisterProcessorFlag(ProcessorFlags.Z, temp);
             /** - Sets the Zero Flag if the value is 0x00, otherwise clears it. */
             P[1] = ((temp & 0xFF) == 0);
+
+            Console.WriteLine("byteRead: " + byteRead);
+            Console.WriteLine("P[7]: " + P[7]);
+
+            /** - Set Negative flag to bit 7 of the memory value. */
             SetStatusRegisterProcessorFlag(ProcessorFlags.N, byteRead);
+
+            Console.WriteLine("P[7]: " + P[7]);
+
+            /** - Set Overflow flag to bit 6 of the memory value. */
             SetStatusRegisterProcessorFlag(ProcessorFlags.V, byteRead);
+            
         }
 
         private void BPL()
         {
+            Console.WriteLine("P[7]: " + P[7]);
+
             //Negative Flag is 0/false
             if (P[7] == false)
             {
@@ -2152,7 +2173,7 @@ namespace DadsNESEmulator.NESHardware
         {
             /** - Read the next byte. */
             byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
-
+            Console.WriteLine("LDX: " + byteRead);
             SetZNStatusRegisterProcessorFlags(byteRead);
 
             /** - Stores the Operand in the X Index Register. */
@@ -2321,17 +2342,20 @@ namespace DadsNESEmulator.NESHardware
             /** - Read the next byte or use accumulator depending on address mode. */
             byte byteRead = CurrentAddressMode == AddressModes.Accumulator ? A : Mem.ReadByte(AbsoluteAddress);
 
+            bool tempCarry = P[0];
+
             /** - Set the carry flag.  byte read & 10000000 != 0 */
             P[0] = (byteRead & 0x80) != 0;
-            
+
             /** - Left shift byte read 1 bit, OR with 10000000 00000000 depending on carry flag */
-            byte byteRotated = (byte)((byteRead >> 1) | (P[0] ? 0x1 : 0x0));
+            byte byteRotated = (byte)((byteRead << 1) | (tempCarry ? 0x1 : 0x0));
 
             /** - Write byte to memory or accumulator depending on address mode. */
             if (CurrentAddressMode == AddressModes.Accumulator)
             {
                 /** - Set accumulator to rotated byte. */
                 A = byteRotated;
+                
             }
             else
             {
@@ -2357,19 +2381,21 @@ namespace DadsNESEmulator.NESHardware
         private void ROR()
         {
             /* Example
-             ROL (BEFORE): 10110011 Carry Flag: X
-             ROL         : Carry Flag: X--->10110011--->Carry Flag: X
-             ROL (AFTER) : X1011001 Carry Flag: 1
+             ROR (BEFORE): 10110011 Carry Flag: X
+             ROR         : Carry Flag: X--->10110011--->Carry Flag: X
+             ROR (AFTER) : X1011001 Carry Flag: 1
              */
 
             /** - Read the next byte or use accumulator depending on address mode. */
             byte byteRead = CurrentAddressMode == AddressModes.Accumulator ? A : Mem.ReadByte(AbsoluteAddress);
 
+            bool tempCarry = P[0];
+
             /** - Set the carry flag.  byte read & 00000001 != 0 */
             P[0] = (byteRead & 0x1) != 0;
-
-            /** - Right shift byte read 1 bit, OR with 10000000 00000000 depending on carry flag */
-            byte byteRotated = (byte)((byteRead >> 1) | (P[0] ? 0x80 : 0x0));
+            
+            /** - Right shift byte read 1 bit, OR with 10000000  if carry flag true, else 00000000 for false carry flag */
+            byte byteRotated = (byte)((byteRead >> 1) | (tempCarry ? 0x80 : 0x0));
 
             /** - Write byte to memory or accumulator depending on address mode. */
             if (CurrentAddressMode == AddressModes.Accumulator)
@@ -2383,8 +2409,14 @@ namespace DadsNESEmulator.NESHardware
                 Mem.WriteByte(AbsoluteAddress, byteRotated);
             }
 
+            Console.WriteLine("byte read: " + byteRead);
+            Console.WriteLine("byte rotated: " + byteRotated);
+            Console.WriteLine("P[7] neg: " + P[7]);
+            
             /** - Set the zero flag and negative flag. */
             SetZNStatusRegisterProcessorFlags(byteRotated);
+
+            Console.WriteLine("P[7] neg: " + P[7]);
         }
 
         private void RTI()
@@ -2422,7 +2454,15 @@ namespace DadsNESEmulator.NESHardware
 
             // ug ~carryFlag = -2, so using 1 - carryFlag instead
             /** - Add the accumulator, byte read, and carryFlag */
-            byte result = (byte)(A - byteRead - (1 - carryFlag));
+            //byte result = (byte)(A - byteRead - (1 - carryFlag));
+            int result = A - byteRead - (1 - carryFlag);
+
+            Console.WriteLine("    SBC CurrentAddressMode: " + CurrentAddressMode);
+            Console.WriteLine("    SBC A: " + A);
+            Console.WriteLine("    SBC byteRead: " + byteRead);
+            Console.WriteLine("    SBC carryFlag: " + carryFlag);
+            Console.WriteLine("    SBC P[0]: " + P[0]);
+            Console.WriteLine("    SBC RESULT: " + result);
 
             byte oldA = A;
 
@@ -2433,16 +2473,18 @@ namespace DadsNESEmulator.NESHardware
             SetZNStatusRegisterProcessorFlags(A);
 
             /** - Clear the carry flag (Clear if overflow in bit 7) */
-            P[0] = (result & 0x80) == 0;
+            //P[0] = (result & 0x80) == 0;
+            P[0] = result >= 0;
 
             /** - Set the overflow flag - Set if overflow in bit 7 */
             //P[6] = (~(oldA ^ byteRead) & (oldA ^ (byte)result) & 0x80) != 0;
-            P[6] = (A >> 7 & 1) != 0;
+            //P[6] = (A >> 7 & 1) != 0;
             //P[6] = ((A ^ result) & (byteRead ^ result) & 0x80) != 0;
+            P[6] = (((oldA ^ byteRead) & 0x80) != 0 && ((oldA ^ A) & 0x80) != 0);
         }
 
         /**
-         * @brief   STA (STore Accumulator)
+         * @brief   STA - STore Accumulator
          *
          * @return  N/A
          *
@@ -2457,14 +2499,32 @@ namespace DadsNESEmulator.NESHardware
             Mem.WriteByte(AbsoluteAddress, A);
         }
 
+        /**
+         * @brief   TXS - Transfer X to Stack Pointer
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void TXS()
         {
-            SetZNStatusRegisterProcessorFlags(X);
-
             /** - Transfer index X to Stack Pointer. */
             S = X;
         }
 
+        /**
+         * @brief   TXS - Transfer Stack Pointer to X
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void TSX()
         {
             SetZNStatusRegisterProcessorFlags(S);
@@ -2473,18 +2533,48 @@ namespace DadsNESEmulator.NESHardware
             X = S;
         }
 
+        /**
+         * @brief   PHA - Push Accumulator
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void PHA()
         {
             /** - Push the accumulator on the stack. */
             Push(A);
         }
 
+        /**
+         * @brief   PLA - Pull Accumulator
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void PLA()
         {
             A = Pop();
             SetZNStatusRegisterProcessorFlags(A);
         }
 
+        /**
+         * @brief   PHP - Push Processor Status
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void PHP()
         {
             byte statusRegister = ConvertToByte(P);
@@ -2492,6 +2582,16 @@ namespace DadsNESEmulator.NESHardware
             //Push((byte)(GetStatus() | 16));
         }
 
+        /**
+         * @brief   PLP - Pull Processor Status
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void PLP()
         {
             // either of these should work
@@ -2501,12 +2601,32 @@ namespace DadsNESEmulator.NESHardware
             //SetStatusRegisterProcessorFlags(statusRegister);
         }
 
+        /**
+         * @brief   STX - Store X Register
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void STX()
         {
             /** - Stores the X Index Register into memory. */
             Mem.WriteByte(AbsoluteAddress, X);
         }
 
+        /**
+         * @brief   STY - Store Y Register
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void STY()
         {
             /** - Stores the Y Index Register into memory. */
