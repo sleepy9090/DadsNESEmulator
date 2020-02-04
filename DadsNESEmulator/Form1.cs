@@ -19,11 +19,17 @@ namespace DadsNESEmulator
             InitializeComponent();
         }
 
+        public static CPU _cpu
+        {
+            get;
+            protected set;
+        }
+
         private void openROMToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Title = @"Open file...";
-            openFileDialog.Filter = @"nds files (*.nes)|*.nes|All files (*.*)|*.*";
+            openFileDialog.Filter = @"nes files (*.nes)|*.nes|All files (*.*)|*.*";
             openFileDialog.Multiselect = false;
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
@@ -66,17 +72,39 @@ namespace DadsNESEmulator
             //memoryMap.LoadROM(nesProgramBytes);
             memoryMap.LoadROM(nesProgramBytesToLoad, cartridge.PRGROMSize, cartridge.PRGROMSizeLSB, cartridge.CHRROMSize, cartridge.CHRROMSizeLSB);
 
-            CPU cpu = new CPU();
-            cpu.Power(memoryMap);
+            _cpu = new CPU();
+            _cpu.Power(memoryMap);
 
-            // Start stepping
-            while (true)
-            {
-                cpu.Step();
-                //Console.WriteLine(cpu.GetCurrentCPUState());
-            }
+            /** - Launch debugger */
+            FormDebugger formDebugger = new FormDebugger( _cpu);
+            formDebugger.ShowDialog();
+
+            // Start stepping (moved into debugger form, once the emu has video support we'll come back here)
+            //while (true)
+            //{
+            //    _cpu.Step();
+            //    //Console.WriteLine(cpu.GetCurrentCPUState());
+            //}
 
             //Console.WriteLine(cpu.GetTestResults());
+        }
+
+        private void debuggerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            /* Figure this out later */
+            //if (null != _cpu)
+            //{
+            //    FormDebugger formDebugger = new FormDebugger();
+            //    formDebugger._cpu = _cpu;
+            //    formDebugger.ShowDialog();
+            //}
+            //else
+            //{
+            //    FormDebugger formDebugger = new FormDebugger();
+            //    formDebugger._cpu = new CPU();
+            //    formDebugger.ShowDialog();
+            //}
+            
         }
     }
 }

@@ -140,6 +140,7 @@ namespace DadsNESEmulator.NESHardware
             get;
             protected set;
         }
+
         #endregion
 
         #region Class methods
@@ -180,29 +181,21 @@ namespace DadsNESEmulator.NESHardware
             RelativeAddress = 0x0000;
             Mem = mem;
 
-            /* Set PC from 16-bit address 0xFFFC-0xFFFD */
-            //PC = Mem.ReadShort(0xFFFC); //_RESET_VECTOR_ADDRESS
+            /* - Nes Test - automated mode (for testing with no video/audio implemented)*/
+            //PC = 0xC000;
+            /* - Nes Test - non-automated mode for nestest.nes test ROM */
+            //PC = 0xC004;
+
+            /** Correct start point (0xFFFC-0xFFFD) (for NROM), and all_instrs.nes test ROM */
+            PC = Mem.ReadShort(_RESET_VECTOR_ADDRESS);
+
+            /** Correct start point (0xFFFC-0xFFFD) (for NROM), and all_instrs.nes test ROM (alt) */
             //ushort lo = Mem.ReadByte(_RESET_VECTOR_ADDRESS);
-            //ushort hi = Mem.ReadByte((ushort)(_RESET_VECTOR_ADDRESS + 1));
+            //ushort hi = Mem.ReadByte(_RESET_VECTOR_ADDRESS + 1);
             //PC = (ushort)((hi << 8) | lo);
-            //Console.WriteLine("PC at: 0xFFFC-0xFFFD: 0x" + PC.ToString("X"));
 
-            /* - Nes Test - automated mode (for testing with no video/audio implemented) for nestest.nes test ROM */
-            //PC = 0xC000;
-
-            //ushort lo = Mem.ReadByte(0xC000 + 0);
-            //ushort hi = Mem.ReadByte(0xC000 + 1);
-            //PC = (ushort)((hi << 8) | lo);
-            //PC = 0xC000;
-            /** Correct start point (for NROM), and all_instrs.nes test ROM */
-            PC = Mem.ReadShort(0xFFFC);
             Console.WriteLine("Now you're playing with POWER: Program Counter: 0x" + PC.ToString("X"));
             Console.WriteLine("");
-
-            /* - Nes Test - non-automated mode */
-            //PC = 0xC004;
-            //Console.WriteLine("PC at: 0xC004: 0x" + PC.ToString("X"));
-
 
         }
 
@@ -221,14 +214,14 @@ namespace DadsNESEmulator.NESHardware
              * 2A03G: APU Frame Counter reset. (but 2A03letterless: APU frame counter retains old value)
              */
 
-            /* Set PC from 16-bit address 0xFFFC-0xFFFD */
-            //PC = Mem.ReadShort(0xFFFC);
-
-            /* - Nes Test - automated mode (for testing with no video/audio implemented)*/
-            PC = Mem.ReadByte(0xC000);
+            /* - Nes Test - automated mode (for testing with no video/audio implemented) */
+            //PC = Mem.ReadByte(0xC000);
 
             /* - Nes Test - non-automated mode */
             //PC = Mem.ReadByte(0xC004);
+
+            /* Set PC from 16-bit address 0xFFFC-0xFFFD */
+            PC = Mem.ReadShort(_RESET_VECTOR_ADDRESS);
 
             CPUCycles = 0;
             ClockCount = 0;
@@ -242,8 +235,7 @@ namespace DadsNESEmulator.NESHardware
             /** Set global for debugging or other uses for now. */
             Opcode = ReadNextByte();
 
-            //Console.WriteLine("Processing Opcode: 0x" + Opcode.ToString("X2") + " " + Opcodes.GetOpcodeName(Opcode));
-            Console.WriteLine(Opcodes.GetOpcodeName(Opcode));
+            //Console.WriteLine(Opcodes.GetOpcodeName(Opcode));
 
             switch (Opcode)
             {
@@ -1665,8 +1657,8 @@ namespace DadsNESEmulator.NESHardware
         private byte ReadNextByte()
         {
             byte byteRead = Mem.ReadByte(PC);
-            //Console.WriteLine("  ReadNextByte PC: 0x" + PC.ToString("X4") + " Returned byte: 0x" + byteRead.ToString("X2"));
             Console.Write(byteRead.ToString("X2") + "  ");
+
             PC++;
 
             return byteRead;
@@ -1702,14 +1694,7 @@ namespace DadsNESEmulator.NESHardware
             byte carryFlag = P[0] ? (byte)1 : (byte)0;
 
             /** - Add the accumulator, byte read, and carryFlag */
-            //byte result = (byte)(A + byteRead + carryFlag);
             int result = A + byteRead + carryFlag;
-            //Console.WriteLine("    ADC CurrentAddressMode: " + CurrentAddressMode);
-            //Console.WriteLine("    ADC A: " + A);
-            //Console.WriteLine("    ADC byteRead: " + byteRead);
-            //Console.WriteLine("    ADC carryFlag: " + carryFlag);
-            //Console.WriteLine("    ADC P[0]: " + P[0]);
-            //Console.WriteLine("    ADC RESULT: " + result);
 
             byte oldA = A;
 
@@ -1720,12 +1705,9 @@ namespace DadsNESEmulator.NESHardware
             SetZNStatusRegisterProcessorFlags(A);
 
             /** - Set the carry flag (Set if overflow in bit 7) */
-            //P[0] = (byteRead & 0x80) != 0;
             P[0] = result > 0xFF;
 
             /** - Set the overflow flag - Set if overflow in bit 7 */
-            //P[6] = (A >> 7 & 1) != 0;
-            //P[6] = ((A ^ result) & (byteRead ^ result) & 0x80) != 0;
             P[6] = (((oldA ^ byteRead) & 0x80) == 0 && ((oldA ^ A) & 0x80) != 0);
         }
 
@@ -1819,13 +1801,8 @@ namespace DadsNESEmulator.NESHardware
             /** - Sets the Zero Flag if the value is 0x00, otherwise clears it. */
             P[1] = ((temp & 0xFF) == 0);
 
-            //Console.WriteLine("byteRead: " + byteRead);
-            //Console.WriteLine("P[7]: " + P[7]);
-
             /** - Set Negative flag to bit 7 of the memory value. */
             SetStatusRegisterProcessorFlag(ProcessorFlags.N, byteRead);
-
-            //Console.WriteLine("P[7]: " + P[7]);
 
             /** - Set Overflow flag to bit 6 of the memory value. */
             SetStatusRegisterProcessorFlag(ProcessorFlags.V, byteRead);
@@ -1834,12 +1811,9 @@ namespace DadsNESEmulator.NESHardware
 
         private void BPL()
         {
-            Console.WriteLine("P[7]: " + P[7]);
-
             //Negative Flag is 0/false
             if (P[7] == false)
             {
-                Console.WriteLine("    BPL taken");
                 /** - Branch was taken, add additional clock cycle. */
                 CPUCycles++;
                 AbsoluteAddress = (ushort)(PC + RelativeAddress);
@@ -1859,7 +1833,6 @@ namespace DadsNESEmulator.NESHardware
             //Negative Flag is 1/true
             if (P[7] == true)
             {
-                Console.WriteLine("    BMI taken");
                 /** - Branch was taken, add additional clock cycle. */
                 CPUCycles++;
                 AbsoluteAddress = (ushort)(PC + RelativeAddress);
@@ -1879,7 +1852,6 @@ namespace DadsNESEmulator.NESHardware
             //Overflow Flag is 0/false
             if (P[6] == false)
             {
-                Console.WriteLine("    BVC taken");
                 /** - Branch was taken, add additional clock cycle. */
                 CPUCycles++;
                 AbsoluteAddress = (ushort)(PC + RelativeAddress);
@@ -1899,7 +1871,6 @@ namespace DadsNESEmulator.NESHardware
             //Overflow Flag is 1/true
             if (P[6] == true)
             {
-                Console.WriteLine("    BVS taken");
                 /** - Branch was taken, add additional clock cycle. */
                 CPUCycles++;
                 AbsoluteAddress = (ushort)(PC + RelativeAddress);
@@ -1919,7 +1890,6 @@ namespace DadsNESEmulator.NESHardware
             // Carry Flag is clear, 0/false
             if (P[0] == false)
             {
-                Console.WriteLine("    BCC taken");
                 /** - Branch was taken, add additional clock cycle. */
                 CPUCycles++;
                 AbsoluteAddress = (ushort)(PC + RelativeAddress);
@@ -1939,7 +1909,6 @@ namespace DadsNESEmulator.NESHardware
             // Carry Flag is set, 1/true
             if (P[0] == true)
             {
-                Console.WriteLine("    BCS taken");
                 /** - Branch was taken, add additional clock cycle. */
                 CPUCycles++;
                 AbsoluteAddress = (ushort)(PC + RelativeAddress);
@@ -1959,7 +1928,6 @@ namespace DadsNESEmulator.NESHardware
             // Zero Flag is 0/false
             if (P[1] == false)
             {
-                Console.WriteLine("    BNE taken");
                 /** - Branch was taken, add additional clock cycle. */
                 CPUCycles++;
                 AbsoluteAddress = (ushort)(PC + RelativeAddress);
@@ -1979,7 +1947,6 @@ namespace DadsNESEmulator.NESHardware
             // Zero Flag is 1/true
             if (P[1] == true)
             {
-                Console.WriteLine("    BEQ taken");
                 /** - Branch was taken, add additional clock cycle. */
                 CPUCycles++;
                 AbsoluteAddress = (ushort)(PC + RelativeAddress);
@@ -2003,11 +1970,9 @@ namespace DadsNESEmulator.NESHardware
 
             // sets the Interrupt Flag to temporarily prevent other IRQs from being executed
             P[2] = true;
+            
 
-            // reload the Program Counter from the vector at $FFFE-$FFFF
-            //PC = (ushort)(Mem.ReadByte(0xFFFE) | (Mem.ReadByte(0xFFFF) << 8));
-
-            /** - Setting this an running nes test sticks this in an infinite loop. */
+            /** - Reload PC Counter with irq brk vector address */
             PC = Mem.ReadShort(IRQ_BRK_VECTOR_ADDRESS);
         }
 
@@ -2027,20 +1992,12 @@ namespace DadsNESEmulator.NESHardware
             byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
             
             byte tempByte = (byte)(A - byteRead);
-            //Console.WriteLine("A: " + A);
-            //Console.WriteLine("byteRead: " + byteRead);
-            //Console.WriteLine("byteRead: " + tempByte);
-            //Console.WriteLine("ZF P[1]: " + P[1]);
 
             /** - Set the Carry flag. */
-            //P[0] = (tempByte & 0x80) != 0;
-            //P[0] = ((tempByte & 0x100) == 0);
             P[0] = A >= byteRead;
 
             /** - Set the Zero flag and Negative flag. */
             SetZNStatusRegisterProcessorFlags(tempByte);
-
-            Console.WriteLine("ZF P[1]: " + P[1]);
         }
 
         private void CPX()
@@ -2051,11 +2008,7 @@ namespace DadsNESEmulator.NESHardware
             byte tempByte = (byte)(X - byteRead);
 
             /** - Set the Carry flag. */
-            //P[0] = (tempByte & 0x80) != 0;
-            //P[0] = ((tempByte & 0x100) == 0);
             P[0] = X >= byteRead;
-            //P[1] = X == value;
-            //P[7] = temp > 0x7F;
 
             /** - Set the Zero flag and Negative flag. */
             SetZNStatusRegisterProcessorFlags(tempByte);
@@ -2069,11 +2022,7 @@ namespace DadsNESEmulator.NESHardware
             byte tempByte = (byte)(Y - byteRead);
 
             /** - Set the Carry flag. */
-            //P[0] = (tempByte & 0x80) != 0;
-            //P[0] = ((tempByte & 0x100) == 0);
             P[0] = Y >= byteRead;
-            //P[1] = Y == value;
-            //P[7] = temp > 0x7F;
 
             /** - Set the Zero flag and Negative flag. */
             SetZNStatusRegisterProcessorFlags(tempByte);
@@ -2171,13 +2120,8 @@ namespace DadsNESEmulator.NESHardware
         private void LDA()
         {
             byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
-            
-            //Console.WriteLine("byteRead: " + byteRead);
-            //Console.WriteLine("ZF P[1]: " + P[1]);
 
             SetZNStatusRegisterProcessorFlags(byteRead);
-
-            //Console.WriteLine("ZF P[1]: " + P[1]);
 
             /** - Stores the Operand in the Accumulator Register. */
             A = byteRead;
@@ -2187,7 +2131,7 @@ namespace DadsNESEmulator.NESHardware
         {
             /** - Read the next byte. */
             byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
-            Console.WriteLine("LDX: " + byteRead);
+
             SetZNStatusRegisterProcessorFlags(byteRead);
 
             /** - Stores the Operand in the X Index Register. */
@@ -2423,14 +2367,8 @@ namespace DadsNESEmulator.NESHardware
                 Mem.WriteByte(AbsoluteAddress, byteRotated);
             }
 
-            //Console.WriteLine("byte read: " + byteRead);
-            //Console.WriteLine("byte rotated: " + byteRotated);
-            //Console.WriteLine("P[7] neg: " + P[7]);
-            
             /** - Set the zero flag and negative flag. */
             SetZNStatusRegisterProcessorFlags(byteRotated);
-
-            //Console.WriteLine("P[7] neg: " + P[7]);
         }
 
         private void RTI()
@@ -2468,15 +2406,7 @@ namespace DadsNESEmulator.NESHardware
 
             // ug ~carryFlag = -2, so using 1 - carryFlag instead
             /** - Add the accumulator, byte read, and carryFlag */
-            //byte result = (byte)(A - byteRead - (1 - carryFlag));
             int result = A - byteRead - (1 - carryFlag);
-
-            //Console.WriteLine("    SBC CurrentAddressMode: " + CurrentAddressMode);
-            //Console.WriteLine("    SBC A: " + A);
-            //Console.WriteLine("    SBC byteRead: " + byteRead);
-            //Console.WriteLine("    SBC carryFlag: " + carryFlag);
-            //Console.WriteLine("    SBC P[0]: " + P[0]);
-            //Console.WriteLine("    SBC RESULT: " + result);
 
             byte oldA = A;
 
@@ -2487,13 +2417,9 @@ namespace DadsNESEmulator.NESHardware
             SetZNStatusRegisterProcessorFlags(A);
 
             /** - Clear the carry flag (Clear if overflow in bit 7) */
-            //P[0] = (result & 0x80) == 0;
             P[0] = result >= 0;
 
             /** - Set the overflow flag - Set if overflow in bit 7 */
-            //P[6] = (~(oldA ^ byteRead) & (oldA ^ (byte)result) & 0x80) != 0;
-            //P[6] = (A >> 7 & 1) != 0;
-            //P[6] = ((A ^ result) & (byteRead ^ result) & 0x80) != 0;
             P[6] = (((oldA ^ byteRead) & 0x80) != 0 && ((oldA ^ A) & 0x80) != 0);
         }
 
@@ -2817,8 +2743,6 @@ namespace DadsNESEmulator.NESHardware
         {
             CurrentAddressMode = AddressModes.Immediate;
             ImmediateByte = ReadNextByte();
-            //ushort absoluteAddress = ReadNextByte();
-            //AbsoluteAddress = absoluteAddress;
         }
 
         private void Implied()
@@ -3047,8 +2971,6 @@ namespace DadsNESEmulator.NESHardware
 
             /** - Sets the Zero Flag if the value is 0x00, otherwise clears it. */
             P[1] = ((value & 0xFF) == 0);
-
-            //Console.WriteLine("value: " + value + " Zero Flag P[1]: " + P[1] + " Negative Flag: " + P[7]);
         }
 
         private byte ConvertToByte(BitArray bits)
