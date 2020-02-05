@@ -211,8 +211,8 @@ namespace DadsNESEmulator.NESHardware
             {
                 // Should not happen
                 //.Read((ushort)(address - 0x4020), value);
-                Console.WriteLine("NROM should not have read from Expansion ROM: address: " + address);
-                throw new Exception("NROM should not have read from Expansion ROM: address: " + address);
+                Console.WriteLine("NROM should not have read from Expansion ROM: address: " + address.ToString("X"));
+                throw new Exception("NROM should not have read from Expansion ROM: address: " + address.ToString("X"));
                 //byteRead = 0;
             }
             else if (address < 0x8000)
@@ -411,8 +411,8 @@ namespace DadsNESEmulator.NESHardware
             {
                 // Should not happen
                 //.Write((ushort)(address - 0x4020), value);
-                Console.WriteLine("NROM should not have written to Expansion ROM: address: " + address + " value: " + value);
-                throw new Exception("NROM should not have written to Expansion ROM: address: " + address + " value: " + value);
+                Console.WriteLine("NROM should not have written to Expansion ROM: address: " + address.ToString("X") + " value: " + value.ToString("X"));
+                throw new Exception("NROM should not have written to Expansion ROM: address: " + address.ToString("X") + " value: " + value.ToString("X"));
             }
             else if (address < 0x8000)
             {
