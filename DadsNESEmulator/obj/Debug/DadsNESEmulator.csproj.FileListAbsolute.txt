@@ -16,5 +16,4 @@ C:\workspace_sandbox\DadsNESEmulator\DadsNESEmulator\obj\Debug\DadsNESEmulator.c
 C:\workspace_sandbox\DadsNESEmulator\DadsNESEmulator\obj\Debug\DadsNESEmulator.csproj.CoreCompileInputs.cache
 C:\workspace_sandbox\DadsNESEmulator\DadsNESEmulator\obj\Debug\DadsNESEmulator.exe
 C:\workspace_sandbox\DadsNESEmulator\DadsNESEmulator\obj\Debug\DadsNESEmulator.pdb
-C:\workspace_sandbox\DadsNESEmulator\DadsNESEmulator\obj\Debug\DadsNESEmulator.csprojAssemblyReference.cache
 C:\workspace_sandbox\DadsNESEmulator\DadsNESEmulator\obj\Debug\DadsNESEmulator.FormDebugger.resources

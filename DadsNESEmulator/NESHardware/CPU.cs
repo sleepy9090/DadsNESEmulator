@@ -232,10 +232,11 @@ namespace DadsNESEmulator.NESHardware
         public void Step()
         {
             Console.Write(PC.ToString("X") + "  ");
+
             /** Set global for debugging or other uses for now. */
             Opcode = ReadNextByte();
 
-            //Console.WriteLine(Opcodes.GetOpcodeName(Opcode));
+            Console.WriteLine(Opcodes.GetOpcodeName(Opcode));
 
             switch (Opcode)
             {
@@ -1657,6 +1658,28 @@ namespace DadsNESEmulator.NESHardware
         private byte ReadNextByte()
         {
             byte byteRead = Mem.ReadByte(PC);
+
+            /** - Used for NES Tests from instr_test-v5.zip (all_instrs.nes, official_only.nes, rom_singles/*.*)
+             * http://blargg.8bitalley.com/nes-tests/instr_test-v5.zip
+             * https://wiki.nesdev.com/w/index.php/Emulator_tests
+             *
+             * Not sure if it is correct or fully useful without ppu and other implemented.
+             *
+             */
+            //byte debugByte = Mem.ReadByte(0x6000);
+            //if (debugByte == 0x80)
+            //{
+            //    Console.WriteLine("Test Running.");
+            //}
+            //else if (debugByte == 0x81)
+            //{
+            //    Console.WriteLine("Test needs reset pressed.");
+            //}
+            //else
+            //{
+            //    Console.WriteLine("Result code: " + debugByte.ToString("X"));
+            //}
+
             Console.Write(byteRead.ToString("X2") + "  ");
 
             PC++;
@@ -1673,19 +1696,19 @@ namespace DadsNESEmulator.NESHardware
          * https://github.com/DanTup/DaNES/blob/master/DaNES.Emulation/Cpu.cs
          *
          */
-         
-        /**
-         * @brief   ADC - Add with Carry - This instruction adds the contents of a memory location to the accumulator together with the carry bit.
-         *                                 If overflow occurs the carry bit is set, this enables multiple byte addition to be performed.
-         *
-         * @return  N/A
-         *
-         * @author  Shawn M. Crawford
-         *
-         * @note    A,Z,C,N = A+M+C
-         * 
-         */
-        private void ADC()
+
+            /**
+             * @brief   ADC - Add with Carry - This instruction adds the contents of a memory location to the accumulator together with the carry bit.
+             *                                 If overflow occurs the carry bit is set, this enables multiple byte addition to be performed.
+             *
+             * @return  N/A
+             *
+             * @author  Shawn M. Crawford
+             *
+             * @note    A,Z,C,N = A+M+C
+             * 
+             */
+            private void ADC()
         {
             /** - Read the next byte. */
             byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);

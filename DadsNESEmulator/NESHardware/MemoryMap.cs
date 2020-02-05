@@ -11,6 +11,7 @@
  *
  */
 using System;
+using System.ComponentModel;
 using System.Linq;
 
 namespace DadsNESEmulator.NESHardware
@@ -99,7 +100,7 @@ namespace DadsNESEmulator.NESHardware
 
         private Memory gameRamMem = new Memory(0x800); // 2048
         private Memory ioRegistersMem = new Memory(0x20); // 8
-        private Memory expansionRomMem = new Memory(0x1FE0); // 8160
+        //private Memory expansionRomMem = new Memory(0x1FE0); // 8160 NROM doesn't have this
         private Memory sramMem = new Memory(0x2000); // 8192
 
         private Memory cartridgeLowerPrgBankMem = new Memory(0x4000); // 16384
@@ -132,6 +133,10 @@ namespace DadsNESEmulator.NESHardware
              * CPU $C000-$FFFF: Last 16 KB of ROM (NROM-256) or mirror of $8000-$BFFF (NROM-128).
              */
             int prgBankSize = prgRomSize / prgRomBanks;
+
+            Console.WriteLine("prgRomSize: " + prgRomSize);
+            Console.WriteLine("prgRomBanks: " + prgRomBanks);
+            Console.WriteLine("prgBankSize: " + prgBankSize);
 
             if (prgRomBanks == 2)
             {
@@ -202,17 +207,26 @@ namespace DadsNESEmulator.NESHardware
             {
                 byteRead = ioRegistersMem.Read((ushort) (address - 0x4000));
             }
+            else if (address < 0x6000)
+            {
+                // Should not happen
+                //.Read((ushort)(address - 0x4020), value);
+                Console.WriteLine("NROM should not have read from Expansion ROM: address: " + address);
+                throw new Exception("NROM should not have read from Expansion ROM: address: " + address);
+                //byteRead = 0;
+            }
             else if (address < 0x8000)
             {
-                byteRead = sramMem.Read((ushort) (address - 0x4020));
+                byteRead = sramMem.Read((ushort)(address - 0x6000)); //$6000 -$7FFF: Family Basic only: PRG RAM, mirrored as necessary to fill entire 8 KiB window, write protectable with an external switch
+                //byteRead = sramMem.Read((ushort) (address - 0x4020)); //$6000 -$7FFF: Family Basic only: PRG RAM, mirrored as necessary to fill entire 8 KiB window, write protectable with an external switch
             }
             else if (address < 0xC000)
             {
-                byteRead = cartridgeLowerPrgBankMem.Read((ushort) (address - 0x8000));
+                byteRead = cartridgeLowerPrgBankMem.Read((ushort) (address - 0x8000)); //$8000 -$BFFF: First 16 KB of ROM.
             }
             else
             {
-                byteRead = cartridgeUpperPrgBankMem.Read((ushort) (address - 0xC000));
+                byteRead = cartridgeUpperPrgBankMem.Read((ushort) (address - 0xC000)); //$C000 -$FFFF: Last 16 KB of ROM(NROM - 256) or mirror of $8000 -$BFFF(NROM - 128).
             }
 
             if (Debug == 1)
@@ -393,17 +407,25 @@ namespace DadsNESEmulator.NESHardware
             {
                 ioRegistersMem.Write((ushort) (address - 0x4000), value);
             }
+            else if (address < 0x6000)
+            {
+                // Should not happen
+                //.Write((ushort)(address - 0x4020), value);
+                Console.WriteLine("NROM should not have written to Expansion ROM: address: " + address + " value: " + value);
+                throw new Exception("NROM should not have written to Expansion ROM: address: " + address + " value: " + value);
+            }
             else if (address < 0x8000)
             {
-                sramMem.Write((ushort) (address - 0x4020), value);
+                sramMem.Write((ushort)(address - 0x6000), value); //$6000 -$7FFF: Family Basic only: PRG RAM, mirrored as necessary to fill entire 8 KiB window, write protectable with an external switch
+                //sramMem.Write((ushort) (address - 0x4020), value); //$6000 -$7FFF: Family Basic only: PRG RAM, mirrored as necessary to fill entire 8 KiB window, write protectable with an external switch
             }
             else if (address < 0xC000)
             {
-                cartridgeLowerPrgBankMem.Write((ushort) (address - 0x8000), value);
+                cartridgeLowerPrgBankMem.Write((ushort) (address - 0x8000), value); //$8000 -$BFFF: First 16 KB of ROM.
             }
             else
             {
-                cartridgeUpperPrgBankMem.Write((ushort) (address - 0xC000), value);
+                cartridgeUpperPrgBankMem.Write((ushort) (address - 0xC000), value); //$C000 -$FFFF: Last 16 KB of ROM(NROM - 256) or mirror of $8000 -$BFFF(NROM - 128).
             }
 
             if (Debug == 1)
