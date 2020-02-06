@@ -257,7 +257,8 @@ namespace DadsNESEmulator.NESHardware
                 byte oldA = A;
                 byte oldX = X;
                 byte oldY = Y;
-                //BitArray oldP = P;
+
+                byte oldP = ConvertToByte(P);
                 byte oldS = S;
                 uint oldCPUCycles = CPUCycles;
 
@@ -1012,8 +1013,8 @@ namespace DadsNESEmulator.NESHardware
                         STY();
                         CPUCycles += 3;
                         break;
-                    case Opcodes._STY_ZERO_PAGE_Y:
-                        ZeroPageYIndex();
+                    case Opcodes._STY_ZERO_PAGE_X:
+                        ZeroPageXIndex();
                         STY();
                         CPUCycles += 4;
                         break;
@@ -1489,7 +1490,7 @@ namespace DadsNESEmulator.NESHardware
                 Console.Write("A:" + oldA.ToString("X2") + " ");
                 Console.Write("X:" + oldX.ToString("X2") + " ");
                 Console.Write("Y:" + oldY.ToString("X2") + " ");
-                Console.Write("P:" + ConvertToByte(P).ToString("X2") +
+                Console.Write("P:" + oldP.ToString("X2") +
                               " "); // flags are either not being processed correctly or not logged at the right time according to logs.
                 Console.Write("SP:" + oldS.ToString("X2") + " ");
                 Console.WriteLine("CYC:" + oldCPUCycles + " ");
@@ -1903,11 +1904,11 @@ namespace DadsNESEmulator.NESHardware
         {
             /** - Read the next byte. */
             byte value = Mem.ReadByte(AbsoluteAddress);
-            AbsoluteAddress--;
+            value--;
 
             /** - AbsoluteAddress is set in the ZeroPage, ZeroPageX, Absolute, AbsoluteX addressing. */
             Mem.WriteByte(AbsoluteAddress, value);
-
+            
             SetZNStatusRegisterProcessorFlags(value);
         }
 
@@ -2854,6 +2855,7 @@ namespace DadsNESEmulator.NESHardware
 
             /** - Sets the Zero Flag if the value is 0x00, otherwise clears it. */
             P[1] = ((value & 0xFF) == 0);
+            
         }
 
         private byte ConvertToByte(BitArray bits)

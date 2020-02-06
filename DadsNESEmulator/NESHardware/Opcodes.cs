@@ -312,7 +312,7 @@ namespace DadsNESEmulator.NESHardware
         /** - STY (STore Y register) */
         /** - Affects Flags: none */
         public const byte _STY_ZERO_PAGE = 0x84; // 2, 3
-        public const byte _STY_ZERO_PAGE_Y = 0x94; // 2, 4
+        public const byte _STY_ZERO_PAGE_X = 0x94; // 2, 4
         public const byte _STY_ABSOLUTE = 0x8C; // 3, 4
 
         #endregion
@@ -974,7 +974,7 @@ namespace DadsNESEmulator.NESHardware
                 case _STY_ZERO_PAGE:
                     opcodeName = "STY Zero Page";
                     break;
-                case _STY_ZERO_PAGE_Y:
+                case _STY_ZERO_PAGE_X:
                     opcodeName = "STY Zero Page Y";
                     break;
                 case _STY_ABSOLUTE:
