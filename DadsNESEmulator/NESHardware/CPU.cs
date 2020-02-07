@@ -2673,10 +2673,17 @@ namespace DadsNESEmulator.NESHardware
             ushort absoluteAddress = (ushort)((high << 8) | low);
             absoluteAddress += X;
 
-            if ((absoluteAddress & 0xFF00) != (high << 8))
+
+            // LDA, LDX, LDY, EOR, AND, ORA, ADC, SBC, CMP, BIT, LAX, LAE(LAR), SHS(XAS), NOP(TOP)
+            if (Opcode == 0xBD || Opcode == 0xBC || Opcode == 0x5D || Opcode == 0x3D || Opcode == 0x1D
+                || Opcode == 0x7D || Opcode == 0xFD || Opcode == 0xDD || Opcode == 0x1C || Opcode == 0x3C
+                || Opcode == 0x5C || Opcode == 0x7C || Opcode == 0xDC || Opcode == 0xFC)
             {
-                /** - Crossed page boundary, add additional clock cycle */
-                CPUCycles++;
+                if ((absoluteAddress & 0xFF00) != (high << 8))
+                {
+                    /** - Crossed page boundary, add additional clock cycle */
+                    CPUCycles++;
+                }
             }
 
             AbsoluteAddress = absoluteAddress;
@@ -2692,10 +2699,16 @@ namespace DadsNESEmulator.NESHardware
             ushort absoluteAddress = (ushort)((high << 8) | low);
             absoluteAddress += Y;
 
-            if ((absoluteAddress & 0xFF00) != (high << 8))
+            // LDA, LDX, LDY, EOR, AND, ORA, ADC, SBC, CMP, BIT, LAX, LAE(LAR), SHS(XAS), NOP(TOP)
+            if (Opcode == 0xB9 || Opcode == 0xBE || Opcode == 0x59 || Opcode == 0x39 || Opcode == 0x19
+                || Opcode == 0x79 || Opcode == 0xF9 || Opcode == 0xD9 || Opcode == 0xBF || Opcode == 0xBB
+                || Opcode == 0x9B)
             {
-                /** - Crossed page boundary, add additional clock cycle */
-                CPUCycles++;
+                if ((absoluteAddress & 0xFF00) != (high << 8))
+                {
+                    /** - Crossed page boundary, add additional clock cycle */
+                    CPUCycles++;
+                }
             }
 
             AbsoluteAddress = absoluteAddress;
@@ -2765,10 +2778,15 @@ namespace DadsNESEmulator.NESHardware
             ushort absoluteAddress = (ushort)((high << 8) | low);
             absoluteAddress += Y;
 
-            if ((absoluteAddress & 0xFF00) != (high << 8))
+            // LDA, EOR, AND, ORA, ADC, SBC, CMP
+            if (Opcode == 0xB1 || Opcode == 0x51 || Opcode == 0x31 || Opcode == 0x11 || Opcode == 0xF1 ||
+                Opcode == 0xD1)
             {
-                /** - Crossed page boundary, add additional clock cycle */
-                CPUCycles++;
+                if ((absoluteAddress & 0xFF00) != (high << 8))
+                {
+                    /** - Crossed page boundary, add additional clock cycle */
+                    CPUCycles++;
+                }
             }
 
             AbsoluteAddress = absoluteAddress;
