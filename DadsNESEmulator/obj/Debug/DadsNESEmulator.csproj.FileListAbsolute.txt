@@ -17,3 +17,13 @@ C:\workspace_sandbox\DadsNESEmulator\DadsNESEmulator\obj\Debug\DadsNESEmulator.c
 C:\workspace_sandbox\DadsNESEmulator\DadsNESEmulator\obj\Debug\DadsNESEmulator.exe
 C:\workspace_sandbox\DadsNESEmulator\DadsNESEmulator\obj\Debug\DadsNESEmulator.pdb
 C:\workspace_sandbox\DadsNESEmulator\DadsNESEmulator\obj\Debug\DadsNESEmulator.FormDebugger.resources
+C:\Users\sleepy\Documents\Visual Studio 2017\Projects\DadsNESEmulator\DadsNESEmulator\bin\Debug\DadsNESEmulator.exe.config
+C:\Users\sleepy\Documents\Visual Studio 2017\Projects\DadsNESEmulator\DadsNESEmulator\bin\Debug\DadsNESEmulator.exe
+C:\Users\sleepy\Documents\Visual Studio 2017\Projects\DadsNESEmulator\DadsNESEmulator\bin\Debug\DadsNESEmulator.pdb
+C:\Users\sleepy\Documents\Visual Studio 2017\Projects\DadsNESEmulator\DadsNESEmulator\obj\Debug\DadsNESEmulator.csprojResolveAssemblyReference.cache
+C:\Users\sleepy\Documents\Visual Studio 2017\Projects\DadsNESEmulator\DadsNESEmulator\obj\Debug\DadsNESEmulator.Form1.resources
+C:\Users\sleepy\Documents\Visual Studio 2017\Projects\DadsNESEmulator\DadsNESEmulator\obj\Debug\DadsNESEmulator.FormDebugger.resources
+C:\Users\sleepy\Documents\Visual Studio 2017\Projects\DadsNESEmulator\DadsNESEmulator\obj\Debug\DadsNESEmulator.Properties.Resources.resources
+C:\Users\sleepy\Documents\Visual Studio 2017\Projects\DadsNESEmulator\DadsNESEmulator\obj\Debug\DadsNESEmulator.csproj.GenerateResource.Cache
+C:\Users\sleepy\Documents\Visual Studio 2017\Projects\DadsNESEmulator\DadsNESEmulator\obj\Debug\DadsNESEmulator.exe
+C:\Users\sleepy\Documents\Visual Studio 2017\Projects\DadsNESEmulator\DadsNESEmulator\obj\Debug\DadsNESEmulator.pdb

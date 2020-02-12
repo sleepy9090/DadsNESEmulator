@@ -1,0 +1,9 @@
+C:\Users\sleepy\Documents\Visual Studio 2017\Projects\DadsNESEmulator\DadsNESEmulator\bin\Release\DadsNESEmulator.exe.config
+C:\Users\sleepy\Documents\Visual Studio 2017\Projects\DadsNESEmulator\DadsNESEmulator\bin\Release\DadsNESEmulator.exe
+C:\Users\sleepy\Documents\Visual Studio 2017\Projects\DadsNESEmulator\DadsNESEmulator\bin\Release\DadsNESEmulator.pdb
+C:\Users\sleepy\Documents\Visual Studio 2017\Projects\DadsNESEmulator\DadsNESEmulator\obj\Release\DadsNESEmulator.Form1.resources
+C:\Users\sleepy\Documents\Visual Studio 2017\Projects\DadsNESEmulator\DadsNESEmulator\obj\Release\DadsNESEmulator.FormDebugger.resources
+C:\Users\sleepy\Documents\Visual Studio 2017\Projects\DadsNESEmulator\DadsNESEmulator\obj\Release\DadsNESEmulator.Properties.Resources.resources
+C:\Users\sleepy\Documents\Visual Studio 2017\Projects\DadsNESEmulator\DadsNESEmulator\obj\Release\DadsNESEmulator.csproj.GenerateResource.Cache
+C:\Users\sleepy\Documents\Visual Studio 2017\Projects\DadsNESEmulator\DadsNESEmulator\obj\Release\DadsNESEmulator.exe
+C:\Users\sleepy\Documents\Visual Studio 2017\Projects\DadsNESEmulator\DadsNESEmulator\obj\Release\DadsNESEmulator.pdb

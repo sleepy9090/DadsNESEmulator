@@ -99,10 +99,139 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="TestRoms\instr_test-v5\all_instrs.nes" />
+    <None Include="TestRoms\instr_test-v5\instr_test-v5.zip" />
+    <None Include="TestRoms\instr_test-v5\official_only.nes" />
+    <None Include="TestRoms\instr_test-v5\rom_singles\01-basics.nes" />
+    <None Include="TestRoms\instr_test-v5\rom_singles\02-implied.nes" />
+    <None Include="TestRoms\instr_test-v5\rom_singles\03-immediate.nes" />
+    <None Include="TestRoms\instr_test-v5\rom_singles\04-zero_page.nes" />
+    <None Include="TestRoms\instr_test-v5\rom_singles\05-zp_xy.nes" />
+    <None Include="TestRoms\instr_test-v5\rom_singles\06-absolute.nes" />
+    <None Include="TestRoms\instr_test-v5\rom_singles\07-abs_xy.nes" />
+    <None Include="TestRoms\instr_test-v5\rom_singles\08-ind_x.nes" />
+    <None Include="TestRoms\instr_test-v5\rom_singles\09-ind_y.nes" />
+    <None Include="TestRoms\instr_test-v5\rom_singles\10-branches.nes" />
+    <None Include="TestRoms\instr_test-v5\rom_singles\11-stack.nes" />
+    <None Include="TestRoms\instr_test-v5\rom_singles\12-jmp_jsr.nes" />
+    <None Include="TestRoms\instr_test-v5\rom_singles\13-rts.nes" />
+    <None Include="TestRoms\instr_test-v5\rom_singles\14-rti.nes" />
+    <None Include="TestRoms\instr_test-v5\rom_singles\15-brk.nes" />
+    <None Include="TestRoms\instr_test-v5\rom_singles\16-special.nes" />
+    <None Include="TestRoms\instr_test-v5\source\common\ascii.chr" />
+    <None Include="TestRoms\instr_test-v5\source\common\bootloader.bin" />
+    <None Include="TestRoms\instr_test-v5\source\nes.cfg" />
+    <None Include="TestRoms\nestest\nestest-alt.log" />
+    <None Include="TestRoms\nestest\nestest.log" />
+    <None Include="TestRoms\nestest\nestest.nes" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\common\build_rom.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\common\console.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\common\crc.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\common\crc_fast.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\common\delay.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\common\instr_test.inc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\common\instr_test_end.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\common\macros.inc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\common\neshw.inc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\common\ppu.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\common\print.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\common\shell.inc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\common\shell.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\common\shell_misc.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\common\testing.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\common\text_out.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\01-basics.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\02-implied.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\03-immediate.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\04-zero_page.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\05-zp_xy.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\06-absolute.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\07-abs_xy.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\08-ind_x.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\09-ind_y.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\10-branches.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\11-stack.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\12-jmp_jsr.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\13-rts.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\14-rti.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\15-brk.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\16-special.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\source\readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\instr_test-v5\readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestRoms\nestest\nestest.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
