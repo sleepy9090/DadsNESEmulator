@@ -148,6 +148,12 @@ namespace DadsNESEmulator.NESHardware
             set;
         }
 
+        public bool ResetPressed
+        {
+            get;
+            set;
+        }
+
         #endregion
 
         #region Class methods
@@ -2981,12 +2987,12 @@ namespace DadsNESEmulator.NESHardware
          */
         private void KIL()
         {
-            while (true)
+            while (!ResetPressed)
             {
-                // Processor locked up.
-                /* @todo: Break out of this loop when a reset is pressed. */
+                /* Processor locked up. Hang until reset is pressed. */
                 PC = PC;
             }
+            
         }
 
         private void LAR()
