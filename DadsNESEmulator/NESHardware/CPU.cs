@@ -216,6 +216,7 @@ namespace DadsNESEmulator.NESHardware
 
         public void Reset()
         {
+            KIL(true);
 
             /**
              * A, X, Y were not affected
@@ -2985,14 +2986,14 @@ namespace DadsNESEmulator.NESHardware
          * @note    N/A
          * 
          */
-        private void KIL()
+        private void KIL(bool resetPressed = false)
         {
-            while (!ResetPressed)
+            if (!resetPressed)
             {
                 /* Processor locked up. Hang until reset is pressed. */
-                PC = PC;
+                //PC stays the same.
+                KIL();
             }
-            
         }
 
         private void LAR()
