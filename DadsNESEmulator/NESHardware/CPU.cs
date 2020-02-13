@@ -1543,18 +1543,19 @@ namespace DadsNESEmulator.NESHardware
          *
          */
 
-            /**
-             * @brief   ADC - Add with Carry - This instruction adds the contents of a memory location to the accumulator together with the carry bit.
-             *                                 If overflow occurs the carry bit is set, this enables multiple byte addition to be performed.
-             *
-             * @return  N/A
-             *
-             * @author  Shawn M. Crawford
-             *
-             * @note    A,Z,C,N = A+M+C
-             * 
-             */
-            private void ADC()
+        /**
+         * @brief   ADC - Add with Carry - This instruction adds the contents of a memory location to the accumulator together with the carry bit.
+         *                                 If overflow occurs the carry bit is set, this enables multiple byte addition to be performed.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: N,V,Z,C
+         * @note    A,Z,C,N = A+M+C
+         * 
+         */
+        private void ADC()
         {
             /** - Read the next byte. */
             byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
@@ -1587,6 +1588,7 @@ namespace DadsNESEmulator.NESHardware
          *
          * @author  Shawn M. Crawford
          *
+         * @note    Status flags: N,Z
          * @note    A,Z,N = A&M
          * 
          */
@@ -1613,6 +1615,7 @@ namespace DadsNESEmulator.NESHardware
          *
          * @author  Shawn M. Crawford
          *
+         * @note    Status flags: N,Z,C
          * @note    A,Z,C,N = M*2 or M,Z,C,N = M*2
          * 
          */
@@ -1658,6 +1661,7 @@ namespace DadsNESEmulator.NESHardware
          *
          * @author  Shawn M. Crawford
          *
+         * @note    Status flags: N,V,Z
          * @note    A & M, N = M7, V = M6
          * 
          */
@@ -1678,6 +1682,17 @@ namespace DadsNESEmulator.NESHardware
             
         }
 
+        /**
+         * @brief   BPL - Branch if Positive - If the negative flag is clear then add the relative displacement to the program counter to cause a
+         *                                     branch to a new location.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void BPL()
         {
             //Negative Flag is 0/false
@@ -1697,6 +1712,17 @@ namespace DadsNESEmulator.NESHardware
             }
         }
 
+        /**
+         * @brief   BMI - Branch if Minus - If the negative flag is set then add the relative displacement to the program counter to cause a
+         *                                  branch to a new location.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void BMI()
         {
             //Negative Flag is 1/true
@@ -1716,6 +1742,17 @@ namespace DadsNESEmulator.NESHardware
             }
         }
 
+        /**
+         * @brief   BVC - Branch if Overflow Clear - If the overflow flag is clear then add the relative displacement to the program counter to
+         *                                           cause a branch to a new location.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void BVC()
         {
             //Overflow Flag is 0/false
@@ -1735,6 +1772,17 @@ namespace DadsNESEmulator.NESHardware
             }
         }
 
+        /**
+         * @brief   BVS - Branch if Overflow Set - If the overflow flag is set then add the relative displacement to the program counter to
+         *                                         cause a branch to a new location.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void BVS()
         {
             //Overflow Flag is 1/true
@@ -1754,6 +1802,17 @@ namespace DadsNESEmulator.NESHardware
             }
         }
 
+        /**
+         * @brief   BCC - Branch if Carry Clear - If the carry flag is clear then add the relative displacement to the program counter to
+         *                                        cause a branch to a new location.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void BCC()
         {
             // Carry Flag is clear, 0/false
@@ -1773,6 +1832,17 @@ namespace DadsNESEmulator.NESHardware
             }
         }
 
+        /**
+         * @brief   BCS - Branch if Carry Set - If the carry flag is set then add the relative displacement to the program counter to
+         *                                      cause a branch to a new location.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void BCS()
         {
             // Carry Flag is set, 1/true
@@ -1792,6 +1862,17 @@ namespace DadsNESEmulator.NESHardware
             }
         }
 
+        /**
+         * @brief   BNE - Branch if Not Equal - If the zero flag is clear then add the relative displacement to the program counter
+         *                                      to cause a branch to a new location.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void BNE()
         {
             // Zero Flag is 0/false
@@ -1811,6 +1892,17 @@ namespace DadsNESEmulator.NESHardware
             }
         }
 
+        /**
+         * @brief   BEQ - Branch if Equal - If the zero flag is set then add the relative displacement to the program counter to
+         *                                  cause a branch to a new location.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void BEQ()
         {
             // Zero Flag is 1/true
@@ -1830,18 +1922,30 @@ namespace DadsNESEmulator.NESHardware
             }
         }
 
+        /**
+         * @brief   BRK - Force Interrupt - The BRK instruction forces the generation of an interrupt request. The program
+         *                                  counter and processor status are pushed on the stack then the IRQ interrupt vector
+         *                                  at $FFFE/F is loaded into the PC and the break flag in the status set to one.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: B
+         * 
+         */
         private void BRK()
         {
             // Push the Program Counter to the stack,
             Push16(PC);
 
-            // Set the Interrupt Flag to temporarily prevent other IRQs from being executed
+            /** - Set the Interrupt Flag to temporarily prevent other IRQs from being executed. */
             P[2] = true;
 
             byte statusRegister = ConvertToByte(P);
             //Push(new byte[] {(byte) PC, statusRegister});
             
-            // Push the status register to the stack
+            /** - Push the status register to the stack. */
             Push(statusRegister);
 
             /** - Reload PC Counter with irq brk vector address */
@@ -1849,12 +1953,14 @@ namespace DadsNESEmulator.NESHardware
         }
 
         /**
-         * @brief   CMP - Compare Memory and Accumulator
+         * @brief   CMP - Compare - This instruction compares the contents of the accumulator with another memory held
+         *                          value and sets the zero and carry flags as appropriate.
          *
          * @return  N/A
          *
          * @author  Shawn M. Crawford
          *
+         * @note    Status flags: N, Z, C
          * @note    A - M
          * 
          */
@@ -1872,6 +1978,18 @@ namespace DadsNESEmulator.NESHardware
             SetZNStatusRegisterProcessorFlags(tempByte);
         }
 
+        /**
+         * @brief   CPX - Compare X Register - This instruction compares the contents of the X register with another
+         *                                     memory held value and sets the zero and carry flags as appropriate.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: N, Z, C
+         * @note    Z,C,N = X-M
+         * 
+         */
         private void CPX()
         {
             /** - Read the next byte. */
@@ -1886,6 +2004,18 @@ namespace DadsNESEmulator.NESHardware
             SetZNStatusRegisterProcessorFlags(tempByte);
         }
 
+        /**
+         * @brief   CPY - Compare Y Register - This instruction compares the contents of the Y register with another
+         *                                     memory held value and sets the zero and carry flags as appropriate.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: N, Z, C
+         * @note    Z,C,N = Y-M
+         * 
+         */
         private void CPY()
         {
             /** - Read the next byte. */
@@ -1900,6 +2030,18 @@ namespace DadsNESEmulator.NESHardware
             SetZNStatusRegisterProcessorFlags(tempByte);
         }
 
+        /**
+         * @brief   DEC - Decrement Memory - Subtracts one from the value held at a specified memory location setting
+         *                                   the zero and negative flags as appropriate.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: N, Z
+         * @note    M,Z,N = M-1
+         * 
+         */
         private void DEC()
         {
             /** - Read the next byte. */
@@ -1912,6 +2054,18 @@ namespace DadsNESEmulator.NESHardware
             SetZNStatusRegisterProcessorFlags(value);
         }
 
+        /**
+         * @brief   EOR - Exclusive OR - An exclusive OR is performed, bit by bit, on the accumulator contents using
+         *                               the contents of a byte of memory.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: N, Z
+         * @note    A,Z,N = A^M
+         * 
+         */
         private void EOR()
         {
             /** - Read the next byte. */
@@ -1926,47 +2080,131 @@ namespace DadsNESEmulator.NESHardware
             A = byteRead;
         }
 
+        /**
+         * @brief   CLC - Clear Carry Flag - Set the carry flag to zero.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: C
+         * @note    C = 0
+         * 
+         */
         private void CLC()
         {
-            // CLC (Clear Carry Flag) clears the Carry Flag in the Processor Status Register by setting the 0th bit 0
             P[0] = false;
         }
+
+        /**
+         * @brief   SEC - Set Carry Flag - Set the carry flag to one.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: C
+         * @note    C = 1
+         * 
+         */
         private void SEC()
         {
-            // SEC (Set Carry Flag) sets the Carry Flag in the Processor Status Register by setting the 0th bit 1.
             P[0] = true;
         }
 
+        /**
+         * @brief   CLI - Clear Interrupt Disable - Clears the interrupt disable flag allowing normal interrupt
+         *                                          requests to be serviced.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: I
+         * @note    I = 0
+         * 
+         */
         private void CLI()
         {
-            // CLI (Clear Interrupt Disable Flag) clears the Interrupt Flag in the Processor Status Register by setting the 2nd bit 0.
             P[2] = false;
         }
 
+        /**
+         * @brief   SEI - Set Interrupt Disable - Set the interrupt disable flag to one.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: I
+         * @note    I = 1
+         * 
+         */
         private void SEI()
         {
-            // SEI (Set Interrupt Disable Flag) sets the Interrupt Flag in the Processor Status Register by setting the 2nd bit 1.
             P[2] = true;
         }
 
+        /**
+         * @brief   CLV - Clear Overflow Flag - Clears the overflow flag.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: V
+         * @note    V = 0
+         * 
+         */
         private void CLV()
         {
-            // CLV (Clear Overflow Flag) clears the Overflow Flag in the Processor Status Register by setting the 6th bit 0.
             P[6] = false;
         }
 
+        /**
+         * @brief   CLD - Clear Decimal Mode - Sets the decimal mode flag to zero.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: D
+         * @note    D = 0
+         * 
+         */
         private void CLD()
         {
-            // CLD (Clear Decimal Flag) clears the Decimal Flag in the Processor Status Register by setting the 3rd bit 0.
             P[3] = false;
         }
 
+        /**
+         * @brief   SED - Set Decimal Flag - Sets the decimal mode flag to one.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: D
+         * @note    D = 1
+         * 
+         */
         private void SED()
         {
-            // SED (Set Decimal Flag) set the Decimal Flag in the Processor Status Register by setting the 3rd bit 1
             P[3] = true;
         }
 
+        /**
+         * @brief   INC - Increment Memory - Adds one to the value held at a specified memory location setting
+         *                                   the zero and negative flags as appropriate.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: N, Z
+         * @note    M,Z,N = M+1
+         * 
+         */
         private void INC()
         {
             byte value = Mem.ReadByte(AbsoluteAddress);
@@ -1978,17 +2216,51 @@ namespace DadsNESEmulator.NESHardware
             SetZNStatusRegisterProcessorFlags(value);
         }
 
+        /**
+         * @brief   JMP - Jump - Sets the program counter to the address specified by the operand.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void JMP()
         {
             PC = AbsoluteAddress;
         }
 
+        /**
+         * @brief   JSR - Jump to Subroutine - The JSR instruction pushes the address (minus one) of the return
+         *                                     point on to the stack and then sets the program counter to the
+         *                                     target memory address.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void JSR()
         {
             Push((ushort)(PC - 1));
             PC = AbsoluteAddress;
         }
 
+        /**
+         * @brief   LDA - Load Accumulator - Loads a byte of memory into the accumulator setting the zero and
+         *                                   negative flags as appropriate.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: N, Z
+         * @note    A,Z,N = M
+         * 
+         */
         private void LDA()
         {
             byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
@@ -1999,6 +2271,18 @@ namespace DadsNESEmulator.NESHardware
             A = byteRead;
         }
 
+        /**
+         * @brief   LDX - Load X Register - Loads a byte of memory into the X register setting the zero and
+         *                                  negative flags as appropriate.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: N, Z
+         * @note    X,Z,N = M
+         * 
+         */
         private void LDX()
         {
             /** - Read the next byte. */
@@ -2010,6 +2294,18 @@ namespace DadsNESEmulator.NESHardware
             X = byteRead;
         }
 
+        /**
+         * @brief   LDY - Load Y Register - Loads a byte of memory into the Y register setting the zero and
+         *                                  negative flags as appropriate.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: N, Z
+         * @note    Y,Z,N = M
+         * 
+         */
         private void LDY()
         {
             /** - Read the next byte. */
@@ -2029,6 +2325,7 @@ namespace DadsNESEmulator.NESHardware
          *
          * @author  Shawn M. Crawford
          *
+         * @note    Status flags: N, Z, C
          * @note    A,C,Z,N = A/2 or M,C,Z,N = M/2
          * 
          */
@@ -2081,6 +2378,18 @@ namespace DadsNESEmulator.NESHardware
             /** - No OPeration */
         }
 
+        /**
+         * @brief   ORA - Logical Inclusive OR - An inclusive OR is performed, bit by bit, on the accumulator contents using the contents of a
+         *                                       byte of memory.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: N, Z
+         * @note    A,Z,N = A|M
+         * 
+         */
         private void ORA()
         {
             byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
@@ -2094,6 +2403,18 @@ namespace DadsNESEmulator.NESHardware
             A = byteRead;
         }
 
+        /**
+         * @brief   TAX - Transfer Accumulator to X - Copies the current contents of the accumulator into the X register and sets the zero and
+         *                                            negative flags as appropriate.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: N, Z
+         * @note    X = A
+         * 
+         */
         private void TAX()
         {
             SetZNStatusRegisterProcessorFlags(A);
@@ -2102,6 +2423,18 @@ namespace DadsNESEmulator.NESHardware
             X = A;
         }
 
+        /**
+         * @brief   TXA - Transfer X to Accumulator - Copies the current contents of the X register into the accumulator and sets the zero and
+         *                                            negative flags as appropriate.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: N, Z
+         * @note    A = X
+         * 
+         */
         private void TXA()
         {
             SetZNStatusRegisterProcessorFlags(X);
@@ -2110,18 +2443,52 @@ namespace DadsNESEmulator.NESHardware
             A = X;
         }
 
+        /**
+         * @brief   DEX - Decrement X Register - Subtracts one from the X register setting the zero and negative flags as appropriate.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: N, Z
+         * @note    X,Z,N = X-1
+         * 
+         */
         private void DEX()
         {
             X--;
             SetZNStatusRegisterProcessorFlags(X);
         }
 
+        /**
+         * @brief   INX - Increment X Register - Adds one to the X register setting the zero and negative flags as appropriate.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: N, Z
+         * @note    X,Z,N = X+1
+         * 
+         */
         private void INX()
         {
             X++;
             SetZNStatusRegisterProcessorFlags(X);
         }
 
+        /**
+         * @brief   TAY - Transfer Accumulator to Y - Copies the current contents of the accumulator into the Y register and
+         *                                            sets the zero and negative flags as appropriate.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: N, Z
+         * @note    Y = A
+         * 
+         */
         private void TAY()
         {
             SetZNStatusRegisterProcessorFlags(A);
@@ -2130,6 +2497,18 @@ namespace DadsNESEmulator.NESHardware
             Y = A;
         }
 
+        /**
+         * @brief   TYA - Transfer Y to Accumulator - Copies the current contents of the Y register into the accumulator and
+         *                                            sets the zero and negative flags as appropriate.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: N, Z
+         * @note    A = Y
+         * 
+         */
         private void TYA()
         {
             SetZNStatusRegisterProcessorFlags(Y);
@@ -2138,12 +2517,34 @@ namespace DadsNESEmulator.NESHardware
             A = Y;
         }
 
+        /**
+         * @brief   DEY - Decrement Y Register - Subtracts one from the Y register setting the zero and negative flags as appropriate.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: N, Z
+         * @note    Y,Z,N = Y-1
+         * 
+         */
         private void DEY()
         {
             Y--;
             SetZNStatusRegisterProcessorFlags(Y);
         }
 
+        /**
+         * @brief   INY - Increment Y Register - Adds one from the Y register setting the zero and negative flags as appropriate.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: N, Z
+         * @note    Y,Z,N = Y+1
+         * 
+         */
         private void INY()
         {
             Y++;
@@ -2158,7 +2559,7 @@ namespace DadsNESEmulator.NESHardware
          *
          * @author  Shawn M. Crawford
          *
-         * @note    N/A
+         * @note    Status flags: N, Z, C
          * 
          */
         private void ROL()
@@ -2205,7 +2606,7 @@ namespace DadsNESEmulator.NESHardware
          *
          * @author  Shawn M. Crawford
          *
-         * @note    N/A
+         * @note    Status flags: N, Z, C
          * 
          */
         private void ROR()
@@ -2243,6 +2644,17 @@ namespace DadsNESEmulator.NESHardware
             SetZNStatusRegisterProcessorFlags(byteRotated);
         }
 
+        /**
+         * @brief   RTI - Return from Interrupt - The RTI instruction is used at the end of an interrupt processing routine. It pulls the
+         *                                        processor flags from the stack followed by the program counter.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: All
+         * 
+         */
         private void RTI()
         {
             SetStatusRegisterProcessorFlags(Pop());
@@ -2250,6 +2662,17 @@ namespace DadsNESEmulator.NESHardware
             //PC = ConvertFromBytes(Pop(), Pop());
         }
 
+        /**
+         * @brief   RTS - Return from Subroutine - The RTS instruction is used at the end of a subroutine to return to the calling routine.
+         *                                         It pulls the program counter (minus one) from the stack.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Status flags: None
+         * 
+         */
         private void RTS()
         {
             PC = (ushort)(Pop16() + 1);
@@ -2257,13 +2680,16 @@ namespace DadsNESEmulator.NESHardware
         }
 
         /**
-         * @brief   SBC - Subtract Memory from Accumulator with Borrow
+         * @brief   SBC - Subtract with Carry - This instruction subtracts the contents of a memory location to the accumulator together
+         *                                      with the not of the carry bit. If overflow occurs the carry bit is clear, this enables
+         *                                      multiple byte subtraction to be performed.
          *
          * @return  N/A
          *
          * @author  Shawn M. Crawford
          *
-         * @note    A - M - ~C -> A 
+         * @note    Status flags: N, V, Z, C 
+         * @note    A,Z,C,N = A-M-(1-C)
          * 
          */
         private void SBC()
@@ -2293,29 +2719,28 @@ namespace DadsNESEmulator.NESHardware
         }
 
         /**
-         * @brief   STA - STore Accumulator
+         * @brief   STA - Store Accumulator - Stores the contents of the accumulator into memory.
          *
          * @return  N/A
          *
          * @author  Shawn M. Crawford
          *
-         * @note    N/A
+         * @note    M = A
          * 
          */
         private void STA()
         {
-            /** - Stores the Accumulator Register into memory. */
             Mem.WriteByte(AbsoluteAddress, A);
         }
 
         /**
-         * @brief   TXS - Transfer X to Stack Pointer
+         * @brief   TXS - Transfer X to Stack Pointer - Copies the current contents of the X register into the stack register.
          *
          * @return  N/A
          *
          * @author  Shawn M. Crawford
          *
-         * @note    N/A
+         * @note    S = X
          * 
          */
         private void TXS()
@@ -2325,13 +2750,14 @@ namespace DadsNESEmulator.NESHardware
         }
 
         /**
-         * @brief   TXS - Transfer Stack Pointer to X
+         * @brief   TXS - Transfer Stack Pointer to X - Copies the current contents of the stack register into the X register
+         *                                              and sets the zero and negative flags as appropriate.
          *
          * @return  N/A
          *
          * @author  Shawn M. Crawford
          *
-         * @note    N/A
+         * @note    Status flags: N, Z
          * 
          */
         private void TSX()
@@ -2343,7 +2769,7 @@ namespace DadsNESEmulator.NESHardware
         }
 
         /**
-         * @brief   PHA - Push Accumulator
+         * @brief   PHA - Push Accumulator - Pushes a copy of the accumulator on to the stack.
          *
          * @return  N/A
          *
@@ -2359,13 +2785,14 @@ namespace DadsNESEmulator.NESHardware
         }
 
         /**
-         * @brief   PLA - Pull Accumulator
+         * @brief   PLA - Pull Accumulator - Pulls an 8 bit value from the stack and into the accumulator. The zero and
+         *                                   negative flags are set as appropriate.
          *
          * @return  N/A
          *
          * @author  Shawn M. Crawford
          *
-         * @note    N/A
+         * @note    Status flags: N, Z
          * 
          */
         private void PLA()
@@ -2375,7 +2802,7 @@ namespace DadsNESEmulator.NESHardware
         }
 
         /**
-         * @brief   PHP - Push Processor Status
+         * @brief   PHP - Push Processor Status - Pushes a copy of the status flags on to the stack.
          *
          * @return  N/A
          *
@@ -2392,13 +2819,14 @@ namespace DadsNESEmulator.NESHardware
         }
 
         /**
-         * @brief   PLP - Pull Processor Status
+         * @brief   PLP - Pull Processor Status - Pulls an 8 bit value from the stack and into the processor flags. The
+         *                                        flags will take on new states as determined by the value pulled.
          *
          * @return  N/A
          *
          * @author  Shawn M. Crawford
          *
-         * @note    N/A
+         * @note    Status flags: Any
          * 
          */
         private void PLP()
@@ -2411,13 +2839,13 @@ namespace DadsNESEmulator.NESHardware
         }
 
         /**
-         * @brief   STX - Store X Register
+         * @brief   STX - Store X Register - Stores the contents of the X register into memory.
          *
          * @return  N/A
          *
          * @author  Shawn M. Crawford
          *
-         * @note    N/A
+         * @note    M = X
          * 
          */
         private void STX()
@@ -2427,13 +2855,13 @@ namespace DadsNESEmulator.NESHardware
         }
 
         /**
-         * @brief   STY - Store Y Register
+         * @brief   STY - Store Y Register - Stores the contents of the Y register into memory.
          *
          * @return  N/A
          *
          * @author  Shawn M. Crawford
          *
-         * @note    N/A
+         * @note    M = Y
          * 
          */
         private void STY()
@@ -2444,7 +2872,7 @@ namespace DadsNESEmulator.NESHardware
 
         #endregion
 
-        #region Illegal Opcodes
+        #region Class Methods (Illegal Opcodes)
 
         /**
          * @brief   AAC - AND byte with accumulator. If result is negative then carry is set.
@@ -2459,6 +2887,7 @@ namespace DadsNESEmulator.NESHardware
         private void AAC()
         {
             byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
+            byte temp = (byte)(A & byteRead);
         }
 
         /**
@@ -2517,22 +2946,47 @@ namespace DadsNESEmulator.NESHardware
 
         private void DCP()
         {
-
+            //DCP {adr} = DEC {adr} + CMP {adr}
         }
 
+        /**
+         * @brief   DOP (NOP) [SKB] - No operation (double NOP).
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void DOP()
         {
-            byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
+            /** - No OPeration */
         }
 
         private void ISC()
         {
-
+            //ISC {adr} = INC {adr} + SBC {adr} 
         }
 
+        /**
+         * @brief   KIL (JAM) [HLT] - Stop program counter (processor lock up).
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void KIL()
         {
-
+            while (true)
+            {
+                // Processor locked up.
+                /* @todo: Break out of this loop when a reset is pressed. */
+                PC = PC;
+            }
         }
 
         private void LAR()
@@ -2542,41 +2996,51 @@ namespace DadsNESEmulator.NESHardware
 
         private void LAX()
         {
-
+            //LAX {adr} = LDA {adr} + LDX {adr}
         }
 
         private void RLA()
         {
-
+            //RLA {adr} = ROL {adr} + AND {adr}
         }
 
         private void RRA()
         {
-
+            //RRA {adr} = ROR {adr} + ADC {adr}
         }
 
         private void SLO()
         {
-
+            //SLO {adr} = ASL {adr} + ORA {adr}
         }
 
         private void SRE()
         {
-
+            //SRE {adr} = LSR {adr} + EOR {adr}
         }
 
         private void SXA()
         {
-
+            //SAX {adr} = store A&X into {adr} ?
         }
         private void SYA()
         {
 
         }
 
+        /**
+         * @brief   TOP (NOP) [SKW] - No operation (triple NOP).
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void TOP()
         {
-
+            /** - No OPeration */
         }
 
         private void XAA()
