@@ -1479,10 +1479,9 @@ namespace DadsNESEmulator.NESHardware
                 string opcodeName = Opcodes.GetOpcodeName(Opcode);
 
                 /* Church up the log. */
-                if (CurrentAddressMode == AddressModes.Immediate || CurrentAddressMode == AddressModes.ZeroPage ||
-                    CurrentAddressMode == AddressModes.ZeroPageX
-                    || CurrentAddressMode == AddressModes.ZeroPageY || CurrentAddressMode == AddressModes.Relative ||
-                    CurrentAddressMode == AddressModes.Indirect
+                if (CurrentAddressMode == AddressModes.Immediate || CurrentAddressMode == AddressModes.ZeroPage
+                    || CurrentAddressMode == AddressModes.ZeroPageX || CurrentAddressMode == AddressModes.ZeroPageY
+                    || CurrentAddressMode == AddressModes.Relative ||CurrentAddressMode == AddressModes.Indirect
                     || CurrentAddressMode == AddressModes.IndirectX || CurrentAddressMode == AddressModes.IndirectY)
                 {
                     Console.Write("    ");
@@ -1546,8 +1545,7 @@ namespace DadsNESEmulator.NESHardware
 
         /** - References:
          * http://www.obelisk.me.uk/6502/reference.html
-         * https://github.com/DanTup/DaNES/blob/master/DaNES.Emulation/Cpu.cs
-         *
+         * http://www.oxyron.de/html/opcodes02.html
          */
 
         /**
@@ -1950,8 +1948,14 @@ namespace DadsNESEmulator.NESHardware
             P[2] = true;
 
             byte statusRegister = ConvertToByte(P);
+            /** - Set reserved and B flags (only for push) */
+            //P[4] = true;
+            //P[5] = true;
+            statusRegister = (byte)(statusRegister | (byte)ProcessorFlags.B);
+            statusRegister = (byte)(statusRegister | (byte)ProcessorFlags.R);
+
             //Push(new byte[] {(byte) PC, statusRegister});
-            
+
             /** - Push the status register to the stack. */
             Push(statusRegister);
 
@@ -2052,13 +2056,15 @@ namespace DadsNESEmulator.NESHardware
         private void DEC()
         {
             /** - Read the next byte. */
-            byte value = Mem.ReadByte(AbsoluteAddress);
-            value--;
+            byte byteRead = Mem.ReadByte(AbsoluteAddress);
+
+            byteRead--;
 
             /** - AbsoluteAddress is set in the ZeroPage, ZeroPageX, Absolute, AbsoluteX addressing. */
-            Mem.WriteByte(AbsoluteAddress, value);
+            Mem.WriteByte(AbsoluteAddress, byteRead);
             
-            SetZNStatusRegisterProcessorFlags(value);
+            SetZNStatusRegisterProcessorFlags(byteRead);
+            
         }
 
         /**
@@ -2214,13 +2220,13 @@ namespace DadsNESEmulator.NESHardware
          */
         private void INC()
         {
-            byte value = Mem.ReadByte(AbsoluteAddress);
-            value++;
+            byte byteRead = Mem.ReadByte(AbsoluteAddress);
+            byteRead++;
 
             /** - AbsoluteAddress is set in the ZeroPage, ZeroPageX, Absolute, AbsoluteX addressing. */
-            Mem.WriteByte(AbsoluteAddress, value);
+            Mem.WriteByte(AbsoluteAddress, byteRead);
 
-            SetZNStatusRegisterProcessorFlags(value);
+            SetZNStatusRegisterProcessorFlags(byteRead);
         }
 
         /**
@@ -2879,10 +2885,10 @@ namespace DadsNESEmulator.NESHardware
 
         #endregion
 
-        #region Class Methods (Illegal Opcodes)
+        #region Class Methods (Illegal Opcodes) - Currently Untested
 
         /**
-         * @brief   AAC - AND byte with accumulator. If result is negative then carry is set.
+         * @brief   AAC (ANC) [ANC] - AND byte with accumulator. If result is negative then carry is set.
          *
          * @return  N/A
          *
@@ -2893,27 +2899,37 @@ namespace DadsNESEmulator.NESHardware
          */
         private void AAC()
         {
-            byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
-            byte temp = (byte)(A & byteRead);
+            byte byteRead = ImmediateByte;
+            
+            /** - AND values from the operand and the accumulator together, store the result in the Accumulator Register. */
+            A &= byteRead;
+
+            /** - Set the zero and negative flags */
+            SetZNStatusRegisterProcessorFlags(A);
+
+            /** - Set the carry flag. */
+            P[0] = P[7];
         }
 
         /**
-         * @brief   AAX - AND X register with accumulator and store result in memory.
+         * @brief   AAX (SAX) [AXS] - AND X register with accumulator and store result in memory.
          *
          * @return  N/A
          *
          * @author  Shawn M. Crawford
          *
-         * @note    Status flags: N,Z
+         * @note    Status flags: None
          * 
          */
         private void AAX()
         {
-
+            byte byteRead = Mem.ReadByte(AbsoluteAddress);
+            byte tempByte = (byte) (A & X);
+            Mem.WriteByte(byteRead, tempByte);
         }
 
         /**
-         * @brief   ARR - AND byte with accumulator, then rotate one bit right in accu-mulator and check bit 5 and 6:
+         * @brief   ARR - AND byte with accumulator, then rotate one bit right in accumulator and check bit 5 and 6:
          *          If both bits are 1: set C, clear V.
          *          If both bits are 0: clear C and V.
          *          If only bit 5 is 1: set V, clear C.
@@ -2928,32 +2944,169 @@ namespace DadsNESEmulator.NESHardware
          */
         private void ARR()
         {
-            byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
+            byte byteRead = ImmediateByte;
+
+            A = (byte)(((byteRead & A) >> 1) | (P[0] ? 0x80 : 0x00));
+
+            /** - Set the zero and negative flags */
+            SetZNStatusRegisterProcessorFlags(A);
+
+            /** - Set the carry flag. */
+            SetStatusRegisterProcessorFlag(ProcessorFlags.V, A);
+            //P[0] = ((A & ((byte)ProcessorFlags.V)) != 0);
+
+
+            /** - Set the overflow flag. */
+            //byte carryFlag = P[0] ? (byte)1 : (byte)0;
+            //SetStatusRegisterProcessorFlag(ProcessorFlags.R, (byte)(carryFlag ^ A));
+            P[6] = P[0] ^ ((A & ((byte)ProcessorFlags.R)) != 0);
+            
         }
 
+        /**
+         * @brief   ASR (ASR) [ALR] - AND byte with accumulator, then shift right one bit in accumulator.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Affects Flags: N, Z, C
+         * 
+         */
         private void ASR()
         {
-            byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
+            /** - This is basically an Immediate AND and LSR. */
+            /** - Read the next byte. */
+            byte byteRead = ImmediateByte;
+            
+            /** - AND values from the operand and the accumulator together, store the result in the Accumulator Register. */
+            A &= byteRead;
+
+            /** - Set the zero and negative flags */
+            SetZNStatusRegisterProcessorFlags(A);
+
+            /** - Set the carry flag.  byte read & 00000001 != 0 */
+            P[0] = (byteRead & 0x1) != 0;
+
+            /** - Shift right one bit. */
+            byteRead >>= 1;
+
+            /** - Set memory to shifted byte. */
+            Mem.WriteByte(AbsoluteAddress, byteRead);
+            
+            /** - Set the zero flag and negative flag. */
+            SetZNStatusRegisterProcessorFlags(byteRead);
         }
 
+        /**
+         * @brief   ATX (LXA) [OAL] - AND byte with accumulator, then transfer accumulator to X register.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Affects Flags: N, Z
+         * 
+         */
         private void ATX()
         {
-            byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
+            /** - Read the next byte. */
+            byte byteRead = ImmediateByte;
+
+            X = (byte)(A & byteRead);
+
+            /** - Set the Zero flag and Negative flag. */
+            SetZNStatusRegisterProcessorFlags(X);
         }
 
+        /**
+         * @brief   AXA (SHA) (AHX) [AXA] - AND X register with accumulator then AND result with 7 and store in memory.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Affects Flags: None
+         * 
+         */
         private void AXA()
         {
+            /** - Read the next byte. */
+            byte byteRead = Mem.ReadByte(AbsoluteAddress);
+            int data = (A & X & ((byteRead >> 8) + 1)) & 0xFF;
+            int temp = (byteRead - Y) & 0xFF;
+            if ((Y + temp) <= 0xFF)
+            {
+                Mem.WriteByte(byteRead, (byte)data);
+            }
+            else
+            {
+                byte byteRead2 = Mem.ReadByte(byteRead);
+                Mem.WriteByte(byteRead, byteRead2);
+            }
 
         }
 
+        /**
+         * @brief   AXS (SBX) [SAX] - AND X register with accumulator and store result in X register,
+         *                            then subtract byte from X register (without borrow).
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Affects Flags: N, Z, C
+         * 
+         */
         private void AXS()
         {
-            byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
+            /** - Read the next byte. */
+            byte byteRead = ImmediateByte;
+
+            /** - AND X register with accumulator and store result in X register, then subtract byte from X register (without borrow). */
+            X = (byte)(((byte)(A & X) - byteRead) & 0xff);
+
+            /** - Set the Zero flag and Negative flag. */
+            SetZNStatusRegisterProcessorFlags(X);
+
+            /** - Set the Carry flag. */
+            P[0] = X >= 0;
         }
 
+        /**
+         * @brief   DCP (DCP) [DCM] - Subtract 1 from memory (without borrow).
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Affects Flags: C
+         * @note    DCP {adr} = DEC {adr} + CMP {adr}
+         * 
+         */
         private void DCP()
         {
-            //DCP {adr} = DEC {adr} + CMP {adr}
+            /** - Read the next byte. */
+            byte byteRead = Mem.ReadByte(AbsoluteAddress);
+            byte byteReadForCmp = byteRead;
+
+            /** - DEC */
+
+            byteRead--;
+            
+            Mem.WriteByte(AbsoluteAddress, byteRead);
+
+            SetZNStatusRegisterProcessorFlags(byteRead);
+
+            /** - CMP */
+
+            byte tempByte = (byte)(A - byteReadForCmp);
+
+            /** - Set the Carry flag. */
+            P[0] = A >= byteReadForCmp;
+
+            /** - Set the Zero flag and Negative flag. */
+            SetZNStatusRegisterProcessorFlags(tempByte);
         }
 
         /**
@@ -2971,9 +3124,52 @@ namespace DadsNESEmulator.NESHardware
             /** - No OPeration */
         }
 
+        /**
+         * @brief   ISC (ISB) [INS] - Increase memory by one, then subtract memory from accumulator (with borrow).
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Affects Flags: N, V, Z, C
+         * @note    ISC {adr} = INC {adr} + SBC {adr} 
+         * 
+         */
         private void ISC()
         {
-            //ISC {adr} = INC {adr} + SBC {adr} 
+            /** - Read the next byte. */
+            byte byteRead = Mem.ReadByte(AbsoluteAddress);
+            byte byteReadForSbc = byteRead;
+
+            /** - INC */
+            
+            byteRead++;
+            
+            Mem.WriteByte(AbsoluteAddress, byteRead);
+
+            SetZNStatusRegisterProcessorFlags(byteRead);
+
+            /** - SBC */
+
+            /** - If P[0](Carry) is true, carryflag = 1 else carryflag = 0 */
+            byte carryFlag = P[0] ? (byte)1 : (byte)0;
+            
+            /** - Add the accumulator, byte read, and carryFlag */
+            int result = A - byteReadForSbc - (1 - carryFlag);
+
+            byte oldA = A;
+
+            /** - Set the Accumulator (0xFF keeps the value in the last 8 bits, not needed because this is a byte, but kept for reference) */
+            A = (byte)(result & 0xFF);
+
+            /** - Set the zero and negative flags */
+            SetZNStatusRegisterProcessorFlags(A);
+
+            /** - Clear the carry flag (Clear if overflow in bit 7) */
+            P[0] = result >= 0;
+
+            /** - Set the overflow flag - Set if overflow in bit 7 */
+            P[6] = (((oldA ^ byteReadForSbc) & 0x80) != 0 && ((oldA ^ A) & 0x80) != 0);
         }
 
         /**
@@ -2988,51 +3184,343 @@ namespace DadsNESEmulator.NESHardware
          */
         private void KIL(bool resetPressed = false)
         {
-            if (!resetPressed)
+            if (false == resetPressed)
             {
-                /* Processor locked up. Hang until reset is pressed. */
+                /* Processor locked up. Hang until reset is pressed. (or maybe just stop emulation entirely) */
                 //PC stays the same.
                 KIL();
             }
         }
 
+        /**
+         * @brief   LAR (LAE) [LAS] - AND memory with stack pointer, transfer result to accumulator, X register,
+         *                            and stack pointer.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Affects Flags: N, Z
+         * 
+         */
         private void LAR()
         {
-
+            /** - Read the next byte. */
+            byte byteRead = Mem.ReadByte(AbsoluteAddress);
+            
+            S &= byteRead;
+            A = X = S;
+            SetZNStatusRegisterProcessorFlags(S);
         }
 
+        /**
+         * @brief   LAX (LAX) [LAX] - Load accumulator and X register with memory.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Affects Flags: N, Z
+         * @note    LAX {adr} = LDA {adr} + LDX {adr}
+         * 
+         */
         private void LAX()
         {
-            //LAX {adr} = LDA {adr} + LDX {adr}
+            /** - Read the next byte. */
+            byte byteRead = Mem.ReadByte(AbsoluteAddress);
+            byte byteReadForLdx = byteRead;
+
+            /** - LDA */
+
+            SetZNStatusRegisterProcessorFlags(byteRead);
+
+            /** - Stores the Operand in the Accumulator Register. */
+            A = byteRead;
+
+            /** - LDX */
+
+            SetZNStatusRegisterProcessorFlags(byteReadForLdx);
+
+            /** - Stores the Operand in the X Index Register. */
+            X = byteReadForLdx;
         }
 
+        /**
+         * @brief   RLA (RLA) [RLA] - Rotate one bit left in memory, then AND accumulator with memory.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Affects Flags: N, Z, C
+         * @note    RLA {adr} = ROL {adr} + AND {adr}
+         * 
+         */
         private void RLA()
         {
-            //RLA {adr} = ROL {adr} + AND {adr}
+            /** - Read the next byte. */
+            byte byteRead = Mem.ReadByte(AbsoluteAddress);
+            byte byteReadForAnd = byteRead;
+
+            /** - ROL */
+
+            bool tempCarry = P[0];
+
+            /** - Set the carry flag.  byte read & 10000000 != 0 */
+            P[0] = (byteRead & 0x80) != 0;
+
+            /** - Left shift byte read 1 bit, OR with 10000000 00000000 depending on carry flag */
+            byte byteRotated = (byte)((byteRead << 1) | (tempCarry ? 0x1 : 0x0));
+
+            /** - Write byte to memory or accumulator depending on address mode. */
+            if (CurrentAddressMode == AddressModes.Accumulator)
+            {
+                /** - Set accumulator to rotated byte. */
+                A = byteRotated;
+
+            }
+            else
+            {
+                /** - Set memory to rotated byte. */
+                Mem.WriteByte(AbsoluteAddress, byteRotated);
+            }
+
+            /** - Set the zero flag and negative flag. */
+            SetZNStatusRegisterProcessorFlags(byteRotated);
+
+            /** - AND */
+
+            /** - AND values from the operand and the accumulator together, store the result in the Accumulator Register. */
+            A &= byteReadForAnd;
+
+            /** - Set the zero and negative flags */
+            SetZNStatusRegisterProcessorFlags(A);
         }
 
+        /**
+         * @brief   RRA (RRA) [RRA] - Rotate one bit right in memory, then add memory to accumulator (with carry).
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Affects Flags: N, Z, C
+         * @note    RRA {adr} = ROR {adr} + ADC {adr}
+         * 
+         */
         private void RRA()
         {
-            //RRA {adr} = ROR {adr} + ADC {adr}
+            /** - Read the next byte. */
+            byte byteRead = Mem.ReadByte(AbsoluteAddress);
+            byte byteReadForAdc = byteRead;
+
+            /** - ROR */
+
+            bool tempCarry = P[0];
+
+            /** - Set the carry flag.  byte read & 00000001 != 0 */
+            P[0] = (byteRead & 0x1) != 0;
+
+            /** - Right shift byte read 1 bit, OR with 10000000  if carry flag true, else 00000000 for false carry flag */
+            byte byteRotated = (byte)((byteRead >> 1) | (tempCarry ? 0x80 : 0x0));
+
+            /** - Write byte to memory or accumulator depending on address mode. */
+            if (CurrentAddressMode == AddressModes.Accumulator)
+            {
+                /** - Set accumulator to rotated byte. */
+                A = byteRotated;
+            }
+            else
+            {
+                /** - Set memory to rotated byte. */
+                Mem.WriteByte(AbsoluteAddress, byteRotated);
+            }
+
+            /** - Set the zero flag and negative flag. */
+            SetZNStatusRegisterProcessorFlags(byteRotated);
+            
+            /** - ADC */
+
+            /** - If P[0](Carry) is true, carryflag = 1 else carryflag = 0 */
+            byte carryFlag = P[0] ? (byte)1 : (byte)0;
+
+            /** - Add the accumulator, byte read, and carryFlag */
+            int result = A + byteReadForAdc + carryFlag;
+
+            byte oldA = A;
+
+            /** - Set the Accumulator (0xFF keeps the value in the last 8 bits, not needed because this is a byte, but kept for reference) */
+            A = (byte)(result & 0xFF);
+
+            /** - Set the zero and negative flags */
+            SetZNStatusRegisterProcessorFlags(A);
+
+            /** - Set the carry flag (Set if overflow in bit 7) */
+            P[0] = result > 0xFF;
+
+            /** - Set the overflow flag - Set if overflow in bit 7 */
+            P[6] = (((oldA ^ byteReadForAdc) & 0x80) == 0 && ((oldA ^ A) & 0x80) != 0);
         }
 
+        /**
+         * @brief   SLO (SLO) [ASO] - Shift left one bit in memory, then OR accumulator with memory.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    SLO {adr} = ASL {adr} + ORA {adr}
+         * @note    Affects Flags: N, Z, C
+         * 
+         */
         private void SLO()
         {
-            //SLO {adr} = ASL {adr} + ORA {adr}
+            /** - Read the next byte. */
+            byte byteRead = Mem.ReadByte(AbsoluteAddress);
+            byte byteReadForOra = byteRead;
+
+            /* ASL */
+
+            /** - Set the carry flag.  byte read & 10000000 != 0 */
+            P[0] = (byteRead & 0x80) != 0;
+
+            /** - Shift left one bit. */
+            byteRead <<= 1;
+
+            /** - Write byte to memory or accumulator depending on address mode. */
+            if (CurrentAddressMode == AddressModes.Accumulator)
+            {
+                /** - Set accumulator to shifted byte. */
+                A = byteRead;
+            }
+            else
+            {
+                /** - Set memory to shifted byte. */
+                Mem.WriteByte(AbsoluteAddress, byteRead);
+            }
+
+            /** - Set the zero flag and negative flag. */
+            SetZNStatusRegisterProcessorFlags(byteRead);
+
+            /* ORA */
+
+            /** - OR values from the byte read and the accumulator together */
+            byteReadForOra |= A;
+
+            /** - Set the zero flag and negative flag. */
+            SetZNStatusRegisterProcessorFlags(byteReadForOra);
+
+            /** - Store the byte read in the Accumulator Register. */
+            A = byteReadForOra;
         }
 
+        /**
+         * @brief   SRE (SRE) [LSE] - Shift right one bit in memory, then EOR accumulator with memory.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Affects Flags: N, Z, C
+         * @note    SRE {adr} = LSR {adr} + EOR {adr}
+         * 
+         */
         private void SRE()
         {
-            //SRE {adr} = LSR {adr} + EOR {adr}
+            /** - Read the next byte. */
+            byte byteRead = Mem.ReadByte(AbsoluteAddress);
+            byte byteReadForEor = byteRead;
+
+            /* LSR */
+
+            /** - Set the carry flag.  byte read & 00000001 != 0 */
+            P[0] = (byteRead & 0x1) != 0;
+
+            /** - Shift right one bit. */
+            byteRead >>= 1;
+
+            /** - Write byte to memory or accumulator depending on address mode. */
+            if (CurrentAddressMode == AddressModes.Accumulator)
+            {
+                /** - Set accumulator to shifted byte. */
+                A = byteRead;
+            }
+            else
+            {
+                /** - Set memory to shifted byte. */
+                Mem.WriteByte(AbsoluteAddress, byteRead);
+            }
+
+            /** - Set the zero flag and negative flag. */
+            SetZNStatusRegisterProcessorFlags(byteRead);
+
+            /* EOR */
+
+            /** - XOR values from the operand and the accumulator together */
+            byteReadForEor ^= A;
+
+            SetZNStatusRegisterProcessorFlags(byteReadForEor);
+
+            /** - Store the Operand in the Accumulator Register. */
+            A = byteReadForEor;
         }
 
+        /**
+         * @brief   SXA (SHX) [XAS] - AND X register with the high byte of the target address of the argument + 1.
+         *                            Store the result in memory.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Affects Flags: None
+         * @note    M =3D X AND HIGH(arg) + 1
+         * 
+         */
         private void SXA()
         {
-            //SAX {adr} = store A&X into {adr} ?
+            /** - Read the next byte. */
+            byte byteRead = Mem.ReadByte(AbsoluteAddress);
+            int data = (X & ((byteRead >> 8) + 1)) & 0xFF;
+            int tmp = (byteRead - Y) & 0xFF;
+            if ((Y + tmp) <= 0xFF)
+            {
+                Mem.WriteByte(byteRead, (byte)data);
+            }
+            else
+            {
+                byte byteRead2 = Mem.ReadByte(byteRead);
+                Mem.WriteByte(byteRead, byteRead2);
+            }
         }
+
+        /**
+         * @brief   SYA (SHY) [SAY] - AND Y register with the high byte of the target address of the argument + 1.
+         *                            Store the result in memory.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Affects Flags: None
+         * @note    M =3D Y AND HIGH(arg) + 1
+         * 
+         */
         private void SYA()
         {
-
+            /** - Read the next byte. */
+            byte byteRead = Mem.ReadByte(AbsoluteAddress);
+            int data = (Y & ((byteRead >> 8) + 1)) & 0xFF;
+            int temp = (byteRead - X) & 0xFF;
+            if ((X + temp) <= 0xFF)
+            {
+                Mem.WriteByte(byteRead, (byte)data);
+            }
+            else
+            {
+                byte byteRead2 = Mem.ReadByte(byteRead);
+                Mem.WriteByte(byteRead, byteRead2);
+            }
         }
 
         /**
@@ -3050,14 +3538,54 @@ namespace DadsNESEmulator.NESHardware
             /** - No OPeration */
         }
 
+        /**
+         * @brief   XAA (ANE) [XAA] - Exact operation unknown. Read the referenced documents for more information and observations.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    @note    Affects Flags: N, Z
+         * 
+         */
         private void XAA()
         {
-            byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
+            /* No idea if this is correct. */
+
+            /** - Read the next byte. */
+            byte byteRead = ImmediateByte;
+            A = (byte)(X & byteRead);
+            SetZNStatusRegisterProcessorFlags(A);
         }
 
+        /**
+         * @brief   - XAS (SHS) [TAS] - AND X register with accumulator and store result in stack pointer, then AND stack pointer
+         *                              with the high byte of the target address of the argument + 1. Store result in memory.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Affects Flags: Z, N
+         * @note    S =3D X AND A, M =3D S AND HIGH(arg) + 1
+         * 
+         */
         private void XAS()
         {
-
+            /** - Read the next byte. */
+            byte byteRead = Mem.ReadByte(AbsoluteAddress);
+            S = (byte)(A & X);
+            int data = (S & ((byteRead >> 8) + 1)) & 0xFF;
+            int temp = (byteRead - Y) & 0xFF;
+            if ((Y + temp) <= 0xFF)
+            {
+                Mem.WriteByte(byteRead, (byte)data);
+            }
+            else
+            {
+                byte byteRead2 = Mem.ReadByte(byteRead);
+                Mem.WriteByte(byteRead, byteRead2);
+            }
         }
 
         #endregion
@@ -3288,6 +3816,11 @@ namespace DadsNESEmulator.NESHardware
 
             Push16(PC);
             byte statusRegister = ConvertToByte(P);
+            /** - Set reserved and B flag (only for push) */
+            //P[5] = true;
+            //P[4] = false;
+            statusRegister = (byte)(statusRegister | (byte)ProcessorFlags.R);
+            statusRegister = (byte)(statusRegister & ~(byte)ProcessorFlags.B);
             Push(statusRegister);
 
             PC = Mem.ReadShort(_NMI_VECTOR_ADDRESS);

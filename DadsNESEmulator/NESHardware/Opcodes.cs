@@ -327,7 +327,7 @@ namespace DadsNESEmulator.NESHardware
         public const byte _AAC_IMMEDIATE_ALT = 0x2B; // 2, 2
 
         /** - AAX (SAX) [AXS] (AND X register with accumulator and store result in memory.) */
-        /** - Affects Flags: N Z */
+        /** - Affects Flags: None */
         public const byte _AAX_ZERO_PAGE = 0x87; // 2, 3
         public const byte _AAX_ZERO_PAGE_Y = 0x97; // 2, 4
         public const byte _AAX_INDIRECT_X = 0x83; // 2, 6
@@ -344,7 +344,7 @@ namespace DadsNESEmulator.NESHardware
         public const byte _ARR_IMMEDIATE = 0x6B; // 2, 2
 
         /** - ASR (ASR) [ALR] (AND byte with accumulator, then shift right one bit in accumulator.) */
-        /** - Affects Flags: N V Z C */
+        /** - Affects Flags: N Z C */
         public const byte _ASR_IMMEDIATE = 0x4B; // 2, 2
 
         /** - ATX (LXA) [OAL] (AND byte with accumulator, then transfer accumulator to X register.) */
@@ -356,7 +356,7 @@ namespace DadsNESEmulator.NESHardware
         public const byte _AXA_ABSOLUTE_Y = 0x9F; // 3, 5
         public const byte _AXA_INDIRECT_Y = 0x93; // 2, 6
 
-        /** - AXS (SBX) [SAX] (AND X register with accumulator and store result in X regis-ter, then subtract byte from X register (without borrow).) */
+        /** - AXS (SBX) [SAX] (AND X register with accumulator and store result in X register, then subtract byte from X register (without borrow).) */
         /** - Affects Flags: N Z C */
         public const byte _AXS_IMMEDIATE = 0xCB; // 2, 2
 
