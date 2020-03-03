@@ -488,7 +488,7 @@ namespace DadsNESEmulator.NESHardware
         /** - Affects Flags: none */
         public const byte _SYA_ABSOLUTE_X = 0x9C; // 3, 5
 
-        /** - TOP (NOP) [SKW](No operation (tripple NOP). The argument has no signifi-cance.) */
+        /** - TOP (NOP) [SKW](No operation (tripple NOP). The argument has no significance.) */
         /** - Affects Flags: none */
         public const byte _TOP_ABSOLUTE = 0x0C; // 3, 4
         public const byte _TOP_ABSOLUTE_X = 0x1C; // 3, 4+
@@ -991,7 +991,7 @@ namespace DadsNESEmulator.NESHardware
                     opcodeName = "AAX Zero Page Y (Illegal)";
                     break;
                 case _AAX_INDIRECT_X:
-                    opcodeName = "AAX Absolute (Illegal)";
+                    opcodeName = "AAX Indirect X (Illegal)";
                     break;
                 case _AAX_ABSOLUTE:
                     opcodeName = "AAX Absolute (Illegal)";
