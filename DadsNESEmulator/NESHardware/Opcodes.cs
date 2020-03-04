@@ -528,517 +528,517 @@ namespace DadsNESEmulator.NESHardware
             switch (opcode)
             {
                 case _ADC_IMMEDIATE:
-                    opcodeName = "ADC Immediate";
+                    opcodeName = "ADC Imm";
                     break;
                 case _ADC_ZERO_PAGE:
-                    opcodeName = "ADC Zero Page";
+                    opcodeName = "ADC ZP";
                     break;
                 case _ADC_ZERO_PAGE_X:
-                    opcodeName = "ADC Zero Page X";
+                    opcodeName = "ADC ZP,X";
                     break;
                 case _ADC_ABSOLUTE:
-                    opcodeName = "ADC Absolute";
+                    opcodeName = "ADC Abs";
                     break;
                 case _ADC_ABSOLUTE_X:
-                    opcodeName = "ADC Absolute X";
+                    opcodeName = "ADC Abs,X";
                     break;
                 case _ADC_ABSOLUTE_Y:
-                    opcodeName = "ADC Absolute Y";
+                    opcodeName = "ADC Abs,Y";
                     break;
                 case _ADC_INDIRECT_X:
-                    opcodeName = "ADC Indirect X";
+                    opcodeName = "ADC Ind,X";
                     break;
                 case _ADC_INDIRECT_Y:
-                    opcodeName = "ADC Indirect Y";
+                    opcodeName = "ADC Ind,Y";
                     break;
                 case _AND_IMMEDIATE:
-                    opcodeName = "AND Immediate";
+                    opcodeName = "AND Imm";
                     break;
                 case _AND_ZERO_PAGE:
-                    opcodeName = "AND Zero Page";
+                    opcodeName = "AND ZP";
                     break;
                 case _AND_ZERO_PAGE_X:
-                    opcodeName = "AND Zero Page X";
+                    opcodeName = "AND ZP,X";
                     break;
                 case _AND_ABSOLUTE:
-                    opcodeName = "AND Absolute";
+                    opcodeName = "AND Abs";
                     break;
                 case _AND_ABSOLUTE_X:
-                    opcodeName = "AND Absolute X";
+                    opcodeName = "AND Abs,X";
                     break;
                 case _AND_ABSOLUTE_Y:
-                    opcodeName = "AND Absolute Y";
+                    opcodeName = "AND Abs,Y";
                     break;
                 case _AND_INDIRECT_X:
-                    opcodeName = "AND Indirect X";
+                    opcodeName = "AND Ind,X";
                     break;
                 case _AND_INDIRECT_Y:
-                    opcodeName = "AND Indirect Y";
+                    opcodeName = "AND Ind,Y";
                     break;
                 case _ASL_ACCUMULATOR:
-                    opcodeName = "ASL Accumulator";
+                    opcodeName = "ASL Acc";
                     break;
                 case _ASL_ZERO_PAGE:
-                    opcodeName = "ASL Zero Page";
+                    opcodeName = "ASL ZP";
                     break;
                 case _ASL_ZERO_PAGE_X:
-                    opcodeName = "ASL Zero Page X";
+                    opcodeName = "ASL ZP,X";
                     break;
                 case _ASL_ABSOLUTE:
-                    opcodeName = "ASL Absolute";
+                    opcodeName = "ASL Abs";
                     break;
                 case _ASL_ABSOLUTE_X:
-                    opcodeName = "ASL Absolute X";
+                    opcodeName = "ASL Abs,X";
                     break;
                 case _BIT_ZERO_PAGE:
-                    opcodeName = "BIT Zero Page";
+                    opcodeName = "BIT ZP";
                     break;
                 case _BIT_ABSOLUTE:
-                    opcodeName = "BIT Absolute";
+                    opcodeName = "BIT Abs";
                     break;
                 case _BPL:
-                    opcodeName = "BPL";
+                    opcodeName = "BPL Rel";
                     break;
                 case _BMI:
-                    opcodeName = "BMI";
+                    opcodeName = "BMI Rel";
                     break;
                 case _BVC:
-                    opcodeName = "BVC";
+                    opcodeName = "BVC Rel";
                     break;
                 case _BVS:
-                    opcodeName = "BVS";
+                    opcodeName = "BVS Rel";
                     break;
                 case _BCC:
-                    opcodeName = "BCC";
+                    opcodeName = "BCC Rel";
                     break;
                 case _BCS:
-                    opcodeName = "BCS";
+                    opcodeName = "BCS Rel";
                     break;
                 case _BNE:
-                    opcodeName = "BNE";
+                    opcodeName = "BNE Rel";
                     break;
                 case _BEQ:
-                    opcodeName = "BEQ";
+                    opcodeName = "BEQ Rel";
                     break;
                 case _BRK:
-                    opcodeName = "BRK";
+                    opcodeName = "BRK Imp";
                     break;
                 case _CMP_IMMEDIATE:
-                    opcodeName = "CMP Immediate";
+                    opcodeName = "CMP Imm";
                     break;
                 case _CMP_ZERO_PAGE:
-                    opcodeName = "CMP Zero Page";
+                    opcodeName = "CMP ZP";
                     break;
                 case _CMP_ZERO_PAGE_X:
-                    opcodeName = "CMP Zero Page X";
+                    opcodeName = "CMP ZP,X";
                     break;
                 case _CMP_ABSOLUTE:
-                    opcodeName = "CMP Absolute";
+                    opcodeName = "CMP Abs";
                     break;
                 case _CMP_ABSOLUTE_X:
-                    opcodeName = "CMP Absolute X";
+                    opcodeName = "CMP Abs,X";
                     break;
                 case _CMP_ABSOLUTE_Y:
-                    opcodeName = "CMP Absolute Y";
+                    opcodeName = "CMP Abs,Y";
                     break;
                 case _CMP_INDIRECT_X:
-                    opcodeName = "CMP Indirect X";
+                    opcodeName = "CMP Ind,X";
                     break;
                 case _CMP_INDIRECT_Y:
-                    opcodeName = "CMP Indirect Y";
+                    opcodeName = "CMP Ind,Y";
                     break;
                 case _CPX_IMMEDIATE:
-                    opcodeName = "CPX Immediate";
+                    opcodeName = "CPX Imm";
                     break;
                 case _CPX_ZERO_PAGE:
-                    opcodeName = "CPX Zero Page";
+                    opcodeName = "CPX ZP";
                     break;
                 case _CPX_ABSOLUTE:
-                    opcodeName = "CPX Absolute";
+                    opcodeName = "CPX Abs";
                     break;
                 case _CPY_IMMEDIATE:
-                    opcodeName = "CPY Immediate";
+                    opcodeName = "CPY Imm";
                     break;
                 case _CPY_ZERO_PAGE:
-                    opcodeName = "CPY Zero Page";
+                    opcodeName = "CPY ZP";
                     break;
                 case _CPY_ABSOLUTE:
-                    opcodeName = "CPY Absolute";
+                    opcodeName = "CPY Abs";
                     break;
                 case _DEC_ZERO_PAGE:
-                    opcodeName = "DEC Zero Page";
+                    opcodeName = "DEC ZP";
                     break;
                 case _DEC_ZERO_PAGE_X:
-                    opcodeName = "DEC Zero Page X";
+                    opcodeName = "DEC ZP,X";
                     break;
                 case _DEC_ABSOLUTE:
-                    opcodeName = "DEC Absolute";
+                    opcodeName = "DEC Abs";
                     break;
                 case _DEC_ABSOLUTE_X:
-                    opcodeName = "DEC Absolute X";
+                    opcodeName = "DEC Abs,X";
                     break;
                 case _EOR_IMMEDIATE:
-                    opcodeName = "EOR Immediate";
+                    opcodeName = "EOR Imm";
                     break;
                 case _EOR_ZERO_PAGE:
-                    opcodeName = "EOR Zero Page";
+                    opcodeName = "EOR ZP";
                     break;
                 case _EOR_ZERO_PAGE_X:
-                    opcodeName = "EOR Zero Page X";
+                    opcodeName = "EOR ZP,X";
                     break;
                 case _EOR_ABSOLUTE:
-                    opcodeName = "EOR Absolute";
+                    opcodeName = "EOR Abs";
                     break;
                 case _EOR_ABSOLUTE_X:
-                    opcodeName = "EOR Absolute X";
+                    opcodeName = "EOR Abs,X";
                     break;
                 case _EOR_ABSOLUTE_Y:
-                    opcodeName = "EOR Absolute Y";
+                    opcodeName = "EOR Abs,Y";
                     break;
                 case _EOR_INDIRECT_X:
-                    opcodeName = "EOR Indirect X";
+                    opcodeName = "EOR Ind,X";
                     break;
                 case _EOR_INDIRECT_Y:
-                    opcodeName = "EOR Indirect Y";
+                    opcodeName = "EOR Ind,Y";
                     break;
                 case _CLC:
-                    opcodeName = "CLC";
+                    opcodeName = "CLC Imp";
                     break;
                 case _SEC:
-                    opcodeName = "SEC";
+                    opcodeName = "SEC Imp";
                     break;
                 case _CLI:
-                    opcodeName = "CLI";
+                    opcodeName = "CLI Imp";
                     break;
                 case _SEI:
-                    opcodeName = "SEI";
+                    opcodeName = "SEI Imp";
                     break;
                 case _CLV:
-                    opcodeName = "CLV";
+                    opcodeName = "CLV Imp";
                     break;
                 case _CLD:
-                    opcodeName = "CLD";
+                    opcodeName = "CLD Imp";
                     break;
                 case _SED:
-                    opcodeName = "SED";
+                    opcodeName = "SED Imp";
                     break;
                 case _INC_ZERO_PAGE:
-                    opcodeName = "INC Zero Page";
+                    opcodeName = "INC ZP";
                     break;
                 case _INC_ZERO_PAGE_X:
-                    opcodeName = "INC Zero Page X";
+                    opcodeName = "INC ZP,X";
                     break;
                 case _INC_ABSOLUTE:
-                    opcodeName = "INC Absolute";
+                    opcodeName = "INC Abs";
                     break;
                 case _INC_ABSOLUTE_X:
-                    opcodeName = "INC Absolute X";
+                    opcodeName = "INC Abs,X";
                     break;
                 case _JMP_ABSOLUTE:
-                    opcodeName = "JMP Absolute";
+                    opcodeName = "JMP Abs";
                     break;
                 case _JMP_INDIRECT:
-                    opcodeName = "JMP Indirect";
+                    opcodeName = "JMP Ind";
                     break;
                 case _JSR_ABSOLUTE:
-                    opcodeName = "JSR Absolute";
+                    opcodeName = "JSR Abs";
                     break;
                 case _LDA_IMMEDIATE:
-                    opcodeName = "LDA Immediate";
+                    opcodeName = "LDA Imm";
                     break;
                 case _LDA_ZERO_PAGE:
-                    opcodeName = "LDA Zero Page";
+                    opcodeName = "LDA ZP";
                     break;
                 case _LDA_ZERO_PAGE_X:
-                    opcodeName = "LDA Zero Page X";
+                    opcodeName = "LDA ZP,X";
                     break;
                 case _LDA_ABSOLUTE:
-                    opcodeName = "LDA Absolute";
+                    opcodeName = "LDA Abs";
                     break;
                 case _LDA_ABSOLUTE_X:
-                    opcodeName = "LDA Absolute X";
+                    opcodeName = "LDA Abs,X";
                     break;
                 case _LDA_ABSOLUTE_Y:
-                    opcodeName = "LDA Absolute Y";
+                    opcodeName = "LDA Abs,Y";
                     break;
                 case _LDA_INDIRECT_X:
-                    opcodeName = "LDA Indirect X";
+                    opcodeName = "LDA Ind,X";
                     break;
                 case _LDA_INDIRECT_Y:
-                    opcodeName = "LDA Indirect Y";
+                    opcodeName = "LDA Ind,Y";
                     break;
                 case _LDX_IMMEDIATE:
-                    opcodeName = "LDX Immediate";
+                    opcodeName = "LDX Imm";
                     break;
                 case _LDX_ZERO_PAGE:
-                    opcodeName = "LDX Zero Page";
+                    opcodeName = "LDX ZP";
                     break;
                 case _LDX_ZERO_PAGE_Y:
-                    opcodeName = "LDX Zero Page Y";
+                    opcodeName = "LDX ZP,Y";
                     break;
                 case _LDX_ABSOLUTE:
-                    opcodeName = "LDX Absolute";
+                    opcodeName = "LDX Abs";
                     break;
                 case _LDX_ABSOLUTE_Y:
-                    opcodeName = "LDX Absolute Y";
+                    opcodeName = "LDX Abs,Y";
                     break;
                 case _LDY_IMMEDIATE:
-                    opcodeName = "LDY Immediate";
+                    opcodeName = "LDY Imm";
                     break;
                 case _LDY_ZERO_PAGE:
-                    opcodeName = "LDY Zero Page";
+                    opcodeName = "LDY ZP";
                     break;
                 case _LDY_ZERO_PAGE_X:
-                    opcodeName = "LDY Zero Page X";
+                    opcodeName = "LDY ZP,X";
                     break;
                 case _LDY_ABSOLUTE:
-                    opcodeName = "LDY Absolute";
+                    opcodeName = "LDY Abs";
                     break;
                 case _LDY_ABSOLUTE_X:
-                    opcodeName = "LDY Absolute X";
+                    opcodeName = "LDY Abs,X";
                     break;
                 case _LSR_ACCUMULATOR:
-                    opcodeName = "LSR Accumulator";
+                    opcodeName = "LSR Acc";
                     break;
                 case _LSR_ZERO_PAGE:
-                    opcodeName = "LSR Zero Page";
+                    opcodeName = "LSR ZP";
                     break;
                 case _LSR_ZERO_PAGE_X:
-                    opcodeName = "LSR Zero Page X";
+                    opcodeName = "LSR ZP,X";
                     break;
                 case _LSR_ABSOLUTE:
-                    opcodeName = "LSR Absolute";
+                    opcodeName = "LSR Abs";
                     break;
                 case _LSR_ABSOLUTE_X:
-                    opcodeName = "LSR Absolute X";
+                    opcodeName = "LSR Abs,X";
                     break;
                 case _NOP:
-                    opcodeName = "NOP";
+                    opcodeName = "NOP Imp";
                     break;
                 case _ORA_IMMEDIATE:
-                    opcodeName = "ORA Immediate";
+                    opcodeName = "ORA Imm";
                     break;
                 case _ORA_ZERO_PAGE:
-                    opcodeName = "ORA Zero Page";
+                    opcodeName = "ORA ZP";
                     break;
                 case _ORA_ZERO_PAGE_X:
-                    opcodeName = "ORA Zero Page X";
+                    opcodeName = "ORA ZP,X";
                     break;
                 case _ORA_ABSOLUTE:
-                    opcodeName = "ORA Absolute";
+                    opcodeName = "ORA Abs";
                     break;
                 case _ORA_ABSOLUTE_X:
-                    opcodeName = "ORA Absolute X";
+                    opcodeName = "ORA Abs,X";
                     break;
                 case _ORA_ABSOLUTE_Y:
-                    opcodeName = "ORA Absolute Y";
+                    opcodeName = "ORA Abs,Y";
                     break;
                 case _ORA_INDIRECT_X:
-                    opcodeName = "ORA Indirect X";
+                    opcodeName = "ORA Ind,X";
                     break;
                 case _ORA_INDIRECT_Y:
-                    opcodeName = "ORA Indirect Y";
+                    opcodeName = "ORA Ind,Y";
                     break;
                 case _TAX:
-                    opcodeName = "TAX";
+                    opcodeName = "TAX Imp";
                     break;
                 case _TXA:
-                    opcodeName = "TXA";
+                    opcodeName = "TXA Imp";
                     break;
                 case _DEX:
-                    opcodeName = "DEX";
+                    opcodeName = "DEX Imp";
                     break;
                 case _INX:
-                    opcodeName = "INX";
+                    opcodeName = "INX Imp";
                     break;
                 case _TAY:
-                    opcodeName = "TAY";
+                    opcodeName = "TAY Imp";
                     break;
                 case _TYA:
-                    opcodeName = "TYA";
+                    opcodeName = "TYA Imp";
                     break;
                 case _DEY:
-                    opcodeName = "DEY";
+                    opcodeName = "DEY Imp";
                     break;
                 case _INY:
-                    opcodeName = "INY";
+                    opcodeName = "INY Imp";
                     break;
                 case _ROL_ACCUMULATOR:
-                    opcodeName = "ROL Accumulator";
+                    opcodeName = "ROL Acc";
                     break;
                 case _ROL_ZERO_PAGE:
-                    opcodeName = "ROL Zero Page";
+                    opcodeName = "ROL ZP";
                     break;
                 case _ROL_ZERO_PAGE_X:
-                    opcodeName = "ROL Zero Page X";
+                    opcodeName = "ROL ZP,X";
                     break;
                 case _ROL_ABSOLUTE:
-                    opcodeName = "ROL Absolute";
+                    opcodeName = "ROL Abs";
                     break;
                 case _ROL_ABSOLUTE_X:
-                    opcodeName = "ROL Absolute X";
+                    opcodeName = "ROL Abs,X";
                     break;
                 case _ROR_ACCUMULATOR:
-                    opcodeName = "ROR Accumulator";
+                    opcodeName = "ROR Acc";
                     break;
                 case _ROR_ZERO_PAGE:
-                    opcodeName = "ROR Zero Page";
+                    opcodeName = "ROR ZP";
                     break;
                 case _ROR_ZERO_PAGE_X:
-                    opcodeName = "ROR Zero Page X";
+                    opcodeName = "ROR ZP,X";
                     break;
                 case _ROR_ABSOLUTE:
-                    opcodeName = "ROR Absolute";
+                    opcodeName = "ROR Abs";
                     break;
                 case _ROR_ABSOLUTE_X:
-                    opcodeName = "ROR Absolute X";
+                    opcodeName = "ROR Abs,X";
                     break;
                 case _RTI_IMPLIED:
-                    opcodeName = "RTI Implied";
+                    opcodeName = "RTI Imp";
                     break;
                 case _RTS_IMPLIED:
-                    opcodeName = "RTS Implied";
+                    opcodeName = "RTS Imp";
                     break;
                 case _SBC_IMMEDIATE:
-                    opcodeName = "SBC Immediate";
+                    opcodeName = "SBC Imm";
                     break;
                 case _SBC_ZERO_PAGE:
-                    opcodeName = "SBC Zero Page";
+                    opcodeName = "SBC ZP";
                     break;
                 case _SBC_ZERO_PAGE_X:
-                    opcodeName = "SBC Zero Page X";
+                    opcodeName = "SBC ZP,X";
                     break;
                 case _SBC_ABSOLUTE:
-                    opcodeName = "SBC Absolute";
+                    opcodeName = "SBC Abs";
                     break;
                 case _SBC_ABSOLUTE_X:
-                    opcodeName = "SBC Absolute X";
+                    opcodeName = "SBC Abs,X";
                     break;
                 case _SBC_ABSOLUTE_Y:
-                    opcodeName = "SBC Absolute Y";
+                    opcodeName = "SBC Abs,Y";
                     break;
                 case _SBC_INDIRECT_X:
-                    opcodeName = "SBC Indirect X";
+                    opcodeName = "SBC Ind,X";
                     break;
                 case _SBC_INDIRECT_Y:
-                    opcodeName = "SBC Indirect Y";
+                    opcodeName = "SBC Ind,Y";
                     break;
                 case _STA_ZERO_PAGE:
-                    opcodeName = "STA Zero Page";
+                    opcodeName = "STA ZP";
                     break;
                 case _STA_ZERO_PAGE_X:
-                    opcodeName = "STA Zero Page X";
+                    opcodeName = "STA ZP,X";
                     break;
                 case _STA_ABSOLUTE:
-                    opcodeName = "STA Absolute";
+                    opcodeName = "STA Abs";
                     break;
                 case _STA_ABSOLUTE_X:
-                    opcodeName = "STA Absolute X";
+                    opcodeName = "STA Abs,X";
                     break;
                 case _STA_ABSOLUTE_Y:
-                    opcodeName = "STA Absolute Y";
+                    opcodeName = "STA Abs,Y";
                     break;
                 case _STA_INDIRECT_X:
-                    opcodeName = "STA Indirect X";
+                    opcodeName = "STA Ind,X";
                     break;
                 case _STA_INDIRECT_Y:
-                    opcodeName = "STA Indirect Y";
+                    opcodeName = "STA Ind,Y";
                     break;
                 case _TXS:
-                    opcodeName = "TXS";
+                    opcodeName = "TXS Imp";
                     break;
                 case _TSX:
-                    opcodeName = "TSX";
+                    opcodeName = "TSX Imp";
                     break;
                 case _PHA:
-                    opcodeName = "PHA";
+                    opcodeName = "PHA Imp";
                     break;
                 case _PLA:
-                    opcodeName = "PLA";
+                    opcodeName = "PLA Imp";
                     break;
                 case _PHP:
-                    opcodeName = "PHP";
+                    opcodeName = "PHP Imp";
                     break;
                 case _PLP:
-                    opcodeName = "PLP";
+                    opcodeName = "PLP Imp";
                     break;
                 case _STX_ZERO_PAGE:
-                    opcodeName = "STX Zero Page";
+                    opcodeName = "STX ZP";
                     break;
                 case _STX_ZERO_PAGE_Y:
-                    opcodeName = "STX Zero Page Y";
+                    opcodeName = "STX ZP,Y";
                     break;
                 case _STX_ABSOLUTE:
-                    opcodeName = "STX Absolute";
+                    opcodeName = "STX Abs";
                     break;
                 case _STY_ZERO_PAGE:
-                    opcodeName = "STY Zero Page";
+                    opcodeName = "STY ZP";
                     break;
                 case _STY_ZERO_PAGE_X:
-                    opcodeName = "STY Zero Page Y";
+                    opcodeName = "STY ZP,Y";
                     break;
                 case _STY_ABSOLUTE:
-                    opcodeName = "STY Absolute";
+                    opcodeName = "STY Abs";
                     break;
                 case _AAC_IMMEDIATE:
                 case _AAC_IMMEDIATE_ALT:
-                    opcodeName = "AAC Immediate (Illegal)";
+                    opcodeName = "AAC Imm (ill)";
                     break;
                 case _AAX_ZERO_PAGE:
-                    opcodeName = "AAX Zero Page (Illegal)";
+                    opcodeName = "AAX ZP (ill)";
                     break;
                 case _AAX_ZERO_PAGE_Y:
-                    opcodeName = "AAX Zero Page Y (Illegal)";
+                    opcodeName = "AAX ZP,Y (ill)";
                     break;
                 case _AAX_INDIRECT_X:
-                    opcodeName = "AAX Indirect X (Illegal)";
+                    opcodeName = "AAX Ind,X (ill)";
                     break;
                 case _AAX_ABSOLUTE:
-                    opcodeName = "AAX Absolute (Illegal)";
+                    opcodeName = "AAX Abs (ill)";
                     break;
                 case _ARR_IMMEDIATE:
-                    opcodeName = "AAR Immediate (Illegal)";
+                    opcodeName = "AAR Imm (ill)";
                     break;
                 case _ASR_IMMEDIATE:
-                    opcodeName = "ASR Immediate (Illegal)";
+                    opcodeName = "ASR Imm (ill)";
                     break;
                 case _ATX_IMMEDIATE:
-                    opcodeName = "ATX Immediate (Illegal)";
+                    opcodeName = "ATX Imm (ill)";
                     break;
                 case _AXA_ABSOLUTE_Y:
-                    opcodeName = "AXA Absolute Y (Illegal)";
+                    opcodeName = "AXA Abs,Y (ill)";
                     break;
                 case _AXA_INDIRECT_Y:
-                    opcodeName = "AXA Indirect Y (Illegal)";
+                    opcodeName = "AXA Ind,Y (ill)";
                     break;
                 case _AXS_IMMEDIATE:
-                    opcodeName = "AXS Immediate (Illegal)";
+                    opcodeName = "AXS Imm (ill)";
                     break;
                 case _DCP_ZERO_PAGE:
-                    opcodeName = "DCP Zero Page (Illegal)";
+                    opcodeName = "DCP ZP (ill)";
                     break;
                 case _DCP_ZERO_PAGE_X:
-                    opcodeName = "DCP Zero Page X (Illegal)";
+                    opcodeName = "DCP ZP,X (ill)";
                     break;
                 case _DCP_ABSOLUTE:
-                    opcodeName = "DCP Absolute (Illegal)";
+                    opcodeName = "DCP Abs (ill)";
                     break;
                 case _DCP_ABSOLUTE_X:
-                    opcodeName = "DCP Absolute X (Illegal)";
+                    opcodeName = "DCP Abs,X (ill)";
                     break;
                 case _DCP_ABSOLUTE_Y:
-                    opcodeName = "DCP Absolute Y (Illegal)";
+                    opcodeName = "DCP Abs,Y (ill)";
                     break;
                 case _DCP_INDIRECT_X:
-                    opcodeName = "DCP Indirect X (Illegal)";
+                    opcodeName = "DCP Ind,X (ill)";
                     break;
                 case _DCP_INDIRECT_Y:
-                    opcodeName = "DCP Indirect Y (Illegal)";
+                    opcodeName = "DCP Ind,Y (ill)";
                     break;
                 case _DOP_ZERO_PAGE:
                 case _DOP_ZERO_PAGE_ALT:
                 case _DOP_ZERO_PAGE_ALT_2:
-                    opcodeName = "DOP Zero Page (Illegal)";
+                    opcodeName = "DOP ZP (ill)";
                     break;
                 case _DOP_ZERO_PAGE_X:
                 case _DOP_ZERO_PAGE_X_ALT:
@@ -1046,35 +1046,35 @@ namespace DadsNESEmulator.NESHardware
                 case _DOP_ZERO_PAGE_X_ALT_3:
                 case _DOP_ZERO_PAGE_X_ALT_4:
                 case _DOP_ZERO_PAGE_X_ALT_5:
-                    opcodeName = "DOP Zero Page X (Illegal)";
+                    opcodeName = "DOP ZP,X (ill)";
                     break;
                 case _DOP_IMMEDIATE:
                 case _DOP_IMMEDIATE_ALT:
                 case _DOP_IMMEDIATE_ALT_2:
                 case _DOP_IMMEDIATE_ALT_3:
                 case _DOP_IMMEDIATE_ALT_4:
-                    opcodeName = "DOP Immediate (Illegal)";
+                    opcodeName = "DOP Imm (ill)";
                     break;
                 case _ISC_ZERO_PAGE:
-                    opcodeName = "ISC Zero Page (Illegal)";
+                    opcodeName = "ISC ZP (ill)";
                     break;
                 case _ISC_ZERO_PAGE_X:
-                    opcodeName = "ISC Zero Page X (Illegal)";
+                    opcodeName = "ISC ZP,X (ill)";
                     break;
                 case _ISC_ABSOLUTE:
-                    opcodeName = "ISC Absolute (Illegal)";
+                    opcodeName = "ISC Abs (ill)";
                     break;
                 case _ISC_ABSOLUTE_X:
-                    opcodeName = "ISC Absolute X (Illegal)";
+                    opcodeName = "ISC Abs,X (ill)";
                     break;
                 case _ISC_ABSOLUTE_Y:
-                    opcodeName = "ISC Absolute Y (Illegal)";
+                    opcodeName = "ISC Abs,Y (ill)";
                     break;
                 case _ISC_INDIRECT_X:
-                    opcodeName = "ISC Indirect X (Illegal)";
+                    opcodeName = "ISC Ind,X (ill)";
                     break;
                 case _ISC_INDIRECT_Y:
-                    opcodeName = "ISC Indirect Y (Illegal)";
+                    opcodeName = "ISC Ind,Y (ill)";
                     break;
                 case _KIL_IMPLIED:
                 case _KIL_IMPLIED_ALT:
@@ -1088,28 +1088,28 @@ namespace DadsNESEmulator.NESHardware
                 case _KIL_IMPLIED_ALT_9:
                 case _KIL_IMPLIED_ALT_10:
                 case _KIL_IMPLIED_ALT_11:
-                    opcodeName = "KIL Implied (Illegal)";
+                    opcodeName = "KIL Imp (ill)";
                     break;
                 case _LAR_ABSOLUTE_Y:
-                    opcodeName = "LAR Absolute Y (Illegal)";
+                    opcodeName = "LAR Abs,Y (ill)";
                     break;
                 case _LAX_ZERO_PAGE:
-                    opcodeName = "LAX Zero Page (Illegal)";
+                    opcodeName = "LAX ZP (ill)";
                     break;
                 case _LAX_ZERO_PAGE_Y:
-                    opcodeName = "LAX Zero Page X (Illegal)";
+                    opcodeName = "LAX ZP,X (ill)";
                     break;
                 case _LAX_ABSOLUTE:
-                    opcodeName = "LAX Absolute (Illegal)";
+                    opcodeName = "LAX Abs (ill)";
                     break;
                 case _LAX_ABSOLUTE_Y:
-                    opcodeName = "LAX Absolute Y (Illegal)";
+                    opcodeName = "LAX Abs,Y (ill)";
                     break;
                 case _LAX_INDIRECT_X:
-                    opcodeName = "LAX Indirect X (Illegal)";
+                    opcodeName = "LAX Ind,X (ill)";
                     break;
                 case _LAX_INDIRECT_Y:
-                    opcodeName = "LAX Indirect Y (Illegal)";
+                    opcodeName = "LAX Ind,Y (ill)";
                     break;
                 case _NOP_IMPLIED:
                 case _NOP_IMPLIED_ALT:
@@ -1117,100 +1117,100 @@ namespace DadsNESEmulator.NESHardware
                 case _NOP_IMPLIED_ALT_3:
                 case _NOP_IMPLIED_ALT_4:
                 case _NOP_IMPLIED_ALT_5:
-                    opcodeName = "NOP Implied (Illegal)";
+                    opcodeName = "NOP Imp (ill)";
                     break;
                 case _RLA_ZERO_PAGE:
-                    opcodeName = "RLA Zero Page (Illegal)";
+                    opcodeName = "RLA ZP (ill)";
                     break;
                 case _RLA_ZERO_PAGE_X:
-                    opcodeName = "RLA Zero Page X (Illegal)";
+                    opcodeName = "RLA ZP,X (ill)";
                     break;
                 case _RLA_ABSOLUTE:
-                    opcodeName = "RLA Absolute (Illegal)";
+                    opcodeName = "RLA Abs (ill)";
                     break;
                 case _RLA_ABSOLUTE_X:
-                    opcodeName = "RLA Absolute X (Illegal)";
+                    opcodeName = "RLA Abs,X (ill)";
                     break;
                 case _RLA_ABSOLUTE_Y:
-                    opcodeName = "RLA Absolute Y (Illegal)";
+                    opcodeName = "RLA Abs,Y (ill)";
                     break;
                 case _RLA_INDIRECT_X:
-                    opcodeName = "RLA Indirect X (Illegal)";
+                    opcodeName = "RLA Ind,X (ill)";
                     break;
                 case _RLA_INDIRECT_Y:
-                    opcodeName = "RLA Indirect Y (Illegal)";
+                    opcodeName = "RLA Ind,Y (ill)";
                     break;
                 case _RRA_ZERO_PAGE:
-                    opcodeName = "RRA Zero Page (Illegal)";
+                    opcodeName = "RRA ZP (ill)";
                     break;
                 case _RRA_ZERO_PAGE_X:
-                    opcodeName = "RRA Zero Page X (Illegal)";
+                    opcodeName = "RRA ZP,X (ill)";
                     break;
                 case _RRA_ABSOLUTE:
-                    opcodeName = "RRA Absolute (Illegal)";
+                    opcodeName = "RRA Abs (ill)";
                     break;
                 case _RRA_ABSOLUTE_X:
-                    opcodeName = "RRA Absolute X (Illegal)";
+                    opcodeName = "RRA Abs,X (ill)";
                     break;
                 case _RRA_ABSOLUTE_Y:
-                    opcodeName = "RRA Absolute Y (Illegal)";
+                    opcodeName = "RRA Abs,Y (ill)";
                     break;
                 case _RRA_INDIRECT_X:
-                    opcodeName = "RRA Indirect X (Illegal)";
+                    opcodeName = "RRA Ind,X (ill)";
                     break;
                 case _RRA_INDIRECT_Y:
-                    opcodeName = "RRA Indirect Y (Illegal)";
+                    opcodeName = "RRA Ind,Y (ill)";
                     break;
                 case _SBC_IMMEDIATE_ALT:
-                    opcodeName = "SBC Immediate (Illegal)";
+                    opcodeName = "SBC Imm (ill)";
                     break;
                 case _SLO_ZERO_PAGE:
-                    opcodeName = "SLO Zero Page (Illegal)";
+                    opcodeName = "SLO ZP (ill)";
                     break;
                 case _SLO_ZERO_PAGE_X:
-                    opcodeName = "SLO Zero Page X (Illegal)";
+                    opcodeName = "SLO ZP,X (ill)";
                     break;
                 case _SLO_ABSOLUTE:
-                    opcodeName = "SLO Absolute (Illegal)";
+                    opcodeName = "SLO Abs (ill)";
                     break;
                 case _SLO_ABSOLUTE_X:
-                    opcodeName = "SLO Absolute X (Illegal)";
+                    opcodeName = "SLO Abs,X (ill)";
                     break;
                 case _SLO_ABSOLUTE_Y:
-                    opcodeName = "SLO Absolute Y (Illegal)";
+                    opcodeName = "SLO Abs,Y (ill)";
                     break;
                 case _SLO_INDIRECT_X:
-                    opcodeName = "SLO Indirect X (Illegal)";
+                    opcodeName = "SLO Ind,X (ill)";
                     break;
                 case _SLO_INDIRECT_Y:
-                    opcodeName = "SLO Indirect Y (Illegal)";
+                    opcodeName = "SLO Ind,Y (ill)";
                     break;
                 case _SRE_ZERO_PAGE:
-                    opcodeName = "SRE Zero Page (Illegal)";
+                    opcodeName = "SRE ZP (ill)";
                     break;
                 case _SRE_ZERO_PAGE_X:
-                    opcodeName = "SRE Zero Page X (Illegal)";
+                    opcodeName = "SRE ZP,X (ill)";
                     break;
                 case _SRE_ABSOLUTE:
-                    opcodeName = "SRE Absolute (Illegal)";
+                    opcodeName = "SRE Abs (ill)";
                     break;
                 case _SRE_ABSOLUTE_X:
-                    opcodeName = "SRE Absolute X (Illegal)";
+                    opcodeName = "SRE Abs,X (ill)";
                     break;
                 case _SRE_ABSOLUTE_Y:
-                    opcodeName = "SRE Absolute Y (Illegal)";
+                    opcodeName = "SRE Abs,Y (ill)";
                     break;
                 case _SRE_INDIRECT_X:
-                    opcodeName = "SRE Indirect X (Illegal)";
+                    opcodeName = "SRE Ind,X (ill)";
                     break;
                 case _SRE_INDIRECT_Y:
-                    opcodeName = "SRE Indirect Y (Illegal)";
+                    opcodeName = "SRE Ind,Y (ill)";
                     break;
                 case _SXA_ABSOLUTE_Y:
-                    opcodeName = "SXA Absolute Y (Illegal)";
+                    opcodeName = "SXA Abs,Y (ill)";
                     break;
                 case _SYA_ABSOLUTE_X:
-                    opcodeName = "SYA Absolute X (Illegal)";
+                    opcodeName = "SYA Abs,X (ill)";
                     break;
                 case _TOP_ABSOLUTE:
                 case _TOP_ABSOLUTE_X:
@@ -1219,13 +1219,13 @@ namespace DadsNESEmulator.NESHardware
                 case _TOP_ABSOLUTE_X_ALT_3:
                 case _TOP_ABSOLUTE_X_ALT_4:
                 case _TOP_ABSOLUTE_X_ALT_5:
-                    opcodeName = "TOP Absolute (Illegal)";
+                    opcodeName = "TOP ABS (ill)";
                     break;
                 case _XAA_IMMEDIATE:
-                    opcodeName = "XAA Immediate (Illegal)";
+                    opcodeName = "XAA Imm (ill)";
                     break;
                 case _XAS_ABSOLUTE_Y:
-                    opcodeName = "XAS Absolute Y (Illegal)";
+                    opcodeName = "XAS ABS,Y (ill)";
                     break;
                 default:
                     opcodeName = "???";

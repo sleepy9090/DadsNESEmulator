@@ -154,6 +154,81 @@ namespace DadsNESEmulator.NESHardware
             set;
         }
 
+        #region Debugger properties
+
+        public string OpcodeName
+        {
+            get;
+            protected set;
+        }
+
+        public byte PreviousA
+        {
+            get;
+            protected set;
+        }
+
+        public byte PreviousX
+        {
+            get;
+            protected set;
+        }
+
+        public byte PreviousY
+        {
+            get;
+            protected set;
+        }
+
+        public byte PreviousP
+        {
+            get;
+            protected set;
+        }
+
+        public byte PreviousS
+        {
+            get;
+            protected set;
+        }
+
+        public uint PreviousCpuCycles
+        {
+            get;
+            protected set;
+        }
+
+        public string PreviousSL
+        {
+            get;
+            protected set;
+        }
+
+        public string TempByte1
+        {
+            get;
+            protected set;
+        }
+
+        public string TempByte2
+        {
+            get;
+            protected set;
+        }
+
+        public string TempByte3
+        {
+            get;
+            protected set;
+        }
+
+        public ushort PreviousPC
+        {
+            get;
+            protected set;
+        }
+        #endregion
+
         #endregion
 
         #region Class methods
@@ -249,8 +324,13 @@ namespace DadsNESEmulator.NESHardware
             RelativeAddress = 0x0000;
         }
 
-        public void Step()
+        public uint Step()
         {
+            uint currentCpuCycles = 0;
+            TempByte1 = "  ";
+            TempByte2 = "  ";
+            TempByte3 = "  ";
+
             /* @todo: NMI on PPU side */
             if (Nmi)
             {
@@ -258,20 +338,18 @@ namespace DadsNESEmulator.NESHardware
             }
             else
             {
-
-                Console.Write(PC.ToString("X") + "  ");
-
+                /** - Store previous values. */
+                PreviousPC = PC;
                 byte oldA = A;
                 byte oldX = X;
                 byte oldY = Y;
-
                 byte oldP = ConvertToByte(P);
                 byte oldS = S;
                 uint oldCPUCycles = CPUCycles;
-
-
+                
                 /** Set global for debugging or other uses for now. */
                 Opcode = ReadNextByte();
+                TempByte1 = Opcode.ToString("X2");
 
                 switch (Opcode)
                 {
@@ -1479,29 +1557,43 @@ namespace DadsNESEmulator.NESHardware
                 string opcodeName = Opcodes.GetOpcodeName(Opcode);
 
                 /* Church up the log. */
-                if (CurrentAddressMode == AddressModes.Immediate || CurrentAddressMode == AddressModes.ZeroPage
-                    || CurrentAddressMode == AddressModes.ZeroPageX || CurrentAddressMode == AddressModes.ZeroPageY
-                    || CurrentAddressMode == AddressModes.Relative ||CurrentAddressMode == AddressModes.Indirect
-                    || CurrentAddressMode == AddressModes.IndirectX || CurrentAddressMode == AddressModes.IndirectY)
-                {
-                    Console.Write("    ");
-                }
-                else if (CurrentAddressMode == AddressModes.Implied || CurrentAddressMode == AddressModes.Accumulator)
-                {
-                    Console.Write("        ");
-                }
+                //if (CurrentAddressMode == AddressModes.Immediate || CurrentAddressMode == AddressModes.ZeroPage
+                //    || CurrentAddressMode == AddressModes.ZeroPageX || CurrentAddressMode == AddressModes.ZeroPageY
+                //    || CurrentAddressMode == AddressModes.Relative
+                //    || CurrentAddressMode == AddressModes.IndirectX || CurrentAddressMode == AddressModes.IndirectY)
+                //{
+                //    Console.Write(@"    ");
+                //}
+                //else if (CurrentAddressMode == AddressModes.Implied || CurrentAddressMode == AddressModes.Accumulator)
+                //{
+                //    Console.Write(@"        ");
+                //}
 
-                Console.Write(opcodeName.PadRight(30));
+                Console.Write(PreviousPC.ToString("X4") + "  " + TempByte1.PadRight(2) + "  " + TempByte2.PadRight(2) + "  " + TempByte3.PadRight(2) + "  ");
+                Console.Write(opcodeName.PadRight(17));
                 // values before the opcode was processed so the log is easier to read
-                Console.Write("A:" + oldA.ToString("X2") + " ");
-                Console.Write("X:" + oldX.ToString("X2") + " ");
-                Console.Write("Y:" + oldY.ToString("X2") + " ");
-                Console.Write("P:" + oldP.ToString("X2") +
-                              " "); // flags are either not being processed correctly or not logged at the right time according to logs.
-                Console.Write("SP:" + oldS.ToString("X2") + " ");
-                Console.WriteLine("CYC:" + oldCPUCycles + " ");
-                //Console.WriteLine("SL:" + "scanline"); /* @todo implement sl when PPU completed */
+                Console.Write(@"A:" + oldA.ToString("X2") + @" ");
+                Console.Write(@"X:" + oldX.ToString("X2") + @" ");
+                Console.Write(@"Y:" + oldY.ToString("X2") + @" ");
+                Console.Write(@"P:" + oldP.ToString("X2") + @" ");
+                Console.Write(@"SP:" + oldS.ToString("X2") + @" ");
+                Console.WriteLine(@"CYC:" + oldCPUCycles + @" ");
+                //Console.WriteLine(@"SL:" + "scanline"); /* @todo implement sl when PPU completed */
+
+                OpcodeName = opcodeName;
+                PreviousA = oldA;
+                PreviousX = oldX;
+                PreviousY = oldY;
+                PreviousP = oldP;
+                PreviousS = oldS;
+                PreviousCpuCycles = oldCPUCycles;
+                //PreviousSL = 
+
+
+                currentCpuCycles = CPUCycles - oldCPUCycles;
             }
+
+            return currentCpuCycles;
         }
 
         private byte ReadNextByte()
@@ -1530,9 +1622,7 @@ namespace DadsNESEmulator.NESHardware
             //}
 
             
-            Console.Write(byteRead.ToString("X2").PadRight(4));
-            
-            
+            //Console.Write(byteRead.ToString("X2").PadRight(4));
 
             PC++;
 
@@ -2062,7 +2152,8 @@ namespace DadsNESEmulator.NESHardware
 
             /** - AbsoluteAddress is set in the ZeroPage, ZeroPageX, Absolute, AbsoluteX addressing. */
             Mem.WriteByte(AbsoluteAddress, byteRead);
-            
+
+            /** - Set the zero flag and negative flag. */
             SetZNStatusRegisterProcessorFlags(byteRead);
             
         }
@@ -2087,6 +2178,7 @@ namespace DadsNESEmulator.NESHardware
             /** - XOR values from the operand and the accumulator together */
             byteRead ^= A;
 
+            /** - Set the zero flag and negative flag. */
             SetZNStatusRegisterProcessorFlags(byteRead);
 
             /** - Store the Operand in the Accumulator Register. */
@@ -2226,6 +2318,7 @@ namespace DadsNESEmulator.NESHardware
             /** - AbsoluteAddress is set in the ZeroPage, ZeroPageX, Absolute, AbsoluteX addressing. */
             Mem.WriteByte(AbsoluteAddress, byteRead);
 
+            /** - Set the zero flag and negative flag. */
             SetZNStatusRegisterProcessorFlags(byteRead);
         }
 
@@ -2276,8 +2369,10 @@ namespace DadsNESEmulator.NESHardware
          */
         private void LDA()
         {
+            /** - Read the next byte. */
             byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
 
+            /** - Set the zero flag and negative flag. */
             SetZNStatusRegisterProcessorFlags(byteRead);
 
             /** - Stores the Operand in the Accumulator Register. */
@@ -2301,6 +2396,7 @@ namespace DadsNESEmulator.NESHardware
             /** - Read the next byte. */
             byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
 
+            /** - Set the zero flag and negative flag. */
             SetZNStatusRegisterProcessorFlags(byteRead);
 
             /** - Stores the Operand in the X Index Register. */
@@ -2324,6 +2420,7 @@ namespace DadsNESEmulator.NESHardware
             /** - Read the next byte. */
             byte byteRead = CurrentAddressMode == AddressModes.Immediate ? ImmediateByte : Mem.ReadByte(AbsoluteAddress);
 
+            /** - Set the zero flag and negative flag. */
             SetZNStatusRegisterProcessorFlags(byteRead);
 
             /** - Stores the Operand in the Y Index Register. */
@@ -2410,6 +2507,7 @@ namespace DadsNESEmulator.NESHardware
             /** - OR values from the byte read and the accumulator together */
             byteRead |= A;
 
+            /** - Set the zero flag and negative flag. */
             SetZNStatusRegisterProcessorFlags(byteRead);
 
             /** - Store the byte read in the Accumulator Register. */
@@ -2430,6 +2528,7 @@ namespace DadsNESEmulator.NESHardware
          */
         private void TAX()
         {
+            /** - Set the zero flag and negative flag. */
             SetZNStatusRegisterProcessorFlags(A);
 
             /** - Transfer accumulator to index X. */
@@ -2450,6 +2549,7 @@ namespace DadsNESEmulator.NESHardware
          */
         private void TXA()
         {
+            /** - Set the zero flag and negative flag. */
             SetZNStatusRegisterProcessorFlags(X);
 
             /** - Transfer index X to accumulator. */
@@ -2469,7 +2569,10 @@ namespace DadsNESEmulator.NESHardware
          */
         private void DEX()
         {
+            /** - Decrement X Register. */
             X--;
+
+            /** - Set the zero flag and negative flag. */
             SetZNStatusRegisterProcessorFlags(X);
         }
 
@@ -2950,14 +3053,7 @@ namespace DadsNESEmulator.NESHardware
             /** - Set the zero and negative flags */
             SetZNStatusRegisterProcessorFlags(A);
 
-            /** - Set the carry flag. */
-            SetStatusRegisterProcessorFlag(ProcessorFlags.V, A);
-            //P[0] = ((A & ((byte)ProcessorFlags.V)) != 0);
-
-
             /** - Set the overflow flag. */
-            //byte carryFlag = P[0] ? (byte)1 : (byte)0;
-            //SetStatusRegisterProcessorFlag(ProcessorFlags.R, (byte)(carryFlag ^ A));
             P[6] = P[0] ^ ((A & ((byte)ProcessorFlags.R)) != 0);
             
         }
@@ -3087,7 +3183,6 @@ namespace DadsNESEmulator.NESHardware
         {
             /** - Read the next byte. */
             byte byteRead = Mem.ReadByte(AbsoluteAddress);
-            //byte byteReadForCmp = byteRead;
 
             /** - DEC */
 
@@ -3098,12 +3193,10 @@ namespace DadsNESEmulator.NESHardware
             SetZNStatusRegisterProcessorFlags(byteRead);
 
             /** - CMP */
-
-            //byte tempByte = (byte)(A - byteReadForCmp);
+            
             byte tempByte = (byte)(A - byteRead);
 
             /** - Set the Carry flag. */
-            //P[0] = A >= byteReadForCmp;
             P[0] = A >= byteRead;
 
             /** - Set the Zero flag and Negative flag. */
@@ -3140,7 +3233,6 @@ namespace DadsNESEmulator.NESHardware
         {
             /** - Read the next byte. */
             byte byteRead = Mem.ReadByte(AbsoluteAddress);
-            //byte byteReadForSbc = byteRead;
 
             /** - INC */
             
@@ -3148,6 +3240,7 @@ namespace DadsNESEmulator.NESHardware
             
             Mem.WriteByte(AbsoluteAddress, byteRead);
 
+            /** - Set the zero flag and negative flag. */
             SetZNStatusRegisterProcessorFlags(byteRead);
 
             /** - SBC */
@@ -3156,7 +3249,6 @@ namespace DadsNESEmulator.NESHardware
             byte carryFlag = P[0] ? (byte)1 : (byte)0;
             
             /** - Add the accumulator, byte read, and carryFlag */
-            //int result = A - byteReadForSbc - (1 - carryFlag);
             int result = A - byteRead - (1 - carryFlag);
 
             byte oldA = A;
@@ -3171,7 +3263,6 @@ namespace DadsNESEmulator.NESHardware
             P[0] = result >= 0;
 
             /** - Set the overflow flag - Set if overflow in bit 7 */
-            //P[6] = (((oldA ^ byteReadForSbc) & 0x80) != 0 && ((oldA ^ A) & 0x80) != 0);
             P[6] = (((oldA ^ byteRead) & 0x80) != 0 && ((oldA ^ A) & 0x80) != 0);
         }
 
@@ -3231,10 +3322,10 @@ namespace DadsNESEmulator.NESHardware
         {
             /** - Read the next byte. */
             byte byteRead = Mem.ReadByte(AbsoluteAddress);
-            //byte byteReadForLdx = byteRead;
 
             /** - LDA */
 
+            /** - Set the zero flag and negative flag. */
             SetZNStatusRegisterProcessorFlags(byteRead);
 
             /** - Stores the Operand in the Accumulator Register. */
@@ -3242,11 +3333,10 @@ namespace DadsNESEmulator.NESHardware
 
             /** - LDX */
 
-            //SetZNStatusRegisterProcessorFlags(byteReadForLdx);
+            /** - Set the zero flag and negative flag. */
             SetZNStatusRegisterProcessorFlags(byteRead);
 
-            /** - Stores the Operand in the X Index Register. */
-            //X = byteReadForLdx;
+            /** - Store the Operand in the X Index Register. */
             X = byteRead;
         }
 
@@ -3265,7 +3355,6 @@ namespace DadsNESEmulator.NESHardware
         {
             /** - Read the next byte. */
             byte byteRead = Mem.ReadByte(AbsoluteAddress);
-            //byte byteReadForAnd = byteRead;
 
             /** - ROL */
 
@@ -3277,18 +3366,8 @@ namespace DadsNESEmulator.NESHardware
             /** - Left shift byte read 1 bit, OR with 10000000 00000000 depending on carry flag */
             byte byteRotated = (byte)((byteRead << 1) | (tempCarry ? 0x1 : 0x0));
 
-            /** - Write byte to memory or accumulator depending on address mode. */
-            //if (CurrentAddressMode == AddressModes.Accumulator)
-            //{
-            //    /** - Set accumulator to rotated byte. */
-            //    A = byteRotated;
-
-            //}
-            //else
-            //{
-                /** - Set memory to rotated byte. */
-                Mem.WriteByte(AbsoluteAddress, byteRotated);
-            //}
+            /** - Set memory to rotated byte. */
+            Mem.WriteByte(AbsoluteAddress, byteRotated);
 
             /** - Set the zero flag and negative flag. */
             SetZNStatusRegisterProcessorFlags(byteRotated);
@@ -3296,8 +3375,6 @@ namespace DadsNESEmulator.NESHardware
             /** - AND */
 
             /** - AND values from the operand and the accumulator together, store the result in the Accumulator Register. */
-            //A &= byteReadForAnd;
-            //A &= byteRead;
             A &= byteRotated;
 
             /** - Set the zero and negative flags */
@@ -3319,7 +3396,6 @@ namespace DadsNESEmulator.NESHardware
         {
             /** - Read the next byte. */
             byte byteRead = Mem.ReadByte(AbsoluteAddress);
-            //byte byteReadForAdc = byteRead;
 
             /** - ROR */
 
@@ -3331,17 +3407,8 @@ namespace DadsNESEmulator.NESHardware
             /** - Right shift byte read 1 bit, OR with 10000000  if carry flag true, else 00000000 for false carry flag */
             byte byteRotated = (byte)((byteRead >> 1) | (tempCarry ? 0x80 : 0x0));
 
-            /** - Write byte to memory or accumulator depending on address mode. */
-            //if (CurrentAddressMode == AddressModes.Accumulator)
-            //{
-            //    /** - Set accumulator to rotated byte. */
-            //    A = byteRotated;
-            //}
-            //else
-            //{
-                /** - Set memory to rotated byte. */
-                Mem.WriteByte(AbsoluteAddress, byteRotated);
-            //}
+            /** - Set memory to rotated byte. */
+            Mem.WriteByte(AbsoluteAddress, byteRotated);
 
             /** - Set the zero flag and negative flag. */
             SetZNStatusRegisterProcessorFlags(byteRotated);
@@ -3352,8 +3419,6 @@ namespace DadsNESEmulator.NESHardware
             byte carryFlag = P[0] ? (byte)1 : (byte)0;
 
             /** - Add the accumulator, byte read, and carryFlag */
-            //int result = A + byteReadForAdc + carryFlag;
-            //int result = A + byteRead + carryFlag;
             int result = A + byteRotated + carryFlag;
 
             byte oldA = A;
@@ -3368,8 +3433,6 @@ namespace DadsNESEmulator.NESHardware
             P[0] = result > 0xFF;
 
             /** - Set the overflow flag - Set if overflow in bit 7 */
-            //P[6] = (((oldA ^ byteReadForAdc) & 0x80) == 0 && ((oldA ^ A) & 0x80) != 0);
-            //P[6] = (((oldA ^ byteRead) & 0x80) == 0 && ((oldA ^ A) & 0x80) != 0);
             P[6] = (((oldA ^ byteRotated) & 0x80) == 0 && ((oldA ^ A) & 0x80) != 0);
         }
 
@@ -3388,7 +3451,6 @@ namespace DadsNESEmulator.NESHardware
         {
             /** - Read the next byte. */
             byte byteRead = Mem.ReadByte(AbsoluteAddress);
-            //byte byteReadForOra = byteRead;
 
             /* ASL */
 
@@ -3398,17 +3460,8 @@ namespace DadsNESEmulator.NESHardware
             /** - Shift left one bit. */
             byteRead <<= 1;
 
-            /** - Write byte to memory or accumulator depending on address mode. */
-            //if (CurrentAddressMode == AddressModes.Accumulator)
-            //{
-            //    /** - Set accumulator to shifted byte. */
-            //    A = byteRead;
-            //}
-            //else
-            //{
-                /** - Set memory to shifted byte. */
-                Mem.WriteByte(AbsoluteAddress, byteRead);
-            //}
+            /** - Set memory to shifted byte. */
+            Mem.WriteByte(AbsoluteAddress, byteRead);
 
             /** - Set the zero flag and negative flag. */
             SetZNStatusRegisterProcessorFlags(byteRead);
@@ -3416,15 +3469,12 @@ namespace DadsNESEmulator.NESHardware
             /* ORA */
 
             /** - OR values from the byte read and the accumulator together */
-            //byteReadForOra |= A;
             byteRead |= A;
 
             /** - Set the zero flag and negative flag. */
-            //SetZNStatusRegisterProcessorFlags(byteReadForOra);
             SetZNStatusRegisterProcessorFlags(byteRead);
 
             /** - Store the byte read in the Accumulator Register. */
-            //A = byteReadForOra;
             A = byteRead;
         }
 
@@ -3443,7 +3493,6 @@ namespace DadsNESEmulator.NESHardware
         {
             /** - Read the next byte. */
             byte byteRead = Mem.ReadByte(AbsoluteAddress);
-            //byte byteReadForEor = byteRead;
 
             /* LSR */
 
@@ -3453,17 +3502,8 @@ namespace DadsNESEmulator.NESHardware
             /** - Shift right one bit. */
             byteRead >>= 1;
 
-            /** - Write byte to memory or accumulator depending on address mode. */
-            //if (CurrentAddressMode == AddressModes.Accumulator)
-            //{
-            //    /** - Set accumulator to shifted byte. */
-            //    A = byteRead;
-            //}
-            //else
-            //{
-                /** - Set memory to shifted byte. */
-                Mem.WriteByte(AbsoluteAddress, byteRead);
-            //}
+            /** - Set memory to shifted byte. */
+            Mem.WriteByte(AbsoluteAddress, byteRead);
 
             /** - Set the zero flag and negative flag. */
             SetZNStatusRegisterProcessorFlags(byteRead);
@@ -3471,14 +3511,12 @@ namespace DadsNESEmulator.NESHardware
             /* EOR */
 
             /** - XOR values from the operand and the accumulator together */
-            //byteReadForEor ^= A;
             byteRead ^= A;
 
-            //SetZNStatusRegisterProcessorFlags(byteReadForEor);
+            /** - Set the zero flag and negative flag. */
             SetZNStatusRegisterProcessorFlags(byteRead);
 
             /** - Store the Operand in the Accumulator Register. */
-            //A = byteReadForEor;
             A = byteRead;
         }
 
@@ -3628,6 +3666,8 @@ namespace DadsNESEmulator.NESHardware
         {
             CurrentAddressMode = AddressModes.Immediate;
             ImmediateByte = ReadNextByte();
+
+            TempByte2 = ImmediateByte.ToString("X2");
         }
 
         private void Implied()
@@ -3645,7 +3685,10 @@ namespace DadsNESEmulator.NESHardware
         {
             CurrentAddressMode = AddressModes.ZeroPage;
 
-            ushort absoluteAddress = ReadNextByte();
+            ushort byteRead = ReadNextByte();
+            TempByte2 = byteRead.ToString("X2");
+
+            ushort absoluteAddress = byteRead;
             absoluteAddress &= 0x00FF;
             AbsoluteAddress = absoluteAddress;
         }
@@ -3654,7 +3697,10 @@ namespace DadsNESEmulator.NESHardware
         {
             CurrentAddressMode = AddressModes.ZeroPageX;
 
-            ushort absoluteAddress = (ushort)(ReadNextByte() + X);
+            ushort byteRead = ReadNextByte();
+            TempByte2 = byteRead.ToString("X2");
+
+            ushort absoluteAddress = (ushort)(byteRead + X);
             absoluteAddress &= 0x00FF;
             AbsoluteAddress = absoluteAddress;
         }
@@ -3663,7 +3709,10 @@ namespace DadsNESEmulator.NESHardware
         {
             CurrentAddressMode = AddressModes.ZeroPageY;
 
-            ushort absoluteAddress = (ushort)(ReadNextByte() + Y);
+            ushort byteRead = ReadNextByte();
+            TempByte2 = byteRead.ToString("X2");
+
+            ushort absoluteAddress = (ushort)(byteRead + Y);
             absoluteAddress &= 0x00FF;
             AbsoluteAddress = absoluteAddress;
         }
@@ -3674,7 +3723,10 @@ namespace DadsNESEmulator.NESHardware
 
             ushort low = ReadNextByte();
             ushort high = ReadNextByte();
-            
+
+            TempByte2 = low.ToString("X2");
+            TempByte3 = high.ToString("X2");
+
             ushort absoluteAddress = (ushort)((high << 8) | low);
             AbsoluteAddress = absoluteAddress;
         }
@@ -3685,6 +3737,9 @@ namespace DadsNESEmulator.NESHardware
 
             ushort low = ReadNextByte();
             ushort high = ReadNextByte();
+
+            TempByte2 = low.ToString("X2");
+            TempByte3 = high.ToString("X2");
 
             ushort absoluteAddress = (ushort)((high << 8) | low);
             absoluteAddress += X;
@@ -3711,6 +3766,9 @@ namespace DadsNESEmulator.NESHardware
 
             ushort low = ReadNextByte();
             ushort high = ReadNextByte();
+
+            TempByte2 = low.ToString("X2");
+            TempByte3 = high.ToString("X2");
 
             ushort absoluteAddress = (ushort)((high << 8) | low);
             absoluteAddress += Y;
@@ -3760,7 +3818,10 @@ namespace DadsNESEmulator.NESHardware
         {
             CurrentAddressMode = AddressModes.Relative;
 
-            ushort relativeAddress = ReadNextByte();
+            ushort byteRead = ReadNextByte();
+            TempByte2 = byteRead.ToString("X2");
+
+            ushort relativeAddress = byteRead;
             if ((relativeAddress & 0x80) != 0)
             {
                 relativeAddress |= 0xFF00;
@@ -3773,10 +3834,11 @@ namespace DadsNESEmulator.NESHardware
         {
             CurrentAddressMode = AddressModes.IndirectX;
 
-            ushort nextByte = ReadNextByte();
+            ushort byteRead = ReadNextByte();
+            TempByte2 = byteRead.ToString("X2");
 
-            ushort low = Mem.ReadByte((ushort)((ushort)(nextByte + X) & 0x00FF));
-            ushort high = Mem.ReadByte((ushort)((ushort)(nextByte + X + 1) & 0x00FF));
+            ushort low = Mem.ReadByte((ushort)((ushort)(byteRead + X) & 0x00FF));
+            ushort high = Mem.ReadByte((ushort)((ushort)(byteRead + X + 1) & 0x00FF));
 
             ushort absoluteAddress = (ushort)((high << 8) | low);
             AbsoluteAddress = absoluteAddress;
@@ -3786,10 +3848,11 @@ namespace DadsNESEmulator.NESHardware
         {
             CurrentAddressMode = AddressModes.IndirectY;
 
-            ushort nextByte = ReadNextByte();
+            ushort byteRead = ReadNextByte();
+            TempByte2 = byteRead.ToString("X2");
 
-            ushort low = Mem.ReadByte((ushort)(nextByte & 0x00FF));
-            ushort high = Mem.ReadByte((ushort)((ushort)(nextByte + 1) & 0x00FF));
+            ushort low = Mem.ReadByte((ushort)(byteRead & 0x00FF));
+            ushort high = Mem.ReadByte((ushort)((ushort)(byteRead + 1) & 0x00FF));
 
             ushort absoluteAddress = (ushort)((high << 8) | low);
             absoluteAddress += Y;
