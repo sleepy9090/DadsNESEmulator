@@ -63,6 +63,7 @@
     <Compile Include="NESHardware\CPU.cs" />
     <Compile Include="NESHardware\Memory.cs" />
     <Compile Include="NESHardware\PPU.cs" />
+    <Compile Include="NESHardware\PPUMemoryMap.cs" />
     <Compile Include="NESHardware\ProcessorFlags.cs" />
     <Compile Include="NESHardware\Opcodes.cs" />
     <Compile Include="NESHardware\MemoryMap.cs" />

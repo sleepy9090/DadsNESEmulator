@@ -10,11 +10,15 @@
  *  @note           N/A
  *
  */
+using System;
+
 namespace DadsNESEmulator.NESHardware
 {
     public class PPU
     {
-        /** - https://wiki.nesdev.com/w/index.php/PPU_registers */
+        /** - https://wiki.nesdev.com/w/index.php/PPU_registers
+         * https://en.wikibooks.org/wiki/NES_Programming/Memory_Map
+         */
 
         /**
          * Common Name  Address Bits        Notes
@@ -58,12 +62,80 @@ namespace DadsNESEmulator.NESHardware
 
         public byte ReadRegister(ushort address)
         {
-            return 0x0;
+            byte returnByte;
+
+            switch (address)
+            {
+                case _PPU_CTRL:
+                    returnByte = 0x0;
+                    break;
+                case _PPU_MASK:
+                    returnByte = 0x0;
+                    break;
+                case _PPU_STATUS:
+                    returnByte = 0x0;
+                    break;
+                case _OAM_ADDR:
+                    returnByte = 0x0;
+                    break;
+                case _OAM_DATA:
+                    returnByte = 0x0;
+                    break;
+                case _PPU_SCROLL:
+                    returnByte = 0x0;
+                    break;
+                case _PPU_ADDR:
+                    returnByte = 0x0;
+                    break;
+                case _PPU_DATA:
+                    returnByte = 0x0;
+                    break;
+                case _OAM_DMA:
+                    returnByte = 0x0;
+                    break;
+                default:
+                    Console.WriteLine(string.Format(@"Invalid read from PPU address: {0:X4}", address));
+                    throw new Exception(string.Format(@"Invalid read from PPU address: {0:X4}", address));
+            }
+
+            return returnByte;
         }
 
         public void WriteRegister(ushort address, byte value)
         {
-
+            switch (address)
+            {
+                case _PPU_CTRL:
+                    //value
+                    break;
+                case _PPU_MASK:
+                    //value
+                    break;
+                case _PPU_STATUS:
+                    //value
+                    break;
+                case _OAM_ADDR:
+                    //value
+                    break;
+                case _OAM_DATA:
+                    //value
+                    break;
+                case _PPU_SCROLL:
+                    //value
+                    break;
+                case _PPU_ADDR:
+                    //value
+                    break;
+                case _PPU_DATA:
+                    //value
+                    break;
+                case _OAM_DMA:
+                    //value
+                    break;
+                default:
+                    Console.WriteLine(string.Format(@"Invalid write to PPU address: {0:X4} byte: {1:X2}", address, value));
+                    throw new Exception(string.Format(@"Invalid write to PPU address: {0:X4} byte: {1:X2}", address, value));
+            }
         }
     }
 }
