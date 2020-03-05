@@ -10,7 +10,6 @@
  *  @note           N/A
  *
  */
-
 using System;
 using System.Collections;
 using System.Text;
@@ -18,7 +17,7 @@ using DadsNESEmulator.Types;
 
 namespace DadsNESEmulator.NESHardware
 {
-    /** @brief  Class that defines the NMOS6502 CPU. */
+    /** @brief  Class that defines the MOS6502 (lacking decimal mode) CPU portion of the 2A03 (RP2A03[G]) NTSC NES CPU. */
     public class CPU
     {
         /** - https://wiki.nesdev.com/w/index.php/CPU_interrupts */
@@ -94,47 +93,49 @@ namespace DadsNESEmulator.NESHardware
             protected set;
         }
 
+        /** - @brief Memory map to use. */
         public MemoryMap Mem
         {
             get;
             protected set;
         }
 
+        /** - @brief CPU cycles. */
         public uint CPUCycles
         {
             get;
             protected set;
         }
 
-        public uint ClockCount
-        {
-            get;
-            protected set;
-        }
-
+        /** - @brief Opcode. */
         public byte Opcode
         {
             get;
             protected set;
         }
 
+        /** - @brief The absolute address. */
         public ushort AbsoluteAddress
         {
             get;
             protected set;
         }
+
+        /** - @brief The relative address. */
         public ushort RelativeAddress
         {
             get;
             protected set;
         }
 
+        /** - @brief The current address mode. */
         public AddressModes CurrentAddressMode
         {
             get;
             protected set;
         }
 
+        /** - @brief The immediate byte. */
         public byte ImmediateByte
         {
             get;
@@ -148,6 +149,7 @@ namespace DadsNESEmulator.NESHardware
             set;
         }
 
+        /** - If reset button was pressed. */
         public bool ResetPressed
         {
             get;
@@ -156,88 +158,121 @@ namespace DadsNESEmulator.NESHardware
 
         #region Debugger properties
 
+        /** - @brief The opcode mnemonic name. */
         public string OpcodeName
         {
             get;
             protected set;
         }
 
+        /** - @brief The previous A register value. */
         public byte PreviousA
         {
             get;
             protected set;
         }
 
+        /** - @brief The previous X register value. */
         public byte PreviousX
         {
             get;
             protected set;
         }
 
+        /** - @brief The previous Y register value. */
         public byte PreviousY
         {
             get;
             protected set;
         }
 
+        /** - @brief The previous processor flag value. */
         public byte PreviousP
         {
             get;
             protected set;
         }
 
+        /** - @brief The previous S register value. */
         public byte PreviousS
         {
             get;
             protected set;
         }
 
+        /** - @brief The previous cpu cycle count. */
         public uint PreviousCpuCycles
         {
             get;
             protected set;
         }
 
+        /** - @brief The previous scanline. */
         public string PreviousSL
         {
             get;
             protected set;
         }
 
+        /** - @brief Temp byte. */
         public string TempByte1
         {
             get;
             protected set;
         }
 
+        /** - @brief Temp byte. */
         public string TempByte2
         {
             get;
             protected set;
         }
 
+        /** - @brief Temp byte. */
         public string TempByte3
         {
             get;
             protected set;
         }
 
+        /** - @brief The previous program counter. */
         public ushort PreviousPC
         {
             get;
             protected set;
         }
+
         #endregion
 
         #endregion
 
         #region Class methods
 
+        /**
+         * @brief   This method is the class constructor.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         public CPU()
         {
 
         }
 
+        /**
+         * @brief   This method handles CPU power on.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         public void Power(MemoryMap mem)
         {
             /** - https://wiki.nesdev.com/w/index.php/CPU_power_up_state */
@@ -266,7 +301,6 @@ namespace DadsNESEmulator.NESHardware
 
             /** - Power up cycles */
             CPUCycles = 7;
-            ClockCount = 0;
             AbsoluteAddress = 0x0000;
             RelativeAddress = 0x0000;
             Mem = mem;
@@ -289,10 +323,18 @@ namespace DadsNESEmulator.NESHardware
 
         }
 
+        /**
+         * @brief   This method handles CPU reset.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         public void Reset()
         {
-            KIL(true);
-
             /**
              * A, X, Y were not affected
              * S was decremented by 3 (but nothing was written to the stack)
@@ -309,21 +351,30 @@ namespace DadsNESEmulator.NESHardware
             P = new BitArray(new byte[] { 0x24 });
 
             /* - Nes Test - automated mode (for testing with no video/audio implemented) for nestest.nes test ROM */
-            PC = Mem.ReadByte(0xC000);
+            PC = 0xC000;
 
             /* - Nes Test - non-automated mode for nestest.nes test ROM */
-            //PC = Mem.ReadByte(0xC004);
+            //PC = 0xC004;
 
             /* Set PC from 16-bit address 0xFFFC-0xFFFD */
             //PC = Mem.ReadShort(_RESET_VECTOR_ADDRESS);
 
             /** - Reset cycles? */
             CPUCycles = 7;
-            ClockCount = 0;
             AbsoluteAddress = 0x0000;
             RelativeAddress = 0x0000;
         }
 
+        /**
+         * @brief   This method processes a single opcode.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         public uint Step()
         {
             uint currentCpuCycles = 0;
@@ -334,7 +385,7 @@ namespace DadsNESEmulator.NESHardware
             /* @todo: NMI on PPU side */
             if (Nmi)
             {
-                NMI();
+                NMI(); // 7 cycles?
             }
             else
             {
@@ -3276,14 +3327,11 @@ namespace DadsNESEmulator.NESHardware
          * @note    N/A
          * 
          */
-        private void KIL(bool resetPressed = false)
+        private void KIL()
         {
-            if (false == resetPressed)
-            {
-                /* Processor locked up. Hang until reset is pressed. (or maybe just stop emulation entirely) */
-                //PC stays the same.
-                KIL();
-            }
+            /* Processor locked up. Hang until reset is pressed. (or maybe just stop emulation entirely) */
+            //PC stays the same.
+
         }
 
         /**
@@ -3646,8 +3694,17 @@ namespace DadsNESEmulator.NESHardware
         #endregion
 
         #region Class Methods (Addressing modes)
-        
 
+        /**
+         * @brief   Accumulator - The operand is the accumulator itself.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void Accumulator()
         {
             CurrentAddressMode = AddressModes.Accumulator;
@@ -3662,6 +3719,16 @@ namespace DadsNESEmulator.NESHardware
 
         }
 
+        /**
+         * @brief   Immediate - The operand is the byte following the opcode.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void Immediate()
         {
             CurrentAddressMode = AddressModes.Immediate;
@@ -3670,6 +3737,16 @@ namespace DadsNESEmulator.NESHardware
             TempByte2 = ImmediateByte.ToString("X2");
         }
 
+        /**
+         * @brief   Implied - The operand is indicated in the mnemonic.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void Implied()
         {
             CurrentAddressMode = AddressModes.Implied;
@@ -3681,6 +3758,16 @@ namespace DadsNESEmulator.NESHardware
              */
         }
 
+        /**
+         * @brief   ZeroPage - The byte following the opcode is the address on page 0 of the operand.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void ZeroPage()
         {
             CurrentAddressMode = AddressModes.ZeroPage;
@@ -3693,6 +3780,17 @@ namespace DadsNESEmulator.NESHardware
             AbsoluteAddress = absoluteAddress;
         }
 
+        /**
+         * @brief   ZeroPage with X Indexing - The byte following the opcode is added to register X to give the address on page 0 of the operand.
+         *                                     If it overflows, it wraps around in the zero/direct page.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void ZeroPageXIndex()
         {
             CurrentAddressMode = AddressModes.ZeroPageX;
@@ -3705,6 +3803,17 @@ namespace DadsNESEmulator.NESHardware
             AbsoluteAddress = absoluteAddress;
         }
 
+        /**
+         * @brief   ZeroPage with Y Indexing - The byte following the opcode is added to register Y to give the address on page 0 of the operand.
+         *                                     If it overflows, it wraps around in the zero/direct page.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void ZeroPageYIndex()
         {
             CurrentAddressMode = AddressModes.ZeroPageY;
@@ -3717,6 +3826,16 @@ namespace DadsNESEmulator.NESHardware
             AbsoluteAddress = absoluteAddress;
         }
 
+        /**
+         * @brief   Absolute - The word following the opcode is the address of the operand.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void Absolute()
         {
             CurrentAddressMode = AddressModes.Absolute;
@@ -3731,6 +3850,16 @@ namespace DadsNESEmulator.NESHardware
             AbsoluteAddress = absoluteAddress;
         }
 
+        /**
+         * @brief   Absolute with X Indexing - The word following the opcode is added to register X (as an unsigned word) to give the address of the operand. If it overflows, it wraps around.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void AbsoluteXIndex()
         {
             CurrentAddressMode = AddressModes.AbsoluteX;
@@ -3760,6 +3889,16 @@ namespace DadsNESEmulator.NESHardware
             AbsoluteAddress = absoluteAddress;
         }
 
+        /**
+         * @brief   Absolute with Y Indexing - The word following the opcode is added to register Y (as an unsigned word) to give the address of the operand. If it overflows, it wraps around.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void AbsoluteYIndex()
         {
             CurrentAddressMode = AddressModes.AbsoluteY;
@@ -3788,6 +3927,16 @@ namespace DadsNESEmulator.NESHardware
             AbsoluteAddress = absoluteAddress;
         }
 
+        /**
+         * @brief   Indirect - The word following the opcode is the address of a word which is the address of the operand.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void Indirect()
         {
             CurrentAddressMode = AddressModes.Indirect;
@@ -3800,7 +3949,12 @@ namespace DadsNESEmulator.NESHardware
 
             ushort lowByte = Mem.ReadByte(pointer);
 
-            /** - Simulate page boundary hardware bug. */
+            /** - Simulate page boundary hardware bug.
+             * There is a bug in the 6502 that causes this addressing mode to workimproperly in s ome cases. If the jump
+             * operation is accessing the last byte of a page (ie, $xxFF), then the high byte will be accessed at $00 of
+             * that page, instead of $00 of the next page. eg, JMP ($21FF) will grab the low byte from $21FF and the high
+             * byte from $2100 instead of $2200 as would be expected.
+             */
             if (pointerLow == 0x00FF)
             {
                 absoluteAddress = (ushort)((Mem.ReadByte((ushort)(pointer & 0xFF00)) << 8) | lowByte);
@@ -3814,6 +3968,20 @@ namespace DadsNESEmulator.NESHardware
             AbsoluteAddress = absoluteAddress;
         }
 
+        /**
+         * @brief   Relative - The byte following the opcode is added (as a signed word) to the Program Counter to give
+         *                     the address of the operand. Sincethis only uses a "signed byte", RELATIVE only gives us
+         *                     a range of -128 to 127 for branching. Note that PC is modified AFTER it has passed the
+         *                     current instruction. So, if at $1234 in memory, there is a BEQ $04 (2 bytes), PC would
+         *                     be $1236 before adding the relative value, and $123A after.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    Only used by branch statements.
+         * 
+         */
         private void Relative()
         {
             CurrentAddressMode = AddressModes.Relative;
@@ -3830,6 +3998,17 @@ namespace DadsNESEmulator.NESHardware
             RelativeAddress = relativeAddress;
         }
 
+        /**
+         * @brief   Indirect with X Pre-Indexing - The byte following the opcode is added to register X to give the address
+         *                                         on page 0 which contains the address of the operand.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void IndirectXIndex()
         {
             CurrentAddressMode = AddressModes.IndirectX;
@@ -3844,6 +4023,17 @@ namespace DadsNESEmulator.NESHardware
             AbsoluteAddress = absoluteAddress;
         }
 
+        /**
+         * @brief   Indirect with Y Post-Indexing - The byte following the opcode is an address on page 0. This word at this address
+         *                                          is added to register Y (as an unsigned word) to give the address of the operand.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void IndirectYIndex()
         {
             CurrentAddressMode = AddressModes.IndirectY;
@@ -3873,7 +4063,18 @@ namespace DadsNESEmulator.NESHardware
 
         #endregion
 
-
+        /**
+         * @brief   Sets the status register processor flags.
+         *
+         * @param   value = The value to use to set the flags.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void SetStatusRegisterProcessorFlags(byte value)
         {
             /** - @brief Status Register bits. */
@@ -3890,8 +4091,19 @@ namespace DadsNESEmulator.NESHardware
             P[0] = (value & (byte)ProcessorFlags.C) != 0; /* Carry */
         }
 
+        /**
+         * @brief   Non-Maskable Interrupt - Can be called by hardware and is not maskable even by I (Interrupt Disable flag)
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void NMI()
         {
+            // 7 cycles?
             Nmi = false;
 
             Push16(PC);
@@ -3906,6 +4118,19 @@ namespace DadsNESEmulator.NESHardware
             PC = Mem.ReadShort(_NMI_VECTOR_ADDRESS);
         }
 
+        /**
+         * @brief   Sets a status register processor flag.
+         *
+         * @param   processorFlag = The flag to set
+         * @param   value         = The value to use to set the flag.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void SetStatusRegisterProcessorFlag(ProcessorFlags processorFlag, byte value)
         {
             switch (processorFlag)
@@ -3939,7 +4164,7 @@ namespace DadsNESEmulator.NESHardware
         }
 
         /**
-         * @brief   This method sets the Negative and Zero status register processor flags usign the passed in value.
+         * @brief   This method sets the Negative and Zero status register processor flags using the passed in value.
          *
          * @param   value = The value to test to set the flags.
          *
@@ -3960,6 +4185,18 @@ namespace DadsNESEmulator.NESHardware
             
         }
 
+        /**
+         * @brief   This method converts a bit array into a byte.
+         *
+         * @param   bits = The bit array to convert to byte.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private byte ConvertToByte(BitArray bits)
         {
             if (bits.Count != 8)
@@ -3971,21 +4208,69 @@ namespace DadsNESEmulator.NESHardware
             return bytes[0];
         }
 
-        byte[] ConvertToBytes(ushort value)
+        /**
+         * @brief   This method converts a ushort value into a byte array.
+         *
+         * @param   value = The value to convert to a byte array.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
+        byte[] ConvertUshortToBytes(ushort value)
         {
             return new[] { (byte)(value >> 8), (byte)value };
         }
 
-        private void Push(ushort value)
-        {
-            Push(ConvertToBytes(value));
-        }
-
+        /**
+         * @brief   This method converts a byte array into a ushort.
+         *
+         * @param   bits = The byte array to convert to a ushort.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private ushort ConvertFromBytes(byte b1, byte b2)
         {
             return (ushort)((b1 | b2) << 8);
         }
 
+        /**
+         * @brief   This method pushes a ushort value on the stack.
+         *
+         * @param   value = The ushort value to push on the stack.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
+        private void Push(ushort value)
+        {
+            Push(ConvertUshortToBytes(value));
+        }
+
+        /**
+         * @brief   This method pushes byte array values on the stack.
+         *
+         * @param   value = The byte array values to push on the stack.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void Push(byte[] value)
         {
             foreach (byte b in value)
@@ -3995,18 +4280,52 @@ namespace DadsNESEmulator.NESHardware
 
         }
 
+        /**
+         * @brief   This method pushes a byte on the stack.
+         *
+         * @param   value = The byte value to push on the stack.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void Push(byte value)
         {
             Mem.WriteByte((ushort)(STACK_ADDRESS + S), value);
             S--;
         }
 
+        /**
+         * @brief   This method pushes a ushort (word) value on the stack.
+         *
+         * @param   value = The ushort (word) value to push on the stack.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private void Push16(ushort value)
         {
             Mem.WriteShort((ushort)(STACK_ADDRESS + (S - 1)), value);
             S -= 2;
         }
 
+        /**
+         * @brief   This method pops a byte value off the stack.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private byte Pop()
         {
             S++;
@@ -4014,6 +4333,16 @@ namespace DadsNESEmulator.NESHardware
             return value;
         }
 
+        /**
+         * @brief   This method pops a ushort (word) value off the stack.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private ushort Pop16()
         {
             S += 2;
@@ -4022,6 +4351,16 @@ namespace DadsNESEmulator.NESHardware
             return value;
         }
 
+        /**
+         * @brief   This method pops a byte value (processor status) off the stack.
+         *
+         * @return  N/A
+         *
+         * @author  Shawn M. Crawford
+         *
+         * @note    N/A
+         * 
+         */
         private byte PopProcessorStatus()
         {
             /** - Ensure that break flag is not set and get the processor status off the stack. */

@@ -56,6 +56,7 @@
             this.textBoxCpuCycles = new System.Windows.Forms.TextBox();
             this.buttonReset = new System.Windows.Forms.Button();
             this.buttonClear = new System.Windows.Forms.Button();
+            this.buttonPause = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -281,7 +282,7 @@
             // 
             // buttonStep
             // 
-            this.buttonStep.Location = new System.Drawing.Point(700, 77);
+            this.buttonStep.Location = new System.Drawing.Point(700, 96);
             this.buttonStep.Name = "buttonStep";
             this.buttonStep.Size = new System.Drawing.Size(75, 23);
             this.buttonStep.TabIndex = 6;
@@ -316,7 +317,7 @@
             // 
             // buttonReset
             // 
-            this.buttonReset.Location = new System.Drawing.Point(700, 47);
+            this.buttonReset.Location = new System.Drawing.Point(700, 70);
             this.buttonReset.Name = "buttonReset";
             this.buttonReset.Size = new System.Drawing.Size(75, 23);
             this.buttonReset.TabIndex = 11;
@@ -326,7 +327,7 @@
             // 
             // buttonClear
             // 
-            this.buttonClear.Location = new System.Drawing.Point(700, 106);
+            this.buttonClear.Location = new System.Drawing.Point(700, 387);
             this.buttonClear.Name = "buttonClear";
             this.buttonClear.Size = new System.Drawing.Size(75, 23);
             this.buttonClear.TabIndex = 12;
@@ -334,11 +335,22 @@
             this.buttonClear.UseVisualStyleBackColor = true;
             this.buttonClear.Click += new System.EventHandler(this.buttonClear_Click);
             // 
+            // buttonPause
+            // 
+            this.buttonPause.Location = new System.Drawing.Point(700, 44);
+            this.buttonPause.Name = "buttonPause";
+            this.buttonPause.Size = new System.Drawing.Size(75, 23);
+            this.buttonPause.TabIndex = 14;
+            this.buttonPause.Text = "&Pause";
+            this.buttonPause.UseVisualStyleBackColor = true;
+            this.buttonPause.Click += new System.EventHandler(this.buttonPause_Click);
+            // 
             // FormDebugger
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(784, 450);
+            this.Controls.Add(this.buttonPause);
             this.Controls.Add(this.buttonClear);
             this.Controls.Add(this.buttonReset);
             this.Controls.Add(this.groupBox4);
@@ -394,5 +406,6 @@
         private System.Windows.Forms.TextBox textBoxCpuCycles;
         private System.Windows.Forms.Button buttonReset;
         private System.Windows.Forms.Button buttonClear;
+        private System.Windows.Forms.Button buttonPause;
     }
 }
