@@ -67,7 +67,8 @@ namespace DadsNESEmulator
                 nesProgramBytesToLoad = new ArraySegment<byte>(nesProgramBytes, 0x0000, nesProgramBytes.Length).ToArray();
             }
 
-            PPU ppu = new PPU();
+            PPUMemoryMap ppuMemoryMap = new PPUMemoryMap();
+            PPU ppu = new PPU(ppuMemoryMap);
             MemoryMap memoryMap = new MemoryMap(ppu);
             //memoryMap.LoadROM(nesProgramBytes);
             memoryMap.LoadROM(nesProgramBytesToLoad, cartridge.PRGROMSize, cartridge.PRGROMSizeLSB, cartridge.CHRROMSize, cartridge.CHRROMSizeLSB);

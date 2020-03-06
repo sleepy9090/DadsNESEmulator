@@ -394,7 +394,7 @@ namespace DadsNESEmulator.NESHardware
                 byte oldA = A;
                 byte oldX = X;
                 byte oldY = Y;
-                byte oldP = ConvertToByte(P);
+                byte oldP = ConvertBitArrayToByte(P);
                 byte oldS = S;
                 uint oldCPUCycles = CPUCycles;
                 
@@ -2088,7 +2088,7 @@ namespace DadsNESEmulator.NESHardware
             /** - Set the Interrupt Flag to temporarily prevent other IRQs from being executed. */
             P[2] = true;
 
-            byte statusRegister = ConvertToByte(P);
+            byte statusRegister = ConvertBitArrayToByte(P);
             /** - Set reserved and B flags (only for push) */
             //P[4] = true;
             //P[5] = true;
@@ -2980,7 +2980,7 @@ namespace DadsNESEmulator.NESHardware
          */
         private void PHP()
         {
-            byte statusRegister = ConvertToByte(P);
+            byte statusRegister = ConvertBitArrayToByte(P);
             Push((byte)(statusRegister | 16));
             //Push((byte)(GetStatus() | 16));
         }
@@ -4107,7 +4107,7 @@ namespace DadsNESEmulator.NESHardware
             Nmi = false;
 
             Push16(PC);
-            byte statusRegister = ConvertToByte(P);
+            byte statusRegister = ConvertBitArrayToByte(P);
             /** - Set reserved and B flag (only for push) */
             //P[5] = true;
             //P[4] = false;
@@ -4197,7 +4197,7 @@ namespace DadsNESEmulator.NESHardware
          * @note    N/A
          * 
          */
-        private byte ConvertToByte(BitArray bits)
+        private byte ConvertBitArrayToByte(BitArray bits)
         {
             if (bits.Count != 8)
             {
@@ -4417,7 +4417,7 @@ namespace DadsNESEmulator.NESHardware
                                      + "A: 0x" + A.ToString("X2") + " "
                                      + "X: 0x" + X.ToString("X2") + " "
                                      + "Y: 0x" + Y.ToString("X2") + " "
-                                     + "P: 0x" + ConvertToByte(P).ToString("X2") + " "
+                                     + "P: 0x" + ConvertBitArrayToByte(P).ToString("X2") + " "
                                      + "SP: 0x" + S.ToString("X2") + " "
                                      + "CYC:" + CPUCycles + " "
                                      + "Relative address: 0x" + RelativeAddress.ToString("X4") + " "

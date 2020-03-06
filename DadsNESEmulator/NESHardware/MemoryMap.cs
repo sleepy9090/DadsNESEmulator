@@ -1,6 +1,6 @@
 ﻿/**
  *  @file           MemoryMap.cs
- *  @brief          Defines the Memory Map (NES RAM/ROM).
+ *  @brief          Defines the 2A03 CPU Memory Map (NES RAM/ROM).
  *  
  *  @copyright      2019
  *  @date           11/05/2019
@@ -16,7 +16,7 @@ using System.Linq;
 
 namespace DadsNESEmulator.NESHardware
 {
-    /** @brief  Class for defining the Memory Map (NES RAM/ROM). */
+    /** @brief  Class for defining the 2A03 CPU Memory Map (NES RAM/ROM). */
     public class MemoryMap
     {
         /** - Reference:
